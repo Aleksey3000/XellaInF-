@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Офлайн Календарь</title>
+    <style>
+    /* style.css */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative; /* For modal positioning */
+}
+
+header {
+    background-color: #6a0dad; /* Фиолетовый */
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.schedule-controls {
+    margin-top: 0.5rem;
+}
+
+#schedule-select {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-right: 0.5rem;
+}
+
+#add-schedule-btn {
+    padding: 0.5rem 0.8rem;
+    background-color: #800080; /* Пурпурный, темнее основного фиолетового */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+#add-schedule-btn:hover {
+    background-color: #4b0082; /* Индиго, еще темнее */
+}
+
+main {
+    flex-grow: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрируем основной контент */
+}
+
+.calendar-container {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px; /* Ограничиваем максимальную ширину календаря */
+    margin-bottom: 1rem;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #6a0dad;
+}
+
+.calendar-header button {
+    background-color: #8a2be2; /* Сине-фиолетовый */
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.calendar-header button:hover {
+    background-color: #7b1fa2;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.day-name, .day-cell {
+    text-align: center;
+    padding: 0.8rem 0.5rem;
+    border-radius: 4px;
+}
+
+.day-name {
+    font-weight: bold;
+    background-color: #e6e6fa; /* Лаванда - светлый фиолетовый */
+    color: #333;
+}
+
+.day-cell {
+    background-color: #f8f0ff;
+    cursor: pointer;
+    border: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.day-cell:hover {
+    background-color: #d1c4e9; /* Более насыщенный светлый фиолетовый */
+}
+
+.day-cell.today {
+    background-color: #b39ddb; /* Средний фиолетовый */
+    color: white;
+    font-weight: bold;
+}
+
+.day-cell.selected {
+    background-color: #6a0dad; /* Фиолетовый */
+    color: white;
+    border: 2px solid #4b0082;
+}
+
+.day-cell.has-data {
+    border-bottom: 3px solid #8a2be2; /* Индикатор наличия данных */
+}
+
+.day-cell.empty {
+    background-color: #fdfdff;
+    cursor: default;
+}
+
+.day-details-container {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px; /* Ограничиваем максимальную ширину деталей */
+    display: none; /* Скрыто по умолчанию */
+}
+
+.day-details-container h3 {
+    color: #6a0dad;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e6e6fa;
+    padding-bottom: 0.5rem;
+}
+
+.details-content h4 {
+    color: #4b0082;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+#notes-textarea {
+    width: calc(100% - 20px); /* Учитываем padding */
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    resize: vertical;
+}
+
+#task-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+#task-list li {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+#task-list li:last-child {
+    border-bottom: none;
+}
+
+#task-list input[type="checkbox"] {
+    margin-right: 0.8rem;
+    transform: scale(1.2);
+}
+
+#task-list .task-text.completed {
+    text-decoration: line-through;
+    color: #888;
+}
+
+#new-task-input {
+    width: calc(70% - 10px);
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+}
+
+#add-task-btn, #save-details-btn, #close-details-btn {
+    padding: 0.7rem 1rem;
+    background-color: #8a2be2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+#add-task-btn {
+    background-color: #6a0dad;
+}
+
+#add-task-btn:hover, #save-details-btn:hover, #close-details-btn:hover {
+    background-color: #7b1fa2;
+}
+
+#close-details-btn {
+    background-color: #aaa;
+    margin-left: 0.5rem;
+}
+
+#close-details-btn:hover {
+    background-color: #888;
+}
+
+footer {
+    background-color: #f0f0f0;
+    text-align: center;
+    padding: 1rem;
+    margin-top: auto; /* Прижимаем футер к низу */
+    border-top: 1px solid #ddd;
+}
+
+footer button {
+    padding: 0.6rem 1rem;
+    background-color: #6a0dad;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 0.5rem;
+}
+
+footer button:hover {
+    background-color: #4b0082;
+}
+
+/* Custom Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.modal-content h4 {
+    margin-top: 0;
+    color: #6a0dad;
+}
+
+.modal-content input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modal-buttons button {
+    padding: 10px 15px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#modal-confirm-btn {
+    background-color: #6a0dad;
+    color: white;
+}
+
+#modal-confirm-btn:hover {
+    background-color: #4b0082;
+}
+
+#modal-cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+
+#modal-cancel-btn:hover {
+    background-color: #bbb;
+}
+
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+    .calendar-header h2 {
+        font-size: 1.2rem;
+    }
+    .day-name, .day-cell {
+        padding: 0.5rem 0.2rem;
+        font-size: 0.9rem;
+    }
+    #new-task-input {
+        width: calc(60% - 10px);
+    }
+    .modal-content {
+        padding: 20px;
+    }
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Мой Календарь</h1>
+        <div class="schedule-controls">
+            <select id="schedule-select"></select>
+            <button id="add-schedule-btn">+</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button id="prev-month-btn">&lt;</button>
+                <h2 id="current-month-year"></h2>
+                <button id="next-month-btn">&gt;</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+                <!-- Дни недели -->
+                <div class="day-name">Пн</div>
+                <div class="day-name">Вт</div>
+                <div class="day-name">Ср</div>
+                <div class="day-name">Чт</div>
+                <div class="day-name">Пт</div>
+                <div class="day-name">Сб</div>
+                <div class="day-name">Вс</div>
+                <!-- Ячейки календаря будут добавлены через JS -->
+            </div>
+        </div>
+
+        <div class="day-details-container" id="day-details-container">
+            <h3 id="selected-day-title">Детали дня</h3>
+            <div class="details-content">
+                <h4>Заметки:</h4>
+                <textarea id="notes-textarea" placeholder="Введите ваши заметки здесь..."></textarea>
+                <h4>Задачи:</h4>
+                <ul id="task-list"></ul>
+                <input type="text" id="new-task-input" placeholder="Новая задача...">
+                <button id="add-task-btn">Добавить задачу</button>
+            </div>
+            <button id="save-details-btn">Сохранить детали</button>
+            <button id="close-details-btn">Закрыть</button>
+        </div>
+    </main>
+
+    <footer>
+        <button id="export-data-btn">Экспорт данных</button>
+        <input type="file" id="import-file-input" accept=".json" style="display: none;">
+        <button id="import-data-btn">Импорт данных</button>
+    </footer>
+
+    <!-- Custom Modal for Adding Schedule -->
+    <div id="add-schedule-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h4>Новый график</h4>
+            <p>Введите название нового графика (например, Работа, Личное):</p>
+            <input type="text" id="new-schedule-name-input" placeholder="Название графика">
+            <div class="modal-buttons">
+                <button id="modal-confirm-btn">Ок</button>
+                <button id="modal-cancel-btn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+document.addEventListener("DOMContentLoaded", () => {
+    // DOM Elements
+    const scheduleSelect = document.getElementById("schedule-select");
+    const addScheduleBtn = document.getElementById("add-schedule-btn");
+    const prevMonthBtn = document.getElementById("prev-month-btn");
+    const nextMonthBtn = document.getElementById("next-month-btn");
+    const currentMonthYearEl = document.getElementById("current-month-year");
+    const calendarGrid = document.getElementById("calendar-grid");
+    const dayDetailsContainer = document.getElementById("day-details-container");
+    const selectedDayTitle = document.getElementById("selected-day-title");
+    const notesTextarea = document.getElementById("notes-textarea");
+    const taskList = document.getElementById("task-list");
+    const newTaskInput = document.getElementById("new-task-input");
+    const addTaskBtn = document.getElementById("add-task-btn");
+    const saveDetailsBtn = document.getElementById("save-details-btn");
+    const closeDetailsBtn = document.getElementById("close-details-btn");
+    const exportDataBtn = document.getElementById("export-data-btn");
+    const importFileInput = document.getElementById("import-file-input");
+    const importDataBtn = document.getElementById("import-data-btn");
+
+    // Custom Modal Elements
+    const addScheduleModal = document.getElementById("add-schedule-modal");
+    const newScheduleNameInput = document.getElementById("new-schedule-name-input");
+    const modalConfirmBtn = document.getElementById("modal-confirm-btn");
+    const modalCancelBtn = document.getElementById("modal-cancel-btn");
+
+    // App State
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth(); // 0-11
+    let schedules = [];
+    let activeScheduleId = null;
+    let selectedDate = null; // Store YYYY-MM-DD
+    let db;
+
+    const DB_NAME = "OfflineCalendarDB";
+    const DB_VERSION = 1;
+    const SCHEDULES_STORE_NAME = "schedules";
+    const EVENTS_STORE_NAME = "events"; // Store for notes and tasks
+
+    // --- IndexedDB Functions ---
+    function initDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+            request.onerror = (event) => {
+                console.error("Database error:", event.target.errorCode);
+                reject("Database error: " + event.target.errorCode);
+            };
+
+            request.onsuccess = (event) => {
+                db = event.target.result;
+                console.log("Database initialized successfully.");
+                resolve(db);
+            };
+
+            request.onupgradeneeded = (event) => {
+                db = event.target.result;
+                if (!db.objectStoreNames.contains(SCHEDULES_STORE_NAME)) {
+                    const scheduleStore = db.createObjectStore(SCHEDULES_STORE_NAME, { keyPath: "id", autoIncrement: true });
+                    scheduleStore.createIndex("name", "name", { unique: true });
+                    console.log("Schedules object store created.");
+                }
+                if (!db.objectStoreNames.contains(EVENTS_STORE_NAME)) {
+                    const eventStore = db.createObjectStore(EVENTS_STORE_NAME, { keyPath: "id", autoIncrement: true });
+                    eventStore.createIndex("scheduleId_date", ["scheduleId", "date"], { unique: true }); 
+                    eventStore.createIndex("scheduleId", "scheduleId", { unique: false });
+                    eventStore.createIndex("date", "date", { unique: false });
+                    console.log("Events object store created.");
+                }
+            };
+        });
+    }
+
+    // --- Schedule Functions ---
+    async function loadSchedules() {
+        if (!db) return;
+        const transaction = db.transaction(SCHEDULES_STORE_NAME, "readonly");
+        const store = transaction.objectStore(SCHEDULES_STORE_NAME);
+        const request = store.getAll();
+
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => {
+                schedules = request.result || [];
+                populateScheduleSelect();
+                if (schedules.length > 0 && !activeScheduleId) {
+                    activeScheduleId = schedules[0].id;
+                    scheduleSelect.value = activeScheduleId;
+                }
+                resolve(schedules);
+            };
+            request.onerror = (event) => {
+                console.error("Error loading schedules:", event.target.error);
+                reject(event.target.error);
+            };
+        });
+    }
+
+    function openAddScheduleModal() {
+        newScheduleNameInput.value = ""; // Clear previous input
+        addScheduleModal.style.display = "flex";
+        newScheduleNameInput.focus();
+    }
+
+    function closeAddScheduleModal() {
+        addScheduleModal.style.display = "none";
+    }
+
+    async function handleConfirmAddSchedule() {
+        const scheduleName = newScheduleNameInput.value.trim();
+        if (scheduleName !== "") {
+            const newSchedule = { name: scheduleName };
+            const transaction = db.transaction(SCHEDULES_STORE_NAME, "readwrite");
+            const store = transaction.objectStore(SCHEDULES_STORE_NAME);
+            const request = store.add(newSchedule);
+
+            request.onsuccess = async () => {
+                console.log("Schedule added:", request.result);
+                activeScheduleId = request.result; 
+                await loadSchedules(); 
+                scheduleSelect.value = activeScheduleId;
+                renderCalendar(); 
+                closeAddScheduleModal();
+            };
+            request.onerror = (event) => {
+                console.error("Error adding schedule:", event.target.error);
+                if (event.target.error.name === "ConstraintError") {
+                    alert("График с таким названием уже существует.");
+                }
+                closeAddScheduleModal(); // Close modal even on error
+            };
+        } else {
+            alert("Название графика не может быть пустым.");
+        }
+    }
+
+    function populateScheduleSelect() {
+        scheduleSelect.innerHTML = "";
+        if (schedules.length === 0) {
+            const option = document.createElement("option");
+            option.textContent = "Нет графиков";
+            option.disabled = true;
+            scheduleSelect.appendChild(option);
+            activeScheduleId = null;
+        } else {
+            schedules.forEach(schedule => {
+                const option = document.createElement("option");
+                option.value = schedule.id;
+                option.textContent = schedule.name;
+                scheduleSelect.appendChild(option);
+            });
+            if (activeScheduleId) {
+                scheduleSelect.value = activeScheduleId;
+            }
+        }
+    }
+
+    function handleScheduleChange() {
+        activeScheduleId = parseInt(scheduleSelect.value);
+        console.log("Active schedule changed to:", activeScheduleId);
+        closeDayDetails();
+        renderCalendar();
+    }
+
+    // --- Calendar Rendering Functions ---
+    function renderCalendar() {
+        if (!activeScheduleId) {
+            calendarGrid.innerHTML = 
+                `<div class="day-name">Пн</div><div class="day-name">Вт</div><div class="day-name">Ср</div><div class="day-name">Чт</div><div class="day-name">Пт</div><div class="day-name">Сб</div><div class="day-name">Вс</div>
+                <p style="grid-column: 1 / -1; text-align: center;">Выберите или создайте график для отображения календаря.</p>`;
+            currentMonthYearEl.textContent = "";
+            return;
+        }
+
+        calendarGrid.innerHTML = ""; 
+        const dayNames = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+        dayNames.forEach(name => {
+            const dayNameCell = document.createElement("div");
+            dayNameCell.classList.add("day-name");
+            dayNameCell.textContent = name;
+            calendarGrid.appendChild(dayNameCell);
+        });
+
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+        const daysInMonth = lastDayOfMonth.getDate();
+        const monthName = firstDayOfMonth.toLocaleString("ru-RU", { month: "long" });
+        currentMonthYearEl.textContent = `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${currentYear}`;
+
+        let startingDay = firstDayOfMonth.getDay(); 
+        startingDay = startingDay === 0 ? 6 : startingDay - 1; 
+
+        for (let i = 0; i < startingDay; i++) {
+            const emptyCell = document.createElement("div");
+            emptyCell.classList.add("day-cell", "empty");
+            calendarGrid.appendChild(emptyCell);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayCell = document.createElement("div");
+            dayCell.classList.add("day-cell");
+            dayCell.textContent = day;
+            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            dayCell.dataset.date = dateStr;
+
+            const today = new Date();
+            if (currentYear === today.getFullYear() && currentMonth === today.getMonth() && day === today.getDate()) {
+                dayCell.classList.add("today");
+            }
+
+            if (dateStr === selectedDate) {
+                dayCell.classList.add("selected");
+            }
+
+            checkDayForData(dateStr).then(hasData => {
+                if (hasData) {
+                    dayCell.classList.add("has-data");
+                }
+            });
+
+            dayCell.addEventListener("click", () => handleDayClick(dateStr, dayCell));
+            calendarGrid.appendChild(dayCell);
+        }
+    }
+
+    async function checkDayForData(dateStr) {
+        if (!db || !activeScheduleId) return false;
+        const transaction = db.transaction(EVENTS_STORE_NAME, "readonly");
+        const store = transaction.objectStore(EVENTS_STORE_NAME);
+        const index = store.index("scheduleId_date");
+        const request = index.get([activeScheduleId, dateStr]);
+
+        return new Promise((resolve) => {
+            request.onsuccess = () => {
+                resolve(!!request.result); 
+            };
+            request.onerror = () => {
+                resolve(false);
+            };
+        });
+    }
+
+    function handleDayClick(dateStr, dayCell) {
+        selectedDate = dateStr;
+        document.querySelectorAll(".day-cell.selected").forEach(cell => cell.classList.remove("selected"));
+        if (dayCell) dayCell.classList.add("selected");
+
+        const [year, month, day] = dateStr.split("-").map(Number);
+        selectedDayTitle.textContent = `Детали для: ${day}.${month}.${year}`;
+        loadDayDetails(dateStr);
+        dayDetailsContainer.style.display = "block";
+    }
+
+    function closeDayDetails() {
+        dayDetailsContainer.style.display = "none";
+        selectedDate = null;
+        document.querySelectorAll(".day-cell.selected").forEach(cell => cell.classList.remove("selected"));
+        notesTextarea.value = "";
+        taskList.innerHTML = "";
+        newTaskInput.value = "";
+    }
+
+    // --- Event (Notes & Tasks) Functions ---
+    async function loadDayDetails(dateStr) {
+        if (!db || !activeScheduleId) return;
+        notesTextarea.value = "";
+        taskList.innerHTML = "";
+
+        const transaction = db.transaction(EVENTS_STORE_NAME, "readonly");
+        const store = transaction.objectStore(EVENTS_STORE_NAME);
+        const index = store.index("scheduleId_date");
+        const request = index.get([activeScheduleId, dateStr]);
+
+        request.onsuccess = () => {
+            const eventData = request.result;
+            if (eventData) {
+                notesTextarea.value = eventData.notes || "";
+                (eventData.tasks || []).forEach(task => addTaskToDOM(task.text, task.completed, task.id));
+            }
+        };
+        request.onerror = (event) => {
+            console.error("Error loading day details:", event.target.error);
+        };
+    }
+
+    async function saveDayDetails() {
+        if (!db || !activeScheduleId || !selectedDate) return;
+
+        const notes = notesTextarea.value.trim();
+        const tasks = [];
+        taskList.querySelectorAll("li").forEach(li => {
+            const checkbox = li.querySelector("input[type=\'checkbox\']");
+            const textSpan = li.querySelector(".task-text");
+            tasks.push({
+                id: parseInt(li.dataset.taskId) || Date.now() + Math.random(),
+                text: textSpan.textContent,
+                completed: checkbox.checked
+            });
+        });
+
+        const transaction = db.transaction(EVENTS_STORE_NAME, "readwrite");
+        const store = transaction.objectStore(EVENTS_STORE_NAME);
+        const index = store.index("scheduleId_date");
+        const getRequest = index.get([activeScheduleId, selectedDate]);
+
+        getRequest.onsuccess = () => {
+            let eventData = getRequest.result;
+            if (eventData) {
+                eventData.notes = notes;
+                eventData.tasks = tasks;
+                store.put(eventData);
+            } else {
+                eventData = { scheduleId: activeScheduleId, date: selectedDate, notes: notes, tasks: tasks };
+                store.add(eventData);
+            }
+            console.log("Day details saved for", selectedDate);
+            renderCalendar(); 
+            alert("Детали сохранены!");
+        };
+        getRequest.onerror = (event) => {
+            console.error("Error saving/fetching day details:", event.target.error);
+        };
+    }
+
+    function addTaskToDOM(taskText, completed = false, taskId = null) {
+        const li = document.createElement("li");
+        li.dataset.taskId = taskId || Date.now() + Math.random();
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = completed;
+        checkbox.addEventListener("change", () => {
+            textSpan.classList.toggle("completed", checkbox.checked);
+        });
+
+        const textSpan = document.createElement("span");
+        textSpan.classList.add("task-text");
+        textSpan.textContent = taskText;
+        if (completed) {
+            textSpan.classList.add("completed");
+        }
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Удалить";
+        deleteBtn.style.marginLeft = "auto";
+        deleteBtn.style.fontSize = "0.8em";
+        deleteBtn.style.padding = "0.2em 0.4em";
+        deleteBtn.addEventListener("click", () => {
+            li.remove();
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(textSpan);
+        li.appendChild(deleteBtn);
+        taskList.appendChild(li);
+    }
+
+    function handleAddTask() {
+        const taskText = newTaskInput.value.trim();
+        if (taskText) {
+            addTaskToDOM(taskText);
+            newTaskInput.value = "";
+        }
+    }
+
+    // --- Import/Export Functions ---
+    async function exportData() {
+        if (!db) {
+            alert("База данных не инициализирована.");
+            return;
+        }
+        const transactionSchedules = db.transaction(SCHEDULES_STORE_NAME, "readonly");
+        const schedulesStore = transactionSchedules.objectStore(SCHEDULES_STORE_NAME);
+        const schedulesRequest = schedulesStore.getAll();
+
+        const transactionEvents = db.transaction(EVENTS_STORE_NAME, "readonly");
+        const eventsStore = transactionEvents.objectStore(EVENTS_STORE_NAME);
+        const eventsRequest = eventsStore.getAll();
+
+        Promise.all([new Promise(r => schedulesRequest.onsuccess = () => r(schedulesRequest.result)),
+                     new Promise(r => eventsRequest.onsuccess = () => r(eventsRequest.result))])
+            .then(([schedulesData, eventsData]) => {
+                const dataToExport = {
+                    schedules: schedulesData || [],
+                    events: eventsData || []
+                };
+                const jsonData = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonData], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "calendar_data.json";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert("Данные экспортированы!");
+            }).catch(error => {
+                console.error("Error exporting data:", error);
+                alert("Ошибка экспорта данных.");
+            });
+    }
+
+    async function importData(event) {
+        if (!db) {
+            alert("База данных не инициализирована.");
+            return;
+        }
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (!importedData.schedules || !importedData.events) {
+                    throw new Error("Неверный формат файла.");
+                }
+
+                const clearSchedulesTx = db.transaction(SCHEDULES_STORE_NAME, "readwrite");
+                await new Promise(r => { clearSchedulesTx.objectStore(SCHEDULES_STORE_NAME).clear().onsuccess = r; });
+                const clearEventsTx = db.transaction(EVENTS_STORE_NAME, "readwrite");
+                await new Promise(r => { clearEventsTx.objectStore(EVENTS_STORE_NAME).clear().onsuccess = r; });
+
+                const importSchedulesTx = db.transaction(SCHEDULES_STORE_NAME, "readwrite");
+                const schedulesStore = importSchedulesTx.objectStore(SCHEDULES_STORE_NAME);
+                for (const schedule of importedData.schedules) {
+                    delete schedule.id; 
+                    schedulesStore.add(schedule);
+                }
+                await new Promise(r => { importSchedulesTx.oncomplete = r; });
+
+                const importEventsTx = db.transaction(EVENTS_STORE_NAME, "readwrite");
+                const eventsStore = importEventsTx.objectStore(EVENTS_STORE_NAME);
+                for (const eventItem of importedData.events) {
+                    delete eventItem.id; 
+                    eventsStore.add(eventItem);
+                }
+                await new Promise(r => { importEventsTx.oncomplete = r; });
+
+                alert("Данные успешно импортированы! Страница будет перезагружена для применения изменений.");
+                await loadSchedules();
+                activeScheduleId = schedules.length > 0 ? schedules[0].id : null;
+                if(activeScheduleId) scheduleSelect.value = activeScheduleId;
+                renderCalendar();
+                closeDayDetails();
+
+            } catch (error) {
+                console.error("Error importing data:", error);
+                alert("Ошибка импорта данных: " + error.message);
+            }
+        };
+        reader.readAsText(file);
+        importFileInput.value = "";
+    }
+
+    // --- Event Listeners ---
+    prevMonthBtn.addEventListener("click", () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        }
+        renderCalendar();
+    });
+
+    nextMonthBtn.addEventListener("click", () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        renderCalendar();
+    });
+
+    addScheduleBtn.addEventListener("click", openAddScheduleModal); // Changed from addSchedule
+    modalConfirmBtn.addEventListener("click", handleConfirmAddSchedule);
+    modalCancelBtn.addEventListener("click", closeAddScheduleModal);
+
+    scheduleSelect.addEventListener("change", handleScheduleChange);
+
+    addTaskBtn.addEventListener("click", handleAddTask);
+    saveDetailsBtn.addEventListener("click", saveDayDetails);
+    closeDetailsBtn.addEventListener("click", closeDayDetails);
+
+    exportDataBtn.addEventListener("click", exportData);
+    importDataBtn.addEventListener("click", () => importFileInput.click());
+    importFileInput.addEventListener("change", importData);
+
+    // --- Initial Load ---
+    async function initializeApp() {
+        try {
+            await initDB();
+            await loadSchedules();
+            if (schedules.length === 0) {
+                console.log("No schedules found. Please create one.");
+            } else if (!activeScheduleId && schedules.length > 0) {
+                 activeScheduleId = schedules[0].id;
+                 scheduleSelect.value = activeScheduleId;
+            }
+            renderCalendar();
+        } catch (error) {
+            console.error("Failed to initialize the application:", error);
+            alert("Не удалось загрузить приложение. Проверьте консоль для ошибок.");
+        }
+    }
+
+    initializeApp();
+});
+    </script>
+</body>
+</html>

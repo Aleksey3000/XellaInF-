@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 Калькулятор сроков годности + сканер штрих-кодов</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #ef233c;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        /* Основной интерфейс */
+        .app-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Карточка добавления продукта */
+        .add-product-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .scanner-section {
+            margin-top: 15px;
+            border: 2px dashed #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #barcode-scanner {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        /* Список продуктов */
+        .products-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .product-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .product-expiry {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .product-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-expired {
+            background: #ffebee;
+            color: var(--danger);
+        }
+
+        .status-warning {
+            background: #fff8e1;
+            color: var(--warning);
+        }
+
+        .status-good {
+            background: #e8f5e9;
+            color: var(--success);
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Импорт/экспорт секция */
+        .import-export-section {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .import-export-section .btn {
+            flex: 1;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            body {
+                padding: 0;
+            }
+            .product-card {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            .product-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .import-export-section {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Калькулятор сроков годности</h1>
+            <p class="subtitle">Сканируйте штрих-коды и отслеживайте продукты</p>
+        </header>
+
+        <div class="app-content">
+            <!-- Форма добавления продукта -->
+            <div class="add-product-card fade-in">
+                <h2>➕ Добавить продукт</h2>
+                <div class="form-group">
+                    <label for="product-name">Название продукта</label>
+                    <input type="text" id="product-name" placeholder="Например: Молоко">
+                </div>
+
+                <div class="form-group">
+                    <label for="barcode">Штрих-код (EAN-13)</label>
+                    <input type="text" id="barcode" placeholder="4812345678901">
+                    <button id="scan-barcode-btn" class="btn" style="margin-top: 10px;">📷 Сканировать штрих-код</button>
+                </div>
+
+                <div class="scanner-section">
+                    <video id="barcode-scanner" playsinline></video>
+                    <button id="stop-scan-btn" class="btn btn-danger" style="display: none;">❌ Остановить сканирование</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="production-date">Дата производства</label>
+                    <input type="date" id="production-date">
+                </div>
+
+                <div class="form-group">
+                    <label for="shelf-life">Срок годности</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="shelf-life" placeholder="Например: 7" style="flex: 1;">
+                        <select id="shelf-life-unit" style="flex: 1;">
+                            <option value="days">Дней</option>
+                            <option value="weeks">Недель</option>
+                            <option value="months">Месяцев</option>
+                            <option value="years">Лет</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="add-product-btn" class="btn">✅ Добавить продукт</button>
+            </div>
+
+            <!-- Поиск и фильтрация -->
+            <div class="form-group">
+                <input type="text" id="search-product" placeholder="🔍 Поиск по названию...">
+            </div>
+
+            <!-- Список продуктов -->
+            <div class="products-list" id="products-list">
+                <!-- Продукты будут загружаться здесь -->
+            </div>
+
+            <!-- Секция импорта/экспорта -->
+            <div class="import-export-section">
+                <button id="export-btn" class="btn btn-success">💾 Экспорт данных</button>
+                <button id="import-btn" class="btn">📂 Импорт данных</button>
+                <input type="file" id="file-input" accept=".json">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ========== НАСТРОЙКА БАЗЫ ДАННЫХ (IndexedDB) ==========
+            const DB_NAME = 'ProductExpiryDB';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'products';
+            let db;
+
+            // Открываем/создаем базу данных
+            const openDB = () => {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                    request.onerror = (event) => {
+                        console.error('Ошибка IndexedDB:', event.target.error);
+                        reject('Ошибка базы данных');
+                    };
+
+                    request.onsuccess = (event) => {
+                        db = event.target.result;
+                        resolve(db);
+                    };
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(STORE_NAME)) {
+                            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                            store.createIndex('name', 'name', { unique: false });
+                            store.createIndex('expiryDate', 'expiryDate', { unique: false });
+                        }
+                    };
+                });
+            };
+
+            // Добавление продукта в базу
+            const addProductToDB = (product) => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+
+                    const request = store.add(product);
+
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            };
+
+            // Получение всех продуктов
+            const getAllProducts = () => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.getAll();
+
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            };
+
+            // Удаление продукта
+            const deleteProductFromDB = (id) => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+
+                    const request = store.delete(id);
+
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            };
+
+            // Поиск продуктов
+            const searchProducts = (query) => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.getAll();
+
+                    request.onsuccess = () => {
+                        const products = request.result;
+                        const filtered = products.filter(product => 
+                            product.name.toLowerCase().includes(query.toLowerCase())
+                        );
+                        resolve(filtered);
+                    };
+
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            };
+
+            // Очистка всех продуктов
+            const clearAllProducts = () => {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.clear();
+
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            };
+
+            // ========== РАБОТА С ФОРМОЙ ==========
+            const productNameInput = document.getElementById('product-name');
+            const barcodeInput = document.getElementById('barcode');
+            const productionDateInput = document.getElementById('production-date');
+            const shelfLifeInput = document.getElementById('shelf-life');
+            const shelfLifeUnitSelect = document.getElementById('shelf-life-unit');
+            const addProductBtn = document.getElementById('add-product-btn');
+            const scanBarcodeBtn = document.getElementById('scan-barcode-btn');
+            const stopScanBtn = document.getElementById('stop-scan-btn');
+            const barcodeScanner = document.getElementById('barcode-scanner');
+            const searchInput = document.getElementById('search-product');
+            const productsList = document.getElementById('products-list');
+            const exportBtn = document.getElementById('export-btn');
+            const importBtn = document.getElementById('import-btn');
+            const fileInput = document.getElementById('file-input');
+
+            // Установка сегодняшней даты по умолчанию
+            productionDateInput.value = new Date().toISOString().split('T')[0];
+
+            // Инициализация базы данных
+            try {
+                await openDB();
+                await loadProducts();
+            } catch (error) {
+                alert('Ошибка загрузки базы данных: ' + error);
+            }
+
+            // Добавление продукта
+            addProductBtn.addEventListener('click', async () => {
+                const name = productNameInput.value.trim();
+                const barcode = barcodeInput.value.trim();
+                const productionDate = productionDateInput.value;
+                const shelfLife = parseInt(shelfLifeInput.value);
+                const shelfLifeUnit = shelfLifeUnitSelect.value;
+
+                if (!name || !productionDate || isNaN(shelfLife) || shelfLife <= 0) {
+                    alert('Заполните все поля корректно!');
+                    return;
+                }
+
+                // Рассчет даты истечения срока
+                const expiryDate = calculateExpiryDate(productionDate, shelfLife, shelfLifeUnit);
+                const daysLeft = getDaysLeft(expiryDate);
+                const status = getExpiryStatus(expiryDate);
+
+                const product = {
+                    name,
+                    barcode,
+                    productionDate,
+                    shelfLife,
+                    shelfLifeUnit,
+                    expiryDate: expiryDate.toISOString(),
+                    daysLeft,
+                    status,
+                    addedAt: new Date().toISOString()
+                };
+
+                try {
+                    await addProductToDB(product);
+                    await loadProducts();
+                    clearForm();
+                } catch (error) {
+                    alert('Ошибка сохранения: ' + error);
+                }
+            });
+
+            // Поиск продуктов
+            searchInput.addEventListener('input', async () => {
+                const query = searchInput.value.trim();
+                if (query.length === 0) {
+                    await loadProducts();
+                } else {
+                    const products = await searchProducts(query);
+                    renderProducts(products);
+                }
+            });
+
+            // ========== СКАНИРОВАНИЕ ШТРИХ-КОДОВ ==========
+            let scannerActive = false;
+            let barcodeDetector;
+
+            // Проверяем поддержку BarcodeDetector API
+            if ('BarcodeDetector' in window) {
+                barcodeDetector = new BarcodeDetector({ formats: ['ean_13'] });
+            } else {
+                scanBarcodeBtn.disabled = true;
+                scanBarcodeBtn.textContent = 'Сканер не поддерживается в вашем браузере';
+            }
+
+            // Запуск сканирования
+            scanBarcodeBtn.addEventListener('click', async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    barcodeScanner.srcObject = stream;
+                    barcodeScanner.style.display = 'block';
+                    scanBarcodeBtn.style.display = 'none';
+                    stopScanBtn.style.display = 'block';
+                    
+                    barcodeScanner.onloadedmetadata = () => {
+                        barcodeScanner.play();
+                        scannerActive = true;
+                        detectBarcode();
+                    };
+                } catch (error) {
+                    console.error('Ошибка доступа к камере:', error);
+                    alert('Не удалось получить доступ к камере. Проверьте разрешения.');
+                }
+            });
+
+            // Остановка сканирования
+            stopScanBtn.addEventListener('click', () => {
+                stopScanner();
+            });
+
+            // Функция для обнаружения штрих-кода
+            const detectBarcode = async () => {
+                if (!scannerActive) return;
+
+                try {
+                    const barcodes = await barcodeDetector.detect(barcodeScanner);
+                    if (barcodes.length > 0) {
+                        const barcode = barcodes[0].rawValue;
+                        barcodeInput.value = barcode;
+                        stopScanner();
+                    }
+                } catch (error) {
+                    console.error('Ошибка распознавания:', error);
+                }
+
+                if (scannerActive) {
+                    requestAnimationFrame(detectBarcode);
+                }
+            };
+
+            // Остановка сканера
+            const stopScanner = () => {
+                if (barcodeScanner.srcObject) {
+                    barcodeScanner.srcObject.getTracks().forEach(track => track.stop());
+                }
+                barcodeScanner.style.display = 'none';
+                stopScanBtn.style.display = 'none';
+                scanBarcodeBtn.style.display = 'block';
+                scannerActive = false;
+            };
+
+            // ========== ИМПОРТ/ЭКСПОРТ ДАННЫХ ==========
+            // Экспорт данных
+            exportBtn.addEventListener('click', async () => {
+                try {
+                    const products = await getAllProducts();
+                    if (products.length === 0) {
+                        alert('Нет данных для экспорта');
+                        return;
+                    }
+
+                    const dataStr = JSON.stringify(products, null, 2);
+                    const blob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `products_export_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Ошибка экспорта:', error);
+                    alert('Ошибка при экспорте данных: ' + error);
+                }
+            });
+
+            // Открытие диалога выбора файла для импорта
+            importBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            // Импорт данных
+            fileInput.addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!Array.isArray(data)) {
+                            throw new Error('Неверный формат данных');
+                        }
+
+                        if (confirm(`Импортировать ${data.length} записей? Текущие данные будут заменены.`)) {
+                            await clearAllProducts();
+                            
+                            // Импортируем каждый продукт без id для создания новых записей
+                            for (const product of data) {
+                                const newProduct = { ...product };
+                                delete newProduct.id; // Удаляем id для создания новой записи
+                                await addProductToDB(newProduct);
+                            }
+                            
+                            await loadProducts();
+                            alert('Данные успешно импортированы');
+                        }
+                    } catch (error) {
+                        console.error('Ошибка импорта:', error);
+                        alert('Ошибка при импорте данных: ' + error);
+                    }
+                    // Сбрасываем значение input для возможности повторного выбора того же файла
+                    fileInput.value = '';
+                };
+                reader.readAsText(file);
+            });
+
+            // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+            // Рассчет даты истечения срока
+            function calculateExpiryDate(productionDate, shelfLife, unit) {
+                const date = new Date(productionDate);
+                
+                switch (unit) {
+                    case 'days': date.setDate(date.getDate() + shelfLife); break;
+                    case 'weeks': date.setDate(date.getDate() + shelfLife * 7); break;
+                    case 'months': date.setMonth(date.getMonth() + shelfLife); break;
+                    case 'years': date.setFullYear(date.getFullYear() + shelfLife); break;
+                }
+                
+                return date;
+            }
+
+            // Сколько дней осталось
+            function getDaysLeft(expiryDate) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const diff = expiryDate - today;
+                return Math.ceil(diff / (1000 * 60 * 60 * 24));
+            }
+
+            // Статус продукта
+            function getExpiryStatus(expiryDate) {
+                const daysLeft = getDaysLeft(expiryDate);
+                
+                if (daysLeft < 0) return 'Просрочено';
+                if (daysLeft <= 3) return 'Скоро истекает';
+                return 'Годен';
+            }
+
+            // Очистка формы
+            function clearForm() {
+                productNameInput.value = '';
+                barcodeInput.value = '';
+                shelfLifeInput.value = '';
+                productionDateInput.value = new Date().toISOString().split('T')[0];
+            }
+
+            // Загрузка продуктов
+            async function loadProducts() {
+                try {
+                    const products = await getAllProducts();
+                    renderProducts(products);
+                } catch (error) {
+                    console.error('Ошибка загрузки:', error);
+                }
+            }
+
+            // Отображение продуктов
+            function renderProducts(products) {
+                productsList.innerHTML = '';
+
+                if (products.length === 0) {
+                    productsList.innerHTML = '<p style="text-align: center; padding: 20px;">Нет сохраненных продуктов</p>';
+                    return;
+                }
+
+                // Сортировка по сроку годности (сначала те, что скоро истекают)
+                products.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+                products.forEach(product => {
+                    const expiryDate = new Date(product.expiryDate);
+                    const formattedDate = expiryDate.toLocaleDateString('ru-RU');
+                    const daysLeft = product.daysLeft;
+                    const status = product.status;
+
+                    let statusClass = '';
+                    if (status === 'Просрочено') statusClass = 'status-expired';
+                    else if (status === 'Скоро истекает') statusClass = 'status-warning';
+                    else statusClass = 'status-good';
+
+                    const productElement = document.createElement('div');
+                    productElement.className = 'product-card fade-in';
+                    productElement.innerHTML = `
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-expiry">
+                                📅 ${formattedDate} | 
+                                ⌛ ${daysLeft >= 0 ? daysLeft : 0} дн. | 
+                                🏷️ ${product.barcode || '—'}
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <span class="product-status ${statusClass}">${status}</span>
+                            <button class="btn btn-danger" onclick="deleteProduct(${product.id})">🗑️</button>
+                        </div>
+                    `;
+
+                    productsList.appendChild(productElement);
+                });
+            }
+
+            // Удаление продукта (глобальная функция для обработчика)
+            window.deleteProduct = async (id) => {
+                if (confirm('Удалить этот продукт?')) {
+                    try {
+                        await deleteProductFromDB(id);
+                        await loadProducts();
+                    } catch (error) {
+                        alert('Ошибка удаления: ' + error);
+                    }
+                }
+            };
+        });
+    </script>
+</body>
+</html>
