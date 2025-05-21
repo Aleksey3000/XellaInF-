@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XellaInF — Главное меню</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3f37c9;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #ef233c;
+      --card-bg: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 10;
+    }
+
+    .app-title {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .app-subtitle {
+      opacity: 0.9;
+      font-size: 1rem;
+    }
+
+    .app-container {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 1.5rem;
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .app-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .app-card-image {
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .app-card-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%);
+    }
+
+    .app-card-content {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--primary-dark);
+    }
+
+    .app-card-desc {
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+      flex: 1;
+    }
+
+    .app-card-btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      text-align: center;
+      transition: var(--transition);
+      margin-top: auto;
+    }
+
+    .app-card-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .app-footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--gray);
+      font-size: 0.9rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* Иконки приложений */
+    .app-icon {
+      font-size: 1.5rem;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 1rem;
+      }
+      
+      .apps-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .app-title {
+        font-size: 1.6rem;
+      }
+    }
+
+    /* Анимации */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .app-card {
+      animation: fadeIn 0.5s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .app-card:nth-child(1) { animation-delay: 0.1s; }
+    .app-card:nth-child(2) { animation-delay: 0.2s; }
+    .app-card:nth-child(3) { animation-delay: 0.3s; }
+    .app-card:nth-child(4) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1 class="app-title">
+      <span>XellaInF</span>
+    </h1>
+    <p class="app-subtitle">Ваш персональный набор инструментов для продуктивности</p>
+  </header>
+
+  <main class="app-container">
+    <div class="apps-grid">
+      <!-- Календарь -->
+      <div class="app-card">
+        <div class="app-card-image" style="background-color: #6a0dad;">
+          <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: white; font-size: 3rem;">📅</div>
+        </div>
+        <div class="app-card-content">
+          <h3 class="app-card-title">Календарь</h3>
+          <p class="app-card-desc">Планируйте свои события, встречи и задачи с удобным календарем и напоминаниями.</p>
+          <a href="Calendar.html" class="app-card-btn">Открыть</a>
+        </div>
+      </div>
+
+      <!-- Калькулятор сроков -->
+      <div class="app-card">
+        <div class="app-card-image" style="background-color: #4361ee;">
+          <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: white; font-size: 3rem;">🧮</div>
+        </div>
+        <div class="app-card-content">
+          <h3 class="app-card-title">Калькулятор сроков</h3>
+          <p class="app-card-desc">Отслеживайте сроки годности продуктов с помощью сканера штрих-кодов и уведомлений.</p>
+          <a href="calculator.html" class="app-card-btn">Открыть</a>
+        </div>
+      </div>
+
+      <!-- Финансы -->
+      <div class="app-card">
+        <div class="app-card-image" style="background-color: #3f37c9;">
+          <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: white; font-size: 3rem;">💰</div>
+        </div>
+        <div class="app-card-content">
+          <h3 class="app-card-title">Финансы</h3>
+          <p class="app-card-desc">Учет активов и пассивов, контроль расходов и анализ вашего финансового состояния.</p>
+          <a href="tabl.html" class="app-card-btn">Открыть</a>
+        </div>
+      </div>
+
+      <!-- Задачник -->
+      <div class="app-card">
+        <div class="app-card-image" style="background-color: #4cc9f0;">
+          <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: white; font-size: 3rem;">✅</div>
+        </div>
+        <div class="app-card-content">
+          <h3 class="app-card-title">Задачник</h3>
+          <p class="app-card-desc">Создавайте и управляйте списком задач с отметкой выполнения и приоритетами.</p>
+          <a href="Zadachnik.html" class="app-card-btn">Открыть</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>© XellaInF</p>
+  </footer>
+
+  <script>
+    // Можно добавить дополнительную логику, если нужно
+    document.addEventListener('DOMContentLoaded', () => {
+      // Инициализация при необходимости
+    });
+  </script>
+</body>
+</html>
