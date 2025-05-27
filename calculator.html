@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📅 Калькулятор сроков годности + сканер штрих-кодов</title>
+    <title>📅 Калькулятор сроков годности</title>
     <style>
         :root {
             --primary: #4361ee;
@@ -44,99 +44,89 @@
         header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            padding: 20px;
+            padding: 25px;
             text-align: center;
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 8px;
         }
 
         .subtitle {
             opacity: 0.9;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         /* Основной интерфейс */
         .app-content {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            padding: 20px;
+            gap: 25px;
+            padding: 25px;
         }
 
         /* Карточка добавления продукта */
         .add-product-card {
             background: var(--card-bg);
-            border-radius: 10px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 25px;
             box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 600;
             color: var(--dark);
+            font-size: 0.95rem;
         }
 
         input, select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 1rem;
             transition: all 0.3s;
+            background: #fafafa;
         }
 
         input:focus, select:focus {
             border-color: var(--primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        .scanner-section {
-            margin-top: 15px;
-            border: 2px dashed #ccc;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        #barcode-scanner {
-            width: 100%;
-            max-height: 300px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: none;
+            background: white;
         }
 
         .btn {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 14px 20px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
             width: 100%;
             font-size: 1rem;
+            letter-spacing: 0.5px;
         }
 
         .btn:hover {
             background: var(--secondary);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .btn:active {
             transform: translateY(0);
+            box-shadow: none;
         }
 
         .btn-danger {
@@ -160,13 +150,14 @@
 
         .product-card {
             background: var(--card-bg);
-            border-radius: 10px;
-            padding: 15px;
+            border-radius: 12px;
+            padding: 20px;
             box-shadow: var(--shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: all 0.3s;
+            border-left: 4px solid transparent;
         }
 
         .product-card:hover {
@@ -179,40 +170,57 @@
         }
 
         .product-name {
-            font-weight: 600;
-            margin-bottom: 5px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: var(--dark);
         }
 
         .product-expiry {
-            font-size: 0.9rem;
-            color: #666;
+            font-size: 0.95rem;
+            color: #555;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .product-expiry span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .product-status {
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .status-expired {
             background: #ffebee;
             color: var(--danger);
+            border-left-color: var(--danger);
         }
 
         .status-warning {
             background: #fff8e1;
             color: var(--warning);
+            border-left-color: var(--warning);
         }
 
         .status-good {
             background: #e8f5e9;
             color: var(--success);
+            border-left-color: var(--success);
         }
 
         .product-actions {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         /* Анимации */
@@ -251,24 +259,31 @@
             }
             .product-card {
                 flex-direction: column;
-                gap: 10px;
-                text-align: center;
+                gap: 15px;
+                text-align: left;
+                align-items: flex-start;
             }
             .product-actions {
                 width: 100%;
-                justify-content: center;
+                justify-content: space-between;
             }
             .import-export-section {
                 flex-direction: column;
             }
+        }
+
+        /* Иконки */
+        .icon {
+            margin-right: 5px;
+            font-size: 1.1em;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📅 Калькулятор сроков годности</h1>
-            <p class="subtitle">Сканируйте штрих-коды и отслеживайте продукты</p>
+            <h1>📅 Калькулятор Сроков Годности</h1>
+            <p class="subtitle">Отслеживайте сроки годности продуктов</p>
         </header>
 
         <div class="app-content">
@@ -276,28 +291,22 @@
             <div class="add-product-card fade-in">
                 <h2>➕ Добавить продукт</h2>
                 <div class="form-group">
-                    <label for="product-name">Название продукта</label>
+                    <label for="product-name">Название продукта:</label>
                     <input type="text" id="product-name" placeholder="Например: Молоко">
                 </div>
 
                 <div class="form-group">
-                    <label for="barcode">Штрих-код (EAN-13)</label>
-                    <input type="text" id="barcode" placeholder="4812345678901">
-                    <button id="scan-barcode-btn" class="btn" style="margin-top: 10px;">📷 Сканировать штрих-код</button>
-                </div>
-
-                <div class="scanner-section">
-                    <video id="barcode-scanner" playsinline></video>
-                    <button id="stop-scan-btn" class="btn btn-danger" style="display: none;">❌ Остановить сканирование</button>
+                    <label for="barcode">Штрих-код:</label>
+                    <input type="text" id="barcode" placeholder="4812345678901 (необязательно)">
                 </div>
 
                 <div class="form-group">
-                    <label for="production-date">Дата производства</label>
+                    <label for="production-date">Дата производства:</label>
                     <input type="date" id="production-date">
                 </div>
 
                 <div class="form-group">
-                    <label for="shelf-life">Срок годности</label>
+                    <label for="shelf-life">Срок годности:</label>
                     <div style="display: flex; gap: 10px;">
                         <input type="number" id="shelf-life" placeholder="Например: 7" style="flex: 1;">
                         <select id="shelf-life-unit" style="flex: 1;">
@@ -441,9 +450,6 @@
             const shelfLifeInput = document.getElementById('shelf-life');
             const shelfLifeUnitSelect = document.getElementById('shelf-life-unit');
             const addProductBtn = document.getElementById('add-product-btn');
-            const scanBarcodeBtn = document.getElementById('scan-barcode-btn');
-            const stopScanBtn = document.getElementById('stop-scan-btn');
-            const barcodeScanner = document.getElementById('barcode-scanner');
             const searchInput = document.getElementById('search-product');
             const productsList = document.getElementById('products-list');
             const exportBtn = document.getElementById('export-btn');
@@ -470,7 +476,7 @@
                 const shelfLifeUnit = shelfLifeUnitSelect.value;
 
                 if (!name || !productionDate || isNaN(shelfLife) || shelfLife <= 0) {
-                    alert('Заполните все поля корректно!');
+                    alert('Заполните все обязательные поля корректно!');
                     return;
                 }
 
@@ -510,74 +516,6 @@
                     renderProducts(products);
                 }
             });
-
-            // ========== СКАНИРОВАНИЕ ШТРИХ-КОДОВ ==========
-            let scannerActive = false;
-            let barcodeDetector;
-
-            // Проверяем поддержку BarcodeDetector API
-            if ('BarcodeDetector' in window) {
-                barcodeDetector = new BarcodeDetector({ formats: ['ean_13'] });
-            } else {
-                scanBarcodeBtn.disabled = true;
-                scanBarcodeBtn.textContent = 'Сканер не поддерживается в вашем браузере';
-            }
-
-            // Запуск сканирования
-            scanBarcodeBtn.addEventListener('click', async () => {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                    barcodeScanner.srcObject = stream;
-                    barcodeScanner.style.display = 'block';
-                    scanBarcodeBtn.style.display = 'none';
-                    stopScanBtn.style.display = 'block';
-                    
-                    barcodeScanner.onloadedmetadata = () => {
-                        barcodeScanner.play();
-                        scannerActive = true;
-                        detectBarcode();
-                    };
-                } catch (error) {
-                    console.error('Ошибка доступа к камере:', error);
-                    alert('Не удалось получить доступ к камере. Проверьте разрешения.');
-                }
-            });
-
-            // Остановка сканирования
-            stopScanBtn.addEventListener('click', () => {
-                stopScanner();
-            });
-
-            // Функция для обнаружения штрих-кода
-            const detectBarcode = async () => {
-                if (!scannerActive) return;
-
-                try {
-                    const barcodes = await barcodeDetector.detect(barcodeScanner);
-                    if (barcodes.length > 0) {
-                        const barcode = barcodes[0].rawValue;
-                        barcodeInput.value = barcode;
-                        stopScanner();
-                    }
-                } catch (error) {
-                    console.error('Ошибка распознавания:', error);
-                }
-
-                if (scannerActive) {
-                    requestAnimationFrame(detectBarcode);
-                }
-            };
-
-            // Остановка сканера
-            const stopScanner = () => {
-                if (barcodeScanner.srcObject) {
-                    barcodeScanner.srcObject.getTracks().forEach(track => track.stop());
-                }
-                barcodeScanner.style.display = 'none';
-                stopScanBtn.style.display = 'none';
-                scanBarcodeBtn.style.display = 'block';
-                scannerActive = false;
-            };
 
             // ========== ИМПОРТ/ЭКСПОРТ ДАННЫХ ==========
             // Экспорт данных
@@ -674,7 +612,7 @@
             function getExpiryStatus(expiryDate) {
                 const daysLeft = getDaysLeft(expiryDate);
                 
-                if (daysLeft < 0) return 'Просрочено';
+                if (daysLeft < 0) return `Просрочено ${Math.abs(daysLeft)} дн.`;
                 if (daysLeft <= 3) return 'Скоро истекает';
                 return 'Годен';
             }
@@ -702,7 +640,7 @@
                 productsList.innerHTML = '';
 
                 if (products.length === 0) {
-                    productsList.innerHTML = '<p style="text-align: center; padding: 20px;">Нет сохраненных продуктов</p>';
+                    productsList.innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">Нет сохраненных продуктов</p>';
                     return;
                 }
 
@@ -713,27 +651,27 @@
                     const expiryDate = new Date(product.expiryDate);
                     const formattedDate = expiryDate.toLocaleDateString('ru-RU');
                     const daysLeft = product.daysLeft;
-                    const status = product.status;
+                    const status = getExpiryStatus(new Date(product.expiryDate));
 
                     let statusClass = '';
-                    if (status === 'Просрочено') statusClass = 'status-expired';
+                    if (status.includes('Просрочено')) statusClass = 'status-expired';
                     else if (status === 'Скоро истекает') statusClass = 'status-warning';
                     else statusClass = 'status-good';
 
                     const productElement = document.createElement('div');
-                    productElement.className = 'product-card fade-in';
+                    productElement.className = `product-card fade-in ${statusClass}`;
                     productElement.innerHTML = `
                         <div class="product-info">
                             <div class="product-name">${product.name}</div>
                             <div class="product-expiry">
-                                📅 ${formattedDate} | 
-                                ⌛ ${daysLeft >= 0 ? daysLeft : 0} дн. | 
-                                🏷️ ${product.barcode || '—'}
+                                <span title="Дата истечения срока"><span class="icon">📅</span> ${formattedDate}</span>
+                                <span title="Осталось дней"><span class="icon">⌛</span> ${daysLeft >= 0 ? daysLeft : 0} дн.</span>
+                                ${product.barcode ? `<span title="Штрих-код"><span class="icon">🏷️</span> ${product.barcode}</span>` : ''}
                             </div>
                         </div>
                         <div class="product-actions">
                             <span class="product-status ${statusClass}">${status}</span>
-                            <button class="btn btn-danger" onclick="deleteProduct(${product.id})">🗑️</button>
+                            <button class="btn btn-danger" onclick="deleteProduct(${product.id})" title="Удалить">🗑️</button>
                         </div>
                     `;
 
@@ -755,4 +693,4 @@
         });
     </script>
 </body>
-</html>
+</html> 
