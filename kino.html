@@ -1,0 +1,613 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>XellaInF — Кино-трекер</title>
+  <style>
+    :root {
+      --primary: #6a0dad;
+      --primary-light: #9c4dff;
+      --accent: #00c9b7;
+      --accent-dark: #009688;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --watched-bg: #f0f0f0;
+      --card-bg: #ffffff;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      touch-action: manipulation;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      padding: 1.2rem 1rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      word-break: break-word;
+    }
+
+    .app-subtitle {
+      opacity: 0.9;
+      font-size: 0.9rem;
+      word-break: break-word;
+    }
+
+    .app-container {
+      padding: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .add-movie-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .add-movie-form input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 0.7rem;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      width: 100%;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    .custom-file {
+      position: relative;
+      overflow: hidden;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .custom-file input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .custom-file-label {
+      display: inline-block;
+      padding: 0.7rem;
+      background: var(--accent);
+      color: white;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.9rem;
+      text-align: center;
+      width: 100%;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    .custom-file-label:hover {
+      background: var(--accent-dark);
+    }
+
+    .add-movie-form button {
+      padding: 0.7rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      flex: 1;
+      min-width: 0;
+      font-size: 0.9rem;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    .add-movie-form button:hover {
+      background: var(--primary-light);
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1.2rem;
+      overflow-x: auto;
+      padding-bottom: 5px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-buttons::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-buttons button {
+      padding: 0.5rem 0.9rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .filter-buttons button.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .filter-buttons button:not(.active) {
+      background: var(--light);
+      color: var(--dark);
+    }
+
+    .filter-buttons button:not(.active):hover {
+      background: #e9ecef;
+    }
+
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+    }
+
+    .movie-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      position: relative;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .movie-card.watched {
+      background: var(--watched-bg);
+    }
+
+    .movie-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .movie-poster {
+      height: 140px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .movie-poster::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .movie-poster .placeholder {
+      z-index: 1;
+      font-size: 2.5rem;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .movie-info {
+      padding: 0.8rem;
+    }
+
+    .movie-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--primary);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-height: 2.4em;
+      line-height: 1.2;
+    }
+
+    .movie-year {
+      color: var(--gray);
+      font-size: 0.8rem;
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .movie-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 0.8rem;
+    }
+
+    .movie-actions button {
+      padding: 0.4rem 0.7rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 0.8rem;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .movie-card.watched .movie-title {
+      color: var(--gray);
+    }
+
+    .movie-card.watched .movie-actions button.toggle-watched {
+      background: var(--gray);
+    }
+
+    .watched-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--accent);
+      color: white;
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      z-index: 2;
+      max-width: 80%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Fullscreen poster view */
+    .poster-fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .poster-fullscreen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .poster-fullscreen img {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+    }
+
+    .close-fullscreen {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.5);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: none;
+    }
+
+    @media (min-width: 480px) {
+      .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      }
+      .movie-poster {
+        height: 160px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .app-container {
+        padding: 1.5rem;
+      }
+      .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+      }
+      .movie-poster {
+        height: 200px;
+      }
+      .movie-title {
+        font-size: 1.1rem;
+      }
+      .filter-buttons button {
+        padding: 0.6rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1 class="app-title">Кино-трекер</h1>
+    <p class="app-subtitle">Добавляйте фильмы, загружайте свои постеры, отмечайте просмотры</p>
+  </header>
+  <main class="app-container">
+    <div class="add-movie-form">
+      <input type="text" id="movieTitle" placeholder="Название фильма" required>
+      <label class="custom-file">
+        <span class="custom-file-label">Добавить постер</span>
+        <input type="file" id="moviePosterInput" accept="image/*">
+      </label>
+      <button id="addMovie">Добавить фильм</button>
+    </div>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">Все фильмы</button>
+      <button class="filter-btn" data-filter="watched">Просмотренные</button>
+      <button class="filter-btn" data-filter="unwatched">Не просмотренные</button>
+    </div>
+    <div class="movies-grid" id="moviesList"></div>
+  </main>
+
+  <!-- Fullscreen poster view -->
+  <div class="poster-fullscreen" id="posterFullscreen">
+    <button class="close-fullscreen">&times;</button>
+    <img id="fullscreenPoster" src="" alt="Fullscreen poster">
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const moviesList = document.getElementById('moviesList');
+      const movieTitleInput = document.getElementById('movieTitle');
+      const moviePosterInput = document.getElementById('moviePosterInput');
+      const addMovieBtn = document.getElementById('addMovie');
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const posterFullscreen = document.getElementById('posterFullscreen');
+      const fullscreenPoster = document.getElementById('fullscreenPoster');
+      const closeFullscreenBtn = document.querySelector('.close-fullscreen');
+
+      let currentFilter = 'all';
+      const dbName = 'MovieTrackerDB';
+      const dbVersion = 1;
+      let db;
+
+      const initDB = new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, dbVersion);
+        request.onerror = (event) => reject('DB error');
+        request.onsuccess = (event) => { db = event.target.result; resolve(db); };
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains('movies')) {
+            db.createObjectStore('movies', { keyPath: 'id', autoIncrement: true });
+          }
+        };
+      });
+
+      async function loadMovies() {
+        await initDB;
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('movies', 'readonly');
+          const store = tx.objectStore('movies');
+          const req = store.getAll();
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async function saveMovie(movie) {
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('movies', 'readwrite');
+          const store = tx.objectStore('movies');
+          const req = store.put(movie);
+          req.onsuccess = () => resolve();
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async function deleteMovie(id) {
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('movies', 'readwrite');
+          const store = tx.objectStore('movies');
+          const req = store.delete(id);
+          req.onsuccess = () => resolve();
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      function showFullscreenPoster(posterUrl) {
+        if (!posterUrl) return;
+        fullscreenPoster.src = posterUrl;
+        posterFullscreen.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function hideFullscreenPoster() {
+        posterFullscreen.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      closeFullscreenBtn.addEventListener('click', hideFullscreenPoster);
+      posterFullscreen.addEventListener('click', (e) => {
+        if (e.target === posterFullscreen) {
+          hideFullscreenPoster();
+        }
+      });
+
+      async function renderMovies() {
+        const movies = await loadMovies();
+        moviesList.innerHTML = '';
+
+        // Сортируем фильмы: сначала непросмотренные, затем просмотренные
+        const sortedMovies = [...movies].sort((a, b) => {
+          if (a.watched && !b.watched) return 1;
+          if (!a.watched && b.watched) return -1;
+          return 0;
+        });
+
+        for (const movie of sortedMovies) {
+          // Пропускаем фильмы, которые не соответствуют текущему фильтру
+          if (currentFilter === 'watched' && !movie.watched) continue;
+          if (currentFilter === 'unwatched' && movie.watched) continue;
+
+          const card = document.createElement('div');
+          card.className = `movie-card ${movie.watched ? 'watched' : ''}`;
+          const poster = movie.customPoster || movie.posterUrl || '';
+          const posterStyle = poster ? `background-image: url('${poster}')` : 'background: #6a0dad';
+
+          card.innerHTML = `
+            <div class="movie-poster" style="${posterStyle}" data-poster="${poster}">
+              ${!poster ? '<div class="placeholder">🎬</div>' : ''}
+              ${movie.watched ? '<div class="watched-badge">✓ Просмотрено</div>' : ''}
+            </div>
+            <div class="movie-info">
+              <h3 class="movie-title" title="${movie.title}">${movie.title}</h3>
+              <div class="movie-year">${movie.year || ''}</div>
+              <div class="movie-actions">
+                <button class="toggle-watched" title="${movie.watched ? 'Не просмотрено' : 'Просмотрено'}">${movie.watched ? 'Не просмотрено' : 'Просмотрено'}</button>
+                <button class="change-poster" title="Изменить постер">Изменить</button>
+                <button class="delete-movie" title="Удалить">✕</button>
+              </div>
+            </div>
+          `;
+
+          card.querySelector('.toggle-watched').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            movie.watched = !movie.watched;
+            await saveMovie(movie);
+            renderMovies();
+          });
+
+          card.querySelector('.delete-movie').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await deleteMovie(movie.id);
+            renderMovies();
+          });
+
+          card.querySelector('.change-poster').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.click();
+            fileInput.addEventListener('change', async () => {
+              const file = fileInput.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                  movie.customPoster = reader.result;
+                  await saveMovie(movie);
+                  renderMovies();
+                };
+                reader.readAsDataURL(file);
+              }
+            });
+          });
+
+          // Добавляем обработчик клика на постер
+          const posterElement = card.querySelector('.movie-poster');
+          if (poster) {
+            posterElement.addEventListener('click', () => {
+              showFullscreenPoster(poster);
+            });
+          }
+
+          moviesList.appendChild(card);
+        }
+      }
+
+      // Обработчики для кнопок фильтрации
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          filterButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          currentFilter = button.dataset.filter;
+          renderMovies();
+        });
+      });
+
+      addMovieBtn.addEventListener('click', async () => {
+        const title = movieTitleInput.value.trim();
+        const posterFile = moviePosterInput.files[0];
+        if (title) {
+          let customPoster = null;
+          if (posterFile) {
+            customPoster = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.readAsDataURL(posterFile);
+            });
+          }
+          const newMovie = {
+            title,
+            year: '',
+            watched: false,
+            posterUrl: '',
+            customPoster,
+          };
+          await saveMovie(newMovie);
+          movieTitleInput.value = '';
+          moviePosterInput.value = '';
+          renderMovies();
+        }
+      });
+
+      await initDB;
+      renderMovies();
+    });
+  </script>
+</body>
+</html>
