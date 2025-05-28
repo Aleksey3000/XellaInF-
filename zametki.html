@@ -40,6 +40,10 @@
             width: 100%;
         }
 
+        body.modal-open {
+            overflow: hidden;
+        }
+
         .container {
             width: 100%;
             max-width: 100%;
@@ -320,6 +324,12 @@
             max-height: 150px;
             border-radius: 5px;
             object-fit: cover;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .note-image:hover {
+            opacity: 0.9;
         }
 
         .note-chart-container {
@@ -416,7 +426,7 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             overflow-y: auto;
         }
 
@@ -665,6 +675,43 @@
             background-color: #3a8a89;
         }
 
+        /* Модальное окно для просмотра изображений */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .image-modal-img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
         /* Адаптивные стили */
         @media (max-width: 480px) {
             .btn {
@@ -763,7 +810,7 @@
     <div id="editNoteModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Редактирование заметки</h2>
+                <h2 class="modal-title" id="editModalTitle">Редактирование заметки</h2>
                 <button class="close-btn">&times;</button>
             </div>
             <div class="form-group">
@@ -894,6 +941,14 @@
         </div>
     </div>
 
+    <!-- Модальное окно для просмотра изображений -->
+    <div id="imageViewModal" class="image-modal">
+        <div class="image-modal-content">
+            <button class="image-modal-close">&times;</button>
+            <img id="imageModalImg" class="image-modal-img" src="" alt="Увеличенное изображение">
+        </div>
+    </div>
+
     <!-- Toast уведомление -->
     <div id="toast" class="toast"></div>
 
@@ -912,6 +967,7 @@
             const importModal = document.getElementById('importModal');
             const editNoteModal = document.getElementById('editNoteModal');
             const customizeNoteModal = document.getElementById('customizeNoteModal');
+            const imageViewModal = document.getElementById('imageViewModal');
             
             // Элементы импорта
             const importFile = document.getElementById('importFile');
@@ -920,6 +976,7 @@
             const confirmImportBtn = document.getElementById('confirmImportBtn');
             
             // Элементы редактирования
+            const editModalTitle = document.getElementById('editModalTitle');
             const editNoteTitle = document.getElementById('editNoteTitle');
             const editNotePriority = document.getElementById('editNotePriority');
             const editNoteContent = document.getElementById('editNoteContent');
@@ -935,6 +992,10 @@
             const noteTextColor = document.getElementById('noteTextColor');
             const cancelCustomizeBtn = document.getElementById('cancelCustomizeBtn');
             const applyCustomizeBtn = document.getElementById('applyCustomizeBtn');
+            
+            // Элементы просмотра изображений
+            const imageModalImg = document.getElementById('imageModalImg');
+            const imageModalClose = document.querySelector('.image-modal-close');
             
             // Элементы графиков
             const chartTypeSelect = document.getElementById('chartTypeSelect');
@@ -988,6 +1049,7 @@
             let uploadedImages = [];
             let chartData = null;
             let drawingData = null;
+            let isNewNote = false;
 
             // Инициализация IndexedDB
             function initDB() {
@@ -1052,43 +1114,16 @@
             // Добавление новой заметки
             async function addNote() {
                 try {
-                    const newNote = {
-                        title: 'Новая заметка',
-                        content: '',
-                        date: new Date().toISOString(),
-                        priority: 'medium', // Приоритет по умолчанию
-                        customStyles: {
-                            backgroundColor: '#ffffff',
-                            borderColor: '#dddddd',
-                            titleColor: '#6a3093',
-                            textColor: '#333333'
-                        },
-                        images: [],
-                        chartData: null,
-                        drawingData: null
-                    };
-
-                    const transaction = db.transaction(['notes'], 'readwrite');
-                    const store = transaction.objectStore('notes');
-                    const request = store.add(newNote);
-
-                    return new Promise((resolve, reject) => {
-                        request.onsuccess = () => {
-                            newNote.id = request.result;
-                            notes.push(newNote);
-                            renderNotes();
-                            // Открываем модальное окно редактирования для новой заметки
-                            openEditModal(newNote.id, true);
-                            resolve(newNote);
-                        };
-
-                        request.onerror = (event) => {
-                            reject(event.target.error);
-                        };
-                    });
+                    isNewNote = true;
+                    
+                    // Открываем модальное окно редактирования для новой заметки
+                    openEditModal(null, true);
+                    
+                    return true;
                 } catch (error) {
                     console.error('Error adding note:', error);
                     showToast('Ошибка при добавлении заметки');
+                    return false;
                 }
             }
 
@@ -1119,37 +1154,73 @@
                 try {
                     const transaction = db.transaction(['notes'], 'readwrite');
                     const store = transaction.objectStore('notes');
-                    const getRequest = store.get(id);
-
-                    return new Promise((resolve, reject) => {
-                        getRequest.onsuccess = () => {
-                            const note = getRequest.result;
-                            if (!note) {
-                                reject(new Error('Note not found'));
-                                return;
-                            }
-
-                            const updatedNote = { ...note, ...updates, date: new Date().toISOString() };
-                            const updateRequest = store.put(updatedNote);
-
-                            updateRequest.onsuccess = () => {
-                                const index = notes.findIndex(n => n.id === id);
-                                if (index !== -1) {
-                                    notes[index] = updatedNote;
-                                }
+                    
+                    if (id === null) {
+                        // Создаем новую заметку
+                        const newNote = {
+                            title: updates.title || 'Новая заметка',
+                            content: updates.content || '',
+                            date: new Date().toISOString(),
+                            priority: updates.priority || 'medium',
+                            customStyles: updates.customStyles || {
+                                backgroundColor: '#ffffff',
+                                borderColor: '#dddddd',
+                                titleColor: '#6a3093',
+                                textColor: '#333333'
+                            },
+                            images: updates.images || [],
+                            chartData: updates.chartData || null,
+                            drawingData: updates.drawingData || null
+                        };
+                        
+                        const request = store.add(newNote);
+                        
+                        return new Promise((resolve, reject) => {
+                            request.onsuccess = () => {
+                                newNote.id = request.result;
+                                notes.push(newNote);
                                 renderNotes();
-                                resolve(updatedNote);
+                                resolve(newNote);
                             };
-
-                            updateRequest.onerror = (event) => {
+                            
+                            request.onerror = (event) => {
                                 reject(event.target.error);
                             };
-                        };
-
-                        getRequest.onerror = (event) => {
-                            reject(event.target.error);
-                        };
-                    });
+                        });
+                    } else {
+                        // Обновляем существующую заметку
+                        const getRequest = store.get(id);
+                        
+                        return new Promise((resolve, reject) => {
+                            getRequest.onsuccess = () => {
+                                const note = getRequest.result;
+                                if (!note) {
+                                    reject(new Error('Note not found'));
+                                    return;
+                                }
+                                
+                                const updatedNote = { ...note, ...updates, date: new Date().toISOString() };
+                                const updateRequest = store.put(updatedNote);
+                                
+                                updateRequest.onsuccess = () => {
+                                    const index = notes.findIndex(n => n.id === id);
+                                    if (index !== -1) {
+                                        notes[index] = updatedNote;
+                                    }
+                                    renderNotes();
+                                    resolve(updatedNote);
+                                };
+                                
+                                updateRequest.onerror = (event) => {
+                                    reject(event.target.error);
+                                };
+                            };
+                            
+                            getRequest.onerror = (event) => {
+                                reject(event.target.error);
+                            };
+                        });
+                    }
                 } catch (error) {
                     console.error('Error updating note:', error);
                     showToast('Ошибка при обновлении заметки');
@@ -1331,6 +1402,7 @@
                     const editBtn = noteElement.querySelector('.edit-btn');
                     const customizeBtn = noteElement.querySelector('.customize-btn');
                     const deleteBtn = noteElement.querySelector('.delete-btn');
+                    const noteImages = noteElement.querySelectorAll('.note-image');
                     
                     editBtn.addEventListener('click', () => {
                         openEditModal(note.id);
@@ -1344,6 +1416,13 @@
                         if (confirm('Вы уверены, что хотите удалить эту заметку?')) {
                             deleteNote(note.id);
                         }
+                    });
+                    
+                    // Добавляем обработчик для увеличения изображений
+                    noteImages.forEach(img => {
+                        img.addEventListener('click', () => {
+                            openImageModal(img.src);
+                        });
                     });
                 });
             }
@@ -1387,6 +1466,19 @@
                         } : undefined
                     }
                 });
+            }
+
+            // Открытие модального окна для просмотра изображений
+            function openImageModal(src) {
+                imageModalImg.src = src;
+                imageViewModal.style.display = 'flex';
+                document.body.classList.add('modal-open');
+            }
+
+            // Закрытие модального окна для просмотра изображений
+            function closeImageModal() {
+                imageViewModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
             }
 
             // Переключение между секциями в модальном окне редактирования
@@ -1441,25 +1533,29 @@
             // Открытие модального окна редактирования
             async function openEditModal(noteId, isNew = false) {
                 currentNoteId = noteId;
-                const note = await getNoteById(noteId);
+                isNewNote = isNew;
                 
-                if (!note) {
-                    showToast('Заметка не найдена');
-                    return;
+                // Устанавливаем заголовок модального окна
+                if (isNew) {
+                    editModalTitle.textContent = 'Создание новой заметки';
+                } else {
+                    editModalTitle.textContent = 'Редактирование заметки';
                 }
                 
-                // Заполняем поля формы
-                editNoteTitle.value = note.title || '';
-                editNotePriority.value = note.priority || 'medium';
-                editNoteContent.innerHTML = note.content || '';
+                // Блокируем прокрутку основного содержимого
+                document.body.classList.add('modal-open');
                 
-                // Очищаем предпросмотр изображений
-                imagePreviewContainer.innerHTML = '';
-                uploadedImages = [];
-                
-                // Если это новая заметка или мы сбрасываем состояние
                 if (isNew) {
-                    // Очищаем все данные
+                    // Заполняем поля формы значениями по умолчанию
+                    editNoteTitle.value = '';
+                    editNotePriority.value = 'medium';
+                    editNoteContent.innerHTML = '';
+                    
+                    // Очищаем предпросмотр изображений
+                    imagePreviewContainer.innerHTML = '';
+                    uploadedImages = [];
+                    
+                    // Очищаем данные
                     chartData = null;
                     drawingData = null;
                     
@@ -1475,6 +1571,22 @@
                     // Обновляем форму данных графика
                     updateChartDataForm([], []);
                 } else {
+                    const note = await getNoteById(noteId);
+                    
+                    if (!note) {
+                        showToast('Заметка не найдена');
+                        return;
+                    }
+                    
+                    // Заполняем поля формы
+                    editNoteTitle.value = note.title || '';
+                    editNotePriority.value = note.priority || 'medium';
+                    editNoteContent.innerHTML = note.content || '';
+                    
+                    // Очищаем предпросмотр изображений
+                    imagePreviewContainer.innerHTML = '';
+                    uploadedImages = [];
+                    
                     // Добавляем существующие изображения в предпросмотр
                     if (note.images && note.images.length > 0) {
                         note.images.forEach(imgSrc => {
@@ -1683,6 +1795,9 @@
                     return;
                 }
                 
+                // Блокируем прокрутку основного содержимого
+                document.body.classList.add('modal-open');
+                
                 // Заполняем поля формы
                 if (note.customStyles) {
                     noteBackgroundColor.value = note.customStyles.backgroundColor || '#ffffff';
@@ -1702,11 +1817,6 @@
 
             // Сохранение заметки
             async function saveNote() {
-                if (!currentNoteId) {
-                    showToast('Ошибка: ID заметки не найден');
-                    return;
-                }
-                
                 // Получаем данные из формы
                 const title = editNoteTitle.value.trim();
                 const priority = editNotePriority.value;
@@ -1734,9 +1844,19 @@
                 });
                 
                 // Закрываем модальное окно
-                editNoteModal.style.display = 'none';
+                closeEditModal();
                 
                 showToast('Заметка сохранена');
+            }
+
+            // Закрытие модального окна редактирования
+            function closeEditModal() {
+                editNoteModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                
+                // Сбрасываем флаг новой заметки
+                isNewNote = false;
+                currentNoteId = null;
             }
 
             // Применение кастомизации
@@ -1764,6 +1884,7 @@
                 
                 // Закрываем модальное окно
                 customizeNoteModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
                 
                 showToast('Кастомизация применена');
             }
@@ -2140,6 +2261,7 @@
             exportBtn.addEventListener('click', exportNotes);
             importBtn.addEventListener('click', () => {
                 importModal.style.display = 'flex';
+                document.body.classList.add('modal-open');
                 importFile.value = '';
                 importFileName.textContent = 'Файл не выбран';
             });
@@ -2157,6 +2279,10 @@
             searchInput.addEventListener('keyup', (e) => {
                 if (e.key === 'Enter') {
                     searchNotes();
+                } else if (searchInput.value.trim() === '') {
+                    // Если поле поиска пустое, сбрасываем поиск
+                    searchQuery = '';
+                    renderNotes();
                 }
             });
             
@@ -2175,12 +2301,24 @@
             // Обработчики модальных окон
             closeModalBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    btn.closest('.modal').style.display = 'none';
+                    const modal = btn.closest('.modal');
+                    if (modal === editNoteModal) {
+                        // Если это модальное окно редактирования и это новая заметка,
+                        // не создаем пустую заметку при закрытии
+                        closeEditModal();
+                    } else {
+                        modal.style.display = 'none';
+                        document.body.classList.remove('modal-open');
+                    }
                 });
             });
             
+            // Обработчик закрытия модального окна просмотра изображений
+            imageModalClose.addEventListener('click', closeImageModal);
+            
             cancelImportBtn.addEventListener('click', () => {
                 importModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
             });
             
             confirmImportBtn.addEventListener('click', async () => {
@@ -2192,6 +2330,7 @@
                 try {
                     await importNotes(importFile.files[0]);
                     importModal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
                 } catch (error) {
                     console.error('Error importing notes:', error);
                     showToast('Ошибка при импорте заметок. Убедитесь, что файл в правильном формате.');
@@ -2199,13 +2338,14 @@
             });
             
             cancelEditBtn.addEventListener('click', () => {
-                editNoteModal.style.display = 'none';
+                closeEditModal();
             });
             
             saveNoteBtn.addEventListener('click', saveNote);
             
             cancelCustomizeBtn.addEventListener('click', () => {
                 customizeNoteModal.style.display = 'none';
+                document.body.classList.remove('modal-open');
             });
             
             applyCustomizeBtn.addEventListener('click', applyCustomize);
@@ -2225,11 +2365,15 @@
             window.addEventListener('click', (e) => {
                 if (e.target === importModal) {
                     importModal.style.display = 'none';
-                } else if (e.target === editNoteModal) {
-                    editNoteModal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
                 } else if (e.target === customizeNoteModal) {
                     customizeNoteModal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                } else if (e.target === imageViewModal) {
+                    closeImageModal();
                 }
+                // Не закрываем модальное окно редактирования при клике вне его,
+                // чтобы избежать случайной потери данных
             });
             
             // Обработчик изменения размера окна
