@@ -4,34 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Современный задачник</title>
-    <link rel="icon" href="icon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --danger-bright: #ff0033; /* Яркий красный для высокого приоритета */
-            --warning: #f8961e;
+            --primary: #7b2cbf;
+            --primary-dark: #5a189a;
+            --primary-light: #9d4edd;
+            --secondary: #00b4d8;
+            --secondary-dark: #0096c7;
+            --accent: #f72585;
             --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
+            --dark: #0d1b2a;
+            --gray: #adb5bd;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --border-radius: 20px;
+            --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
+            --danger-bright: #f72585;
+            --warning: #f8961e;
+            --success: #4cc9f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%) fixed;
+            color: var(--light);
+            min-height: 100vh;
             line-height: 1.6;
-            color: var(--dark);
-            background-color: #f5f7fa;
             padding: 20px;
             max-width: 800px;
             margin: 0 auto;
+            overflow-x: hidden;
+        }
+        
+        .app-header {
+            background: var(--futuristic-gradient);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            z-index: 10;
+            box-shadow: 0 4px 30px rgba(123, 44, 191, 0.3);
         }
         
         h1 {
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            position: relative;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.5px;
+        }
+        
+        .app-subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+            font-weight: 400;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         
         .task-form {
@@ -44,36 +93,53 @@
         .task-input {
             flex: 1;
             padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+            border: none;
+            border-radius: var(--border-radius);
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            border: 1px solid var(--glass-border);
         }
         
         .task-input:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.3);
+        }
+        
+        .task-input::placeholder {
+            color: var(--gray);
+        }
+        
+        .priority-selector {
+            padding: 8px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
         }
         
         .add-btn {
-            background-color: var(--primary);
+            background: var(--futuristic-gradient);
             color: white;
             border: none;
             padding: 12px 20px;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: var(--transition);
+            box-shadow: 0 6px 20px rgba(123, 44, 191, 0.3);
+            position: relative;
+            overflow: hidden;
         }
         
         .add-btn:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
-        }
-        
-        .add-btn:active {
-            transform: translateY(0);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(123, 44, 191, 0.4);
         }
         
         .task-list {
@@ -82,20 +148,24 @@
         }
         
         .task-item {
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px 20px;
-            margin-bottom: 10px;
-            border-radius: 8px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius);
             display: flex;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
             cursor: pointer;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            will-change: transform;
         }
         
         .task-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
         
         .task-priority {
@@ -103,7 +173,8 @@
             height: 16px;
             border-radius: 50%;
             margin-right: 8px; 
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
+            box-shadow: 0 0 10px currentColor;
         }
 
         .checkbox {
@@ -112,7 +183,7 @@
             cursor: pointer;
             accent-color: var(--primary);
             margin-right: 12px; 
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
         }
         
         .task-text {
@@ -120,6 +191,7 @@
             margin: 0; 
             margin-right: 12px; 
             word-break: break-word;
+            color: var(--light);
         }
         
         .task-completed .task-text {
@@ -133,13 +205,13 @@
             margin:0; 
             margin-right: 12px; 
             white-space: nowrap; 
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
         }
 
         .task-actions {
             display: flex;
             align-items: center;
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
         }
 
         .task-actions .move-btn,
@@ -157,7 +229,7 @@
             color: var(--gray);
             font-size: 18px;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: var(--transition);
             padding: 5px;
             border-radius: 4px;
             display: flex;
@@ -166,13 +238,13 @@
         }
         
         .delete-btn:hover {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--danger-bright);
         }
         
         .move-btn:hover {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary);
+            background-color: rgba(0, 180, 216, 0.1);
+            color: var(--secondary);
         }
         
         .status {
@@ -186,9 +258,10 @@
             text-align: center;
             color: var(--gray);
             padding: 40px 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
         }
         
         .controls {
@@ -205,51 +278,50 @@
             color: white;
             border: none;
             padding: 10px 15px;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
         }
         
         .controls button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .controls button:active {
-            transform: translateY(0);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         
         #exportBtn {
-            background-color: var(--success);
+            color: var(--success);
         }
         
         #exportBtn:hover {
-            background-color: #3ab7db;
+            background: rgba(76, 201, 240, 0.2);
         }
         
         #importBtn {
-            background-color: var(--warning);
+            color: var(--warning);
         }
         
         #importBtn:hover {
-            background-color: #e68a19;
+            background: rgba(248, 150, 30, 0.2);
         }
         
         #clearCompletedBtn {
-            background-color: var(--gray);
+            color: var(--gray);
         }
         
         #clearCompletedBtn:hover {
-            background-color: #5a6268;
+            background: rgba(173, 181, 189, 0.2);
         }
         
         #clearAllBtn {
-            background-color: var(--danger-bright);
+            color: var(--danger-bright);
         }
         
         #clearAllBtn:hover {
-            background-color: #e11d48;
+            background: rgba(247, 37, 133, 0.2);
         }
         
         #file-input {
@@ -261,13 +333,14 @@
             top: 20px;
             right: 20px;
             padding: 15px 20px;
-            background-color: var(--success);
+            background: rgba(76, 201, 240, 0.9);
             color: white;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transform: translateX(200%);
             transition: transform 0.3s ease-in-out;
             z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .notification.show {
@@ -275,11 +348,11 @@
         }
         
         .notification.error {
-            background-color: var(--danger);
+            background: rgba(247, 37, 133, 0.9);
         }
         
         .notification.warning {
-            background-color: var(--warning);
+            background: rgba(248, 150, 30, 0.9);
         }
                 
         .priority-high {
@@ -292,13 +365,6 @@
         
         .priority-low {
             background-color: var(--success);
-        }
-        
-        .priority-selector {
-            padding: 8px;
-            border-radius: 8px;
-            border: 2px solid #e9ecef;
-            cursor: pointer;
         }
         
         .modal {
@@ -319,15 +385,16 @@
         }
         
         .modal-content {
-            background-color: white;
+            background: rgba(13, 27, 42, 0.9);
             padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             width: 90%;
             max-width: 500px;
             transform: translateY(-20px);
             transition: transform 0.3s;
             animation: modal-appear 0.3s forwards;
+            border: 1px solid var(--glass-border);
         }
         
         @keyframes modal-appear {
@@ -351,7 +418,7 @@
         .modal-title {
             font-size: 20px;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--primary-light);
             margin: 0;
         }
         
@@ -365,7 +432,7 @@
         }
         
         .modal-close:hover {
-            color: var(--danger);
+            color: var(--danger-bright);
         }
         
         .modal-body {
@@ -381,31 +448,32 @@
         .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: var(--transition);
         }
         
         .btn-primary {
-            background-color: var(--primary);
+            background: var(--futuristic-gradient);
             color: white;
         }
         
         .btn-primary:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-3px);
         }
         
         .btn-secondary {
-            background-color: var(--gray);
+            background: rgba(173, 181, 189, 0.2);
             color: white;
+            border: 1px solid var(--glass-border);
         }
         
         .btn-secondary:hover {
-            background-color: #5a6268;
-            transform: translateY(-2px);
+            background: rgba(173, 181, 189, 0.3);
+            transform: translateY(-3px);
         }
         
         .form-group {
@@ -416,21 +484,25 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
+            color: var(--light);
         }
         
         .tasklist-selector {
             padding: 12px 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: var(--transition);
             margin-bottom: 15px;
             width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
         }
         
         .tasklist-selector:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.3);
         }
         
         .bulk-actions {
@@ -443,17 +515,30 @@
         .bulk-actions button {
             padding: 8px 15px;
             border: none;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
             color: white;
-            background-color: var(--primary);
-            transition: background-color 0.3s, transform 0.2s;
+            background: rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            border: 1px solid var(--glass-border);
         }
         
         .bulk-actions button:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Анимации для карточек задач */
+        .task-item {
+            animation: fadeIn 0.8s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         @media (max-width: 600px) {
@@ -473,38 +558,71 @@
                 flex-direction: column;
             }
 
-            /* Responsive styles for task items */
             .task-item {
                 flex-wrap: wrap;
-                align-items: flex-start; /* Align items to the top when wrapped */
-                padding: 12px 15px; /* Slightly adjusted padding for mobile */
+                align-items: flex-start;
+                padding: 12px 15px;
             }
 
             .task-date {
-                flex-basis: 100%;   /* Force to new line, take full available width */
-                margin-top: 8px;    /* Space from the line above */
-                margin-left: 0;     /* Align to the start of the task-item content box */
+                flex-basis: 100%;
+                margin-top: 8px;
+                margin-left: 0;
                 margin-right: 0;
-                white-space: normal; /* Allow date to wrap if needed on very small screens */
+                white-space: normal;
             }
 
             .task-actions {
-                flex-basis: 100%;   /* Force to new line, take full available width */
-                margin-top: 10px;   /* Space from the date */
-                margin-left: 0;     /* Align to the start of the task-item content box */
-                justify-content: flex-start; /* Align buttons to the left on mobile */
+                flex-basis: 100%;
+                margin-top: 10px;
+                margin-left: 0;
+                justify-content: flex-start;
             }
 
             .task-actions .move-btn,
             .task-actions .delete-btn {
-                padding: 8px; /* Adjust padding for touch targets */
-                font-size: 16px; /* Ensure readability */
+                padding: 8px;
+                font-size: 16px;
             }
+        }
+        
+        /* Футуристичные элементы */
+        .futuristic-dots {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .dot {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            animation: float 15s infinite linear;
+            will-change: transform;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <h1>Мой задачник</h1>
+    <div class="futuristic-dots" id="dotsContainer"></div>
+    
+    <div class="app-header">
+        <h1>Мой задачник <i class="fas fa-tasks"></i></h1>
+        <p class="app-subtitle">Управляйте задачами в современном футуристичном стиле</p>
+    </div>
     
     <select class="tasklist-selector" id="tasklistSelector">
         <option value="default" selected>Основной список</option>
@@ -514,9 +632,9 @@
     </select>
     
     <div class="bulk-actions">
-        <button id="markAllBtn">✓ Отметить все</button>
-        <button id="unmarkAllBtn">✗ Снять все отметки</button>
-        <button id="clearAllTasksBtn">🗑️ Очистить все задачи</button>
+        <button id="markAllBtn"><i class="fas fa-check-circle"></i> Отметить все</button>
+        <button id="unmarkAllBtn"><i class="fas fa-times-circle"></i> Снять все отметки</button>
+        <button id="clearAllTasksBtn"><i class="fas fa-trash"></i> Очистить все задачи</button>
     </div>
     
     <div class="task-form">
@@ -526,20 +644,23 @@
             <option value="medium" selected>Средний</option>
             <option value="high">Высокий</option>
         </select>
-        <button class="add-btn" id="addTask">Добавить</button>
+        <button class="add-btn" id="addTask">Добавить <i class="fas fa-plus"></i></button>
     </div>
     
     <ul class="task-list" id="taskList">
-        <div class="empty-state" id="emptyState">Нет задач. Добавьте первую!</div>
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
+            <p>Нет задач. Добавьте первую!</p>
+        </div>
     </ul>
     
     <div class="status" id="status">Всего задач: 0, выполнено: 0</div>
     
     <div class="controls">
-        <button id="exportBtn">💾 Экспорт задач</button>
-        <button id="importBtn">📂 Импорт задач</button>
-        <button id="clearCompletedBtn">🧹 Очистить выполненные</button>
-        <button id="clearAllBtn">🗑️ Очистить все</button>
+        <button id="exportBtn"><i class="fas fa-download"></i> Экспорт задач</button>
+        <button id="importBtn"><i class="fas fa-upload"></i> Импорт задач</button>
+        <button id="clearCompletedBtn"><i class="fas fa-broom"></i> Очистить выполненные</button>
+        <button id="clearAllBtn"><i class="fas fa-trash-alt"></i> Очистить все</button>
         <input type="file" id="file-input" accept=".json">
     </div>
     
@@ -594,6 +715,20 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Создаем футуристичные точки
+            const dotsContainer = document.getElementById('dotsContainer');
+            for (let i = 0; i < 40; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.style.left = `${Math.random() * 100}%`;
+                dot.style.top = `${Math.random() * 100}%`;
+                dot.style.width = `${Math.random() * 2 + 1}px`;
+                dot.style.height = dot.style.width;
+                dot.style.animationDelay = `${Math.random() * 15}s`;
+                dot.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                dotsContainer.appendChild(dot);
+            }
+            
             const taskInput = document.getElementById('taskInput');
             const prioritySelect = document.getElementById('prioritySelect');
             const addTaskBtn = document.getElementById('addTask');
@@ -704,9 +839,9 @@
                             <span class="task-text">${task.text}</span>
                             <span class="task-date">${formatDate(task.createdAt)}</span>
                             <div class="task-actions">
-                                <button class="move-btn move-up" data-id="${originalIndex}" title="Переместить вверх">▲</button>
-                                <button class="move-btn move-down" data-id="${originalIndex}" title="Переместить вниз">▼</button>
-                                <button class="delete-btn" data-id="${originalIndex}" title="Удалить">×</button>
+                                <button class="move-btn move-up" data-id="${originalIndex}" title="Переместить вверх"><i class="fas fa-arrow-up"></i></button>
+                                <button class="move-btn move-down" data-id="${originalIndex}" title="Переместить вниз"><i class="fas fa-arrow-down"></i></button>
+                                <button class="delete-btn" data-id="${originalIndex}" title="Удалить"><i class="fas fa-trash"></i></button>
                             </div>
                         `;
                         
