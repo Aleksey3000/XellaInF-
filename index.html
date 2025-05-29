@@ -1,10 +1,10 @@
- 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XellaInF — Интеллектуальные инструменты для продуктивности</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -18,13 +18,14 @@
       --light: #f8f9fa;
       --dark: #0d1b2a;
       --gray: #adb5bd;
-      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-bg: rgba(255, 255, 255, 0.12);
       --glass-bg: rgba(255, 255, 255, 0.15);
       --glass-border: rgba(255, 255, 255, 0.25);
       --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      --border-radius: 20px;
+      --border-radius: 16px;
       --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
+      --grid-gap: 24px;
     }
 
     * {
@@ -35,50 +36,41 @@
     }
 
     body {
-      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      background: #0d1b2a; /* Статичный фон вместо градиента */
       color: var(--light);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       line-height: 1.6;
       overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Фиксированный фон для предотвращения мерцания */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      z-index: -3;
     }
 
     .app-header {
       background: var(--futuristic-gradient);
       color: white;
-      padding: 3rem 1.5rem;
+      padding: 2.5rem 1.5rem;
       text-align: center;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 60px rgba(123, 44, 191, 0.3);
+      box-shadow: 0 4px 40px rgba(123, 44, 191, 0.25);
       z-index: 10;
     }
 
-    .app-header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      right: -50%;
-      bottom: -50%;
-      background: linear-gradient(
-        to bottom right,
-        transparent 0%,
-        var(--glass-bg) 50%,
-        transparent 100%
-      );
-      transform: rotate(30deg);
-      animation: shine 12s infinite linear;
-    }
-
-    @keyframes shine {
-      0% { transform: translateX(-100%) rotate(30deg); }
-      100% { transform: translateX(100%) rotate(30deg); }
-    }
-
     .app-title {
-      font-size: 3rem;
+      font-size: 2.8rem;
       font-weight: 700;
       margin-bottom: 0.75rem;
       display: flex;
@@ -86,65 +78,51 @@
       justify-content: center;
       gap: 15px;
       position: relative;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       letter-spacing: -0.5px;
     }
 
     .app-title .version {
-      background: var(--glass-bg);
+      background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      padding: 0.5rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.4rem 0.8rem;
       border-radius: 100px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 500;
-      margin-left: 1rem;
-      animation: pulse 2s infinite ease-in-out;
+      margin-left: 0.8rem;
+      animation: pulse 3s infinite ease-in-out;
     }
 
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 1; }
     }
 
     .app-subtitle {
-      opacity: 0.9;
-      font-size: 1.2rem;
+      opacity: 0.85;
+      font-size: 1.15rem;
       font-weight: 400;
       max-width: 700px;
       margin: 0 auto;
       position: relative;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
 
     .app-container {
       flex: 1;
-      padding: 3rem;
+      padding: 2.5rem;
       max-width: 1600px;
       margin: 0 auto;
       width: 100%;
       position: relative;
     }
 
-    .app-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(circle at 20% 30%, rgba(123, 44, 191, 0.1) 0%, transparent 40%),
-                  radial-gradient(circle at 80% 70%, rgba(0, 180, 216, 0.1) 0%, transparent 40%);
-      z-index: -1;
-      pointer-events: none;
-    }
-
     .apps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 35px;
-      margin-top: 3rem;
-      perspective: 1000px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--grid-gap);
+      margin-top: 2.5rem;
     }
 
     .app-card {
@@ -157,10 +135,10 @@
       flex-direction: column;
       height: 100%;
       position: relative;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      transform-style: preserve-3d;
-      transform: translateZ(0);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateY(0);
+      will-change: transform; /* Улучшает производительность анимации */
     }
 
     .app-card::before {
@@ -170,15 +148,16 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, rgba(123, 44, 191, 0.15) 0%, rgba(0, 180, 216, 0.15) 100%);
+      background: linear-gradient(135deg, rgba(123, 44, 191, 0.1) 0%, rgba(0, 180, 216, 0.1) 100%);
       z-index: -1;
       opacity: 0;
       transition: var(--transition);
     }
 
     .app-card:hover {
-      transform: translateY(-10px) translateZ(20px);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .app-card:hover::before {
@@ -186,7 +165,7 @@
     }
 
     .app-card-image {
-      height: 200px;
+      height: 180px;
       background-size: cover;
       background-position: center;
       position: relative;
@@ -203,33 +182,33 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 100%);
       z-index: 1;
     }
 
     .app-card-image i {
-      font-size: 5rem;
+      font-size: 4.5rem;
       opacity: 0.9;
-      text-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      text-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
       transition: var(--transition);
       z-index: 2;
       position: relative;
     }
 
     .app-card:hover .app-card-image i {
-      transform: scale(1.1) rotate(5deg);
-      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
     }
 
     .app-card-content {
-      padding: 2rem;
+      padding: 1.8rem;
       flex: 1;
       display: flex;
       flex-direction: column;
     }
 
     .app-card-title {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 600;
       margin-bottom: 1rem;
       color: white;
@@ -240,14 +219,13 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-fill-color: transparent;
     }
 
     .app-card-desc {
-      color: var(--gray);
-      margin-bottom: 2rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 1.8rem;
       flex: 1;
-      font-size: 1rem;
+      font-size: 0.95rem;
       line-height: 1.7;
     }
 
@@ -255,8 +233,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 1rem 2rem;
+      gap: 8px;
+      padding: 0.9rem 1.8rem;
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
       text-decoration: none;
@@ -267,9 +245,11 @@
       margin-top: auto;
       border: none;
       cursor: pointer;
-      box-shadow: 0 6px 20px rgba(123, 44, 191, 0.3));
+      box-shadow: 0 5px 15px rgba(123, 44, 191, 0.25));
       position: relative;
       overflow: hidden;
+      font-size: 0.95rem;
+      will-change: transform; /* Улучшает производительность */
     }
 
     .app-card-btn::before {
@@ -279,14 +259,14 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
       transition: 0.5s;
     }
 
     .app-card-btn:hover {
       background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      transform: translateY(-3px);
-      box-shadow: 0 10px 25px rgba(123, 44, 191, 0.4));
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(123, 44, 191, 0.35));
     }
 
     .app-card-btn:hover::before {
@@ -294,27 +274,27 @@
     }
 
     .app-card-btn i {
-      font-size: 1rem;
+      font-size: 0.9rem;
       transition: transform 0.3s ease;
     }
 
     .app-card-btn:hover i {
-      transform: translateX(5px);
+      transform: translateX(4px);
     }
 
     .app-footer {
       text-align: center;
-      padding: 2rem;
-      color: var(--gray);
-      font-size: 0.9rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      background: rgba(13, 27, 42, 0.8);
+      padding: 1.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(13, 27, 42, 0.85);
       backdrop-filter: blur(10px);
     }
 
-    /* Футуристичные элементы */
+    /* Упрощенные футуристичные элементы */
     .futuristic-dots {
-      position: absolute;
+      position: fixed; /* Фиксированное позиционирование */
       width: 100%;
       height: 100%;
       top: 0;
@@ -329,30 +309,25 @@
       width: 2px;
       height: 2px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.15);
-      animation: float 15s infinite linear;
+      background: rgba(255, 255, 255, 0.08); /* Более прозрачные */
+      animation: float 20s infinite linear;
     }
 
     @keyframes float {
       0% { transform: translateY(0) translateX(0); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
+      10% { opacity: 0.3; }
+      90% { opacity: 0.3; }
       100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
     }
 
-    /* Анимации */
+    /* Упрощенные анимации */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes floatCard {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .app-card {
-      animation: fadeIn 0.8s ease-out;
+      animation: fadeIn 0.6s ease-out;
       animation-fill-mode: both;
     }
 
@@ -363,11 +338,7 @@
     .app-card:nth-child(5) { animation-delay: 0.5s; }
     .app-card:nth-child(6) { animation-delay: 0.6s; }
 
-    .app-card:hover {
-      animation: floatCard 4s ease-in-out infinite;
-    }
-
-    /* Параллакс эффект */
+    /* Упрощенный параллакс */
     .parallax-bg {
       position: fixed;
       top: 0;
@@ -375,20 +346,26 @@
       width: 100%;
       height: 100%;
       z-index: -2;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="rgba(123, 44, 191, 0.03)" d="M0,0 L100,0 L100,100 L0,100 Z"/></svg>');
-      background-size: 200px 200px;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(123, 44, 191, 0.03) 0%, transparent 25%),
+        radial-gradient(circle at 90% 80%, rgba(0, 180, 216, 0.03) 0%, transparent 25%);
       opacity: 0.3;
+      will-change: transform; /* Улучшает производительность */
     }
 
     /* Адаптивность */
     @media (max-width: 1024px) {
       .app-title {
-        font-size: 2.5rem;
+        font-size: 2.4rem;
       }
       
       .apps-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 25px;
+        gap: 20px;
+      }
+      
+      .app-container {
+        padding: 2rem;
       }
     }
 
@@ -399,22 +376,29 @@
 
       .app-title {
         font-size: 2rem;
-        flex-direction: column;
-        gap: 0.5rem;
       }
       
       .version {
-        margin-left: 0;
-        margin-top: 0.5rem;
+        margin-left: 0.5rem;
       }
 
       .apps-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 18px;
       }
 
       .app-card-image {
-        height: 180px;
+        height: 160px;
+      }
+      
+      .app-card-content {
+        padding: 1.5rem;
+      }
+      
+      /* Отключаем сложные эффекты на мобильных */
+      .parallax-bg,
+      .futuristic-dots {
+        display: none;
       }
     }
 
@@ -431,12 +415,16 @@
         font-size: 1rem;
       }
       
-      .app-card-content {
-        padding: 1.5rem;
+      .app-card-title {
+        font-size: 1.35rem;
       }
       
-      .app-card-title {
-        font-size: 1.4rem;
+      .app-card-desc {
+        font-size: 0.9rem;
+      }
+      
+      .app-card-btn {
+        padding: 0.8rem 1.5rem;
       }
     }
   </style>
@@ -463,7 +451,7 @@
           <h3 class="app-card-title">
             <i class="far fa-calendar-alt"></i> Календарь
           </h3>
-          <p class="app-card-desc">Планируйте свои события, встречи и задачи с умным календарем, который адаптируется под ваш график и предлагает оптимальные решения.</p>
+          <p class="app-card-desc">Планируйте события и встречи с умным календарем, который адаптируется под ваш график и предлагает оптимальные решения.</p>
           <a href="Calendar.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
@@ -477,7 +465,7 @@
           <h3 class="app-card-title">
             <i class="fas fa-calculator"></i> Калькулятор сроков
           </h3>
-          <p class="app-card-desc">Отслеживайте сроки годности продуктов с интеллектуальной системой напоминаний и возможностью сканирования штрих-кодов.</p>
+          <p class="app-card-desc">Отслеживайте сроки годности продуктов с интеллектуальной системой напоминаний и сканированием штрих-кодов.</p>
           <a href="calculator.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
@@ -491,7 +479,7 @@
           <h3 class="app-card-title">
             <i class="fas fa-wallet"></i> Финансы
           </h3>
-          <p class="app-card-desc">Полный контроль над вашими финансами с автоматической категоризацией расходов и прогнозированием бюджета.</p>
+          <p class="app-card-desc">Полный контроль над финансами с автоматической категоризацией расходов и прогнозированием бюджета.</p>
           <a href="tabl.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
@@ -505,7 +493,7 @@
           <h3 class="app-card-title">
             <i class="fas fa-tasks"></i> Задачник
           </h3>
-          <p class="app-card-desc">Умный список задач с приоритетами, тегами и автоматическим планированием времени для выполнения.</p>
+          <p class="app-card-desc">Умный список задач с приоритетами и автоматическим планированием времени для выполнения.</p>
           <a href="Zadachnik.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
@@ -519,7 +507,7 @@
           <h3 class="app-card-title">
             <i class="fas fa-film"></i> Кинотрекер
           </h3>
-          <p class="app-card-desc">Персональная база просмотренных фильмов с рекомендациями на основе ваших предпочтений и оценок.</p>
+          <p class="app-card-desc">База просмотренных фильмов с персонализированными рекомендациями на основе ваших предпочтений.</p>
           <a href="kino.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
@@ -533,7 +521,7 @@
           <h3 class="app-card-title">
             <i class="fas fa-sticky-note"></i> Заметки
           </h3>
-          <p class="app-card-desc">Мощная система заметок с поддержкой markdown, тегов и мгновенного поиска по содержимому.</p>
+          <p class="app-card-desc">Мощная система заметок с поддержкой markdown, тегов и мгновенного поиска.</p>
           <a href="zametki.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
@@ -546,33 +534,51 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Создаем футуристичные точки
+      // Создаем футуристичные точки (уменьшено количество)
       const dotsContainer = document.createElement('div');
       dotsContainer.className = 'futuristic-dots';
       document.body.appendChild(dotsContainer);
       
-      for (let i = 0; i < 50; i++) {
+      for (let i = 0; i < 20; i++) { // Уменьшено с 35 до 20
         const dot = document.createElement('div');
         dot.className = 'dot';
         dot.style.left = `${Math.random() * 100}%`;
         dot.style.top = `${Math.random() * 100}%`;
-        dot.style.width = `${Math.random() * 3 + 1}px`;
+        dot.style.width = `${Math.random() * 2 + 1}px`;
         dot.style.height = dot.style.width;
         dot.style.animationDelay = `${Math.random() * 15}s`;
-        dot.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        dot.style.animationDuration = `${Math.random() * 20 + 20}s`; // Более медленная анимация
         dotsContainer.appendChild(dot);
       }
       
-      // Параллакс эффект для фона
+      // Упрощенный параллакс эффект
       const parallaxBg = document.querySelector('.parallax-bg');
       
-      window.addEventListener('mousemove', (e) => {
-        const x = e.clientX / window.innerWidth;
-        const y = e.clientY / window.innerHeight;
-        parallaxBg.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+      // Отключаем параллакс на мобильных
+      if (window.innerWidth > 768) {
+        window.addEventListener('mousemove', (e) => {
+          const x = (e.clientX / window.innerWidth - 0.5) * 10; // Уменьшена интенсивность
+          const y = (e.clientY / window.innerHeight - 0.5) * 10;
+          parallaxBg.style.transform = `translate(${x}px, ${y}px)`;
+        });
+      }
+
+      // Оптимизация для скролла
+      let lastScrollY = window.scrollY;
+      let ticking = false;
+      
+      window.addEventListener('scroll', () => {
+        lastScrollY = window.scrollY;
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            // Принудительный ререндер для предотвращения мерцания
+            document.body.style.backfaceVisibility = 'hidden';
+            ticking = false;
+          });
+          ticking = true;
+        }
       });
 
-      // Анимация при загрузке
       console.log('XellaInF v1.0.0 успешно загружен');
     });
   </script>
