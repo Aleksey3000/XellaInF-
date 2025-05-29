@@ -3,63 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📅 Калькулятор сроков годности</title>
-    <link rel="icon" href="icon.png" type="image/png">
+    <title>📅 Футуристичный Калькулятор Сроков Годности</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
+            --primary: #7b2cbf;
+            --primary-dark: #5a189a;
+            --primary-light: #9d4edd;
+            --secondary: #00b4d8;
+            --secondary-dark: #0096c7;
             --accent: #f72585;
             --light: #f8f9fa;
-            --dark: #212529;
-            --success: #4cc9f0;
-            --warning: #f8961e;
-            --danger: #ef233c;
-            --card-bg: #ffffff;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --dark: #0d1b2a;
+            --gray: #555; /* Исправлен для лучшей контрастности */
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            --border-radius: 20px;
+            --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
         body {
-            background: #f5f7fa;
-            color: var(--dark);
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+            color: var(--light);
+            min-height: 100vh;
             line-height: 1.6;
+            overflow-x: hidden;
             padding: 20px;
+        }
+
+        /* Параллакс фон */
+        .parallax-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(123, 44, 191, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0, 180, 216, 0.1) 0%, transparent 40%);
+            opacity: 0.5;
+            will-change: transform;
         }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            background: white;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
             overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 10;
         }
 
         header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--futuristic-gradient);
             color: white;
             padding: 25px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 60px rgba(123, 44, 191, 0.3);
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
 
         .subtitle {
             opacity: 0.9;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-weight: 400;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Основной интерфейс */
         .app-content {
             display: flex;
             flex-direction: column;
@@ -67,62 +107,36 @@
             padding: 25px;
         }
 
-        /* Карточка добавления продукта */
-        .add-product-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .form-group {
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
             margin-bottom: 20px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 0.95rem;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            background: #fafafa;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-            background: white;
-        }
-
         .btn {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white;
             border: none;
             padding: 14px 20px;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
-            width: 100%;
+            transition: var(--transition);
             font-size: 1rem;
             letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(123, 44, 191, 0.3);
+            flex: 1;
         }
 
         .btn:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(123, 44, 191, 0.4);
         }
 
         .btn:active {
@@ -131,15 +145,53 @@
         }
 
         .btn-danger {
-            background: var(--danger);
+            background: linear-gradient(135deg, #ef233c, #d90429);
         }
 
         .btn-warning {
-            background: var(--warning);
+            background: linear-gradient(135deg, #f8961e, #f3722c);
         }
 
         .btn-success {
-            background: var(--success);
+            background: linear-gradient(135deg, #4cc9f0, #38b6db);
+        }
+
+        /* Форма поиска */
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #search-product {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            border: none;
+            border-radius: var(--border-radius);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            font-size: 1rem;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        #search-product:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        #search-product::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
         }
 
         /* Список продуктов */
@@ -151,19 +203,21 @@
 
         .product-card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border-radius: var(--border-radius);
             padding: 20px;
             box-shadow: var(--shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s;
+            transition: var(--transition);
             border-left: 4px solid transparent;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .product-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
         .product-info {
@@ -173,13 +227,13 @@
         .product-name {
             font-weight: 700;
             margin-bottom: 8px;
-            font-size: 1.1rem;
-            color: var(--dark);
+            font-size: 1.2rem;
+            color: #333; /* Тёмный цвет для названия */
         }
 
         .product-expiry {
             font-size: 0.95rem;
-            color: #555;
+            color: #333; /* Тёмный цвет для текста */
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
@@ -190,32 +244,40 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        /* Улучшена видимость цифр */
+        .product-expiry .days-count {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #000; /* Чёрный цвет для цифр */
         }
 
         .product-status {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 700; /* Жирный шрифт */
             white-space: nowrap;
+            color: #fff; /* Белый текст для лучшей контрастности */
         }
 
         .status-expired {
-            background: #ffebee;
-            color: var(--danger);
-            border-left-color: var(--danger);
+            background: #d1001c; /* Яркий красный */
+            border-left-color: #ef233c;
         }
 
         .status-warning {
-            background: #fff8e1;
-            color: var(--warning);
-            border-left-color: var(--warning);
+            background: #f8961e; /* Яркий оранжевый */
+            border-left-color: #f8961e;
         }
 
         .status-good {
-            background: #e8f5e9;
-            color: var(--success);
-            border-left-color: var(--success);
+            background: #00a651; /* Яркий зелёный */
+            border-left-color: #4cc9f0;
         }
 
         .product-actions {
@@ -224,30 +286,240 @@
             align-items: center;
         }
 
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(123, 44, 191, 0.1);
+            transform: scale(1.1);
+        }
+
+        .delete-btn {
+            color: #ef233c;
+        }
+
+        .delete-btn:hover {
+            background: rgba(239, 35, 60, 0.1);
+        }
+
+        /* Импорт/экспорт секция */
+        .import-export-section {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Модальные окна */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333; /* Тёмный цвет */
+            font-size: 0.95rem;
+        }
+
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.9);
+            color: #333; /* Тёмный цвет */
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.2);
+            background: white;
+        }
+
+        .shelf-life-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .shelf-life-group input {
+            flex: 1;
+        }
+
+        .shelf-life-group select {
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
         /* Анимации */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         .fade-in {
             animation: fadeIn 0.5s ease-out;
         }
 
-        /* Импорт/экспорт секция */
-        .import-export-section {
+        .pulse {
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        /* Плавающая кнопка добавления */
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(123, 44, 191, 0.4);
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 30px rgba(123, 44, 191, 0.6);
+        }
+
+        /* Пустое состояние */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .empty-state h3 {
+            color: #333; /* Тёмный цвет */
             margin-bottom: 10px;
         }
 
-        .import-export-section .btn {
-            flex: 1;
-        }
-
-        #file-input {
-            display: none;
+        .empty-state p {
+            color: #555; /* Тёмный цвет */
         }
 
         /* Адаптивность */
@@ -271,26 +543,86 @@
             .import-export-section {
                 flex-direction: column;
             }
-        }
-
-        /* Иконки */
-        .icon {
-            margin-right: 5px;
-            font-size: 1.1em;
+            .action-buttons {
+                flex-direction: column;
+            }
+            .floating-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="parallax-bg"></div>
+    
     <div class="container">
         <header>
-            <h1>📅 Калькулятор Сроков Годности</h1>
-            <p class="subtitle">Отслеживайте сроки годности продуктов</p>
+            <h1><i class="fas fa-calculator"></i> Калькулятор Сроков Годности</h1>
+            <p class="subtitle">Отслеживайте сроки годности продуктов.</p>
         </header>
 
         <div class="app-content">
-            <!-- Форма добавления продукта -->
-            <div class="add-product-card fade-in">
-                <h2>➕ Добавить продукт</h2>
+            <!-- Кнопки действий -->
+            <div class="action-buttons">
+                <button id="open-add-modal" class="btn">
+                    <i class="fas fa-plus"></i> Добавить продукт
+                </button>
+                <button id="clear-all-btn" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Очистить всё
+                </button>
+            </div>
+
+            <!-- Поиск -->
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search-product" placeholder="Поиск по названию...">
+            </div>
+
+            <!-- Список продуктов -->
+            <div class="products-list" id="products-list">
+                <div class="empty-state">
+                    <i class="fas fa-box-open"></i>
+                    <h3>Нет добавленных продуктов</h3>
+                    <p>Нажмите на кнопку "Добавить продукт", чтобы начать отслеживание</p>
+                </div>
+            </div>
+
+            <!-- Секция импорта/экспорта -->
+            <div class="import-export-section">
+                <button id="export-btn" class="btn btn-success">
+                    <i class="fas fa-download"></i> Экспорт данных
+                </button>
+                <button id="import-btn" class="btn">
+                    <i class="fas fa-upload"></i> Импорт данных
+                </button>
+                <input type="file" id="file-input" accept=".json">
+            </div>
+        </div>
+    </div>
+
+    <!-- Плавающая кнопка добавления -->
+    <button class="floating-btn" id="floating-add-btn">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Модальное окно добавления продукта -->
+    <div class="modal" id="add-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-plus-circle"></i> Добавить продукт</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
                 <div class="form-group">
                     <label for="product-name">Название продукта:</label>
                     <input type="text" id="product-name" placeholder="Например: Молоко">
@@ -308,9 +640,9 @@
 
                 <div class="form-group">
                     <label for="shelf-life">Срок годности:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="number" id="shelf-life" placeholder="Например: 7" style="flex: 1;">
-                        <select id="shelf-life-unit" style="flex: 1;">
+                    <div class="shelf-life-group">
+                        <input type="number" id="shelf-life" placeholder="Например: 7">
+                        <select id="shelf-life-unit">
                             <option value="days">Дней</option>
                             <option value="weeks">Недель</option>
                             <option value="months">Месяцев</option>
@@ -318,25 +650,28 @@
                         </select>
                     </div>
                 </div>
-
-                <button id="add-product-btn" class="btn">✅ Добавить продукт</button>
             </div>
-
-            <!-- Поиск и фильтрация -->
-            <div class="form-group">
-                <input type="text" id="search-product" placeholder="🔍 Поиск по названию...">
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="cancel-add-btn">Отмена</button>
+                <button class="btn btn-success" id="confirm-add-btn">Добавить</button>
             </div>
+        </div>
+    </div>
 
-            <!-- Список продуктов -->
-            <div class="products-list" id="products-list">
-                <!-- Продукты будут загружаться здесь -->
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal" id="delete-confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Подтверждение удаления</h3>
+                <button class="close-modal">&times;</button>
             </div>
-
-            <!-- Секция импорта/экспорта -->
-            <div class="import-export-section">
-                <button id="export-btn" class="btn btn-success">💾 Экспорт данных</button>
-                <button id="import-btn" class="btn">📂 Импорт данных</button>
-                <input type="file" id="file-input" accept=".json">
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить этот продукт?</p>
+                <p><strong id="product-to-delete"></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="cancel-delete-btn">Отмена</button>
+                <button class="btn btn-danger" id="confirm-delete-btn">Удалить</button>
             </div>
         </div>
     </div>
@@ -444,18 +779,33 @@
                 });
             };
 
-            // ========== РАБОТА С ФОРМОЙ ==========
+            // ========== РАБОТА С ДОМ ЭЛЕМЕНТАМИ ==========
             const productNameInput = document.getElementById('product-name');
             const barcodeInput = document.getElementById('barcode');
             const productionDateInput = document.getElementById('production-date');
             const shelfLifeInput = document.getElementById('shelf-life');
             const shelfLifeUnitSelect = document.getElementById('shelf-life-unit');
-            const addProductBtn = document.getElementById('add-product-btn');
-            const searchInput = document.getElementById('search-product');
             const productsList = document.getElementById('products-list');
+            const searchInput = document.getElementById('search-product');
             const exportBtn = document.getElementById('export-btn');
             const importBtn = document.getElementById('import-btn');
             const fileInput = document.getElementById('file-input');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            
+            // Модальные окна
+            const addModal = document.getElementById('add-product-modal');
+            const deleteModal = document.getElementById('delete-confirm-modal');
+            const openAddModalBtn = document.getElementById('open-add-modal');
+            const floatingAddBtn = document.getElementById('floating-add-btn');
+            const closeModalBtns = document.querySelectorAll('.close-modal');
+            const cancelAddBtn = document.getElementById('cancel-add-btn');
+            const confirmAddBtn = document.getElementById('confirm-add-btn');
+            const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+            const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+            const productToDelete = document.getElementById('product-to-delete');
+            
+            // Переменная для хранения id продукта для удаления
+            let productIdToDelete = null;
 
             // Установка сегодняшней даты по умолчанию
             productionDateInput.value = new Date().toISOString().split('T')[0];
@@ -465,11 +815,35 @@
                 await openDB();
                 await loadProducts();
             } catch (error) {
-                alert('Ошибка загрузки базы данных: ' + error);
+                showError('Ошибка загрузки базы данных: ' + error);
             }
 
+            // Открытие модального окна добавления
+            openAddModalBtn.addEventListener('click', () => {
+                openModal(addModal);
+            });
+
+            floatingAddBtn.addEventListener('click', () => {
+                openModal(addModal);
+            });
+
+            // Закрытие модальных окон
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    closeAllModals();
+                });
+            });
+
+            cancelAddBtn.addEventListener('click', () => {
+                closeModal(addModal);
+            });
+
+            cancelDeleteBtn.addEventListener('click', () => {
+                closeModal(deleteModal);
+            });
+
             // Добавление продукта
-            addProductBtn.addEventListener('click', async () => {
+            confirmAddBtn.addEventListener('click', async () => {
                 const name = productNameInput.value.trim();
                 const barcode = barcodeInput.value.trim();
                 const productionDate = productionDateInput.value;
@@ -477,7 +851,7 @@
                 const shelfLifeUnit = shelfLifeUnitSelect.value;
 
                 if (!name || !productionDate || isNaN(shelfLife) || shelfLife <= 0) {
-                    alert('Заполните все обязательные поля корректно!');
+                    showError('Заполните все обязательные поля корректно!');
                     return;
                 }
 
@@ -502,8 +876,23 @@
                     await addProductToDB(product);
                     await loadProducts();
                     clearForm();
+                    closeModal(addModal);
                 } catch (error) {
-                    alert('Ошибка сохранения: ' + error);
+                    showError('Ошибка сохранения: ' + error);
+                }
+            });
+
+            // Подтверждение удаления
+            confirmDeleteBtn.addEventListener('click', async () => {
+                if (productIdToDelete) {
+                    try {
+                        await deleteProductFromDB(productIdToDelete);
+                        await loadProducts();
+                        closeModal(deleteModal);
+                        productIdToDelete = null;
+                    } catch (error) {
+                        showError('Ошибка удаления: ' + error);
+                    }
                 }
             });
 
@@ -518,13 +907,25 @@
                 }
             });
 
+            // Очистка всех продуктов
+            clearAllBtn.addEventListener('click', async () => {
+                if (confirm('Вы уверены, что хотите удалить все продукты? Это действие нельзя отменить.')) {
+                    try {
+                        await clearAllProducts();
+                        await loadProducts();
+                    } catch (error) {
+                        showError('Ошибка очистки: ' + error);
+                    }
+                }
+            });
+
             // ========== ИМПОРТ/ЭКСПОРТ ДАННЫХ ==========
             // Экспорт данных
             exportBtn.addEventListener('click', async () => {
                 try {
                     const products = await getAllProducts();
                     if (products.length === 0) {
-                        alert('Нет данных для экспорта');
+                        showError('Нет данных для экспорта');
                         return;
                     }
 
@@ -541,7 +942,7 @@
                     URL.revokeObjectURL(url);
                 } catch (error) {
                     console.error('Ошибка экспорта:', error);
-                    alert('Ошибка при экспорте данных: ' + error);
+                    showError('Ошибка при экспорте данных: ' + error);
                 }
             });
 
@@ -574,11 +975,11 @@
                             }
                             
                             await loadProducts();
-                            alert('Данные успешно импортированы');
+                            showSuccess('Данные успешно импортированы');
                         }
                     } catch (error) {
                         console.error('Ошибка импорта:', error);
-                        alert('Ошибка при импорте данных: ' + error);
+                        showError('Ошибка при импорте данных: ' + error);
                     }
                     // Сбрасываем значение input для возможности повторного выбора того же файла
                     fileInput.value = '';
@@ -609,13 +1010,13 @@
                 return Math.ceil(diff / (1000 * 60 * 60 * 24));
             }
 
-            // Статус продукта
+            // Статус продукта (с улучшенным отображением просрочки)
             function getExpiryStatus(expiryDate) {
                 const daysLeft = getDaysLeft(expiryDate);
                 
-                if (daysLeft < 0) return `Просрочено ${Math.abs(daysLeft)} дн.`;
-                if (daysLeft <= 3) return 'Скоро истекает';
-                return 'Годен';
+                if (daysLeft < 0) return `Просрочено ${Math.abs(daysLeft)} дн. назад`;
+                if (daysLeft <= 3) return `Скоро (осталось ${daysLeft} дн.)`;
+                return `Годен (осталось ${daysLeft} дн.)`;
             }
 
             // Очистка формы
@@ -633,6 +1034,7 @@
                     renderProducts(products);
                 } catch (error) {
                     console.error('Ошибка загрузки:', error);
+                    showError('Ошибка загрузки продуктов: ' + error);
                 }
             }
 
@@ -641,7 +1043,13 @@
                 productsList.innerHTML = '';
 
                 if (products.length === 0) {
-                    productsList.innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">Нет сохраненных продуктов</p>';
+                    productsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <h3>Нет добавленных продуктов</h3>
+                            <p>Нажмите на кнопку "Добавить продукт", чтобы начать отслеживание</p>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -651,12 +1059,12 @@
                 products.forEach(product => {
                     const expiryDate = new Date(product.expiryDate);
                     const formattedDate = expiryDate.toLocaleDateString('ru-RU');
-                    const daysLeft = product.daysLeft;
+                    const daysLeft = getDaysLeft(new Date(product.expiryDate));
                     const status = getExpiryStatus(new Date(product.expiryDate));
 
                     let statusClass = '';
                     if (status.includes('Просрочено')) statusClass = 'status-expired';
-                    else if (status === 'Скоро истекает') statusClass = 'status-warning';
+                    else if (status.includes('Скоро')) statusClass = 'status-warning';
                     else statusClass = 'status-good';
 
                     const productElement = document.createElement('div');
@@ -665,33 +1073,77 @@
                         <div class="product-info">
                             <div class="product-name">${product.name}</div>
                             <div class="product-expiry">
-                                <span title="Дата истечения срока"><span class="icon">📅</span> ${formattedDate}</span>
-                                <span title="Осталось дней"><span class="icon">⌛</span> ${daysLeft >= 0 ? daysLeft : 0} дн.</span>
-                                ${product.barcode ? `<span title="Штрих-код"><span class="icon">🏷️</span> ${product.barcode}</span>` : ''}
+                                <span title="Дата истечения срока"><i class="fas fa-calendar"></i> ${formattedDate}</span>
+                                <span title="Осталось дней"><i class="fas fa-hourglass-half"></i> <span class="days-count">${daysLeft >= 0 ? daysLeft : 0}</span> дн.</span>
+                                ${product.barcode ? `<span title="Штрих-код"><i class="fas fa-barcode"></i> ${product.barcode}</span>` : ''}
                             </div>
                         </div>
                         <div class="product-actions">
                             <span class="product-status ${statusClass}">${status}</span>
-                            <button class="btn btn-danger" onclick="deleteProduct(${product.id})" title="Удалить">🗑️</button>
+                            <button class="action-btn delete-btn" data-id="${product.id}" title="Удалить">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     `;
 
                     productsList.appendChild(productElement);
                 });
+                
+                // Добавляем обработчики удаления
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseInt(e.currentTarget.getAttribute('data-id'));
+                        const productName = e.currentTarget.closest('.product-card').querySelector('.product-name').textContent;
+                        openDeleteModal(id, productName);
+                    });
+                });
             }
 
-            // Удаление продукта (глобальная функция для обработчика)
-            window.deleteProduct = async (id) => {
-                if (confirm('Удалить этот продукт?')) {
-                    try {
-                        await deleteProductFromDB(id);
-                        await loadProducts();
-                    } catch (error) {
-                        alert('Ошибка удаления: ' + error);
-                    }
-                }
-            };
+            // Открытие модального окна удаления
+            function openDeleteModal(id, name) {
+                productIdToDelete = id;
+                productToDelete.textContent = name;
+                openModal(deleteModal);
+            }
+
+            // Открытие модального окна
+            function openModal(modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Закрытие модального окна
+            function closeModal(modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Закрытие всех модальных окон
+            function closeAllModals() {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+                document.body.style.overflow = '';
+            }
+
+            // Показ ошибки
+            function showError(message) {
+                alert(message);
+            }
+
+            // Показ успешного сообщения
+            function showSuccess(message) {
+                alert(message);
+            }
+
+            // Параллакс эффект для фона
+            const parallaxBg = document.querySelector('.parallax-bg');
+            window.addEventListener('mousemove', (e) => {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                parallaxBg.style.transform = `translate3d(${x * 10}px, ${y * 10}px, 0)`;
+            });
         });
     </script>
 </body>
-</html> 
+</html>
