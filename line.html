@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XellaInF — База адресов Горячей Линии</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #7b2cbf;
+      --primary-dark: #5a189a;
+      --primary-light: #9d4edd;
+      --secondary: #00b4d8;
+      --secondary-dark: #0096c7;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #0d1b2a;
+      --gray: #adb5bd;
+      --card-bg: rgba(255, 255, 255, 0.12);
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --border-radius: 16px;
+      --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
+      --grid-gap: 24px;
+      --fraud: #ff4757;
+      --not-fraud: #2ed573;
+      --unknown: #ffa502;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background: #0d1b2a;
+      color: var(--light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      z-index: -3;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .app-header {
+      background: var(--futuristic-gradient);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 40px rgba(123, 44, 191, 0.25);
+      z-index: 10;
+    }
+
+    .app-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      position: relative;
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      letter-spacing: -0.5px;
+    }
+
+    .app-subtitle {
+      opacity: 0.85;
+      font-size: 1rem;
+      font-weight: 400;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .app-container {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.9rem 1.5rem 0.9rem 3rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+      transition: var(--transition);
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.3);
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(30, 30, 50, 0.95);
+      border-radius: 0 0 12px 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: none;
+      backdrop-filter: blur(10px);
+    }
+
+    .suggestion-item {
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(123, 44, 191, 0.2);
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-status {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 100px;
+    }
+
+    .status-fraud {
+      background: rgba(255, 71, 87, 0.2);
+      color: var(--fraud);
+    }
+
+    .status-not-fraud {
+      background: rgba(46, 213, 115, 0.2);
+      color: var(--not-fraud);
+    }
+
+    .status-unknown {
+      background: rgba(255, 165, 2, 0.2);
+      color: var(--unknown);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0.9rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 500;
+      text-align: center;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(123, 44, 191, 0.25);
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(123, 44, 191, 0.35);
+    }
+
+    .btn i {
+      font-size: 0.9rem;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--primary-light);
+    }
+
+    .btn-small {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+
+    /* Address List */
+    .address-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--grid-gap);
+    }
+
+    .address-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .address-card.fraud {
+      border-left: 4px solid var(--fraud);
+    }
+
+    .address-card.not-fraud {
+      border-left: 4px solid var(--not-fraud);
+    }
+
+    .address-card.unknown {
+      border-left: 4px solid var(--unknown);
+    }
+
+    .address-card-header {
+      padding: 1.2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .address-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: white;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .address-status {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .fraud .address-status {
+      background: rgba(255, 71, 87, 0.2);
+      color: var(--fraud);
+    }
+
+    .not-fraud .address-status {
+      background: rgba(46, 213, 115, 0.2);
+      color: var(--not-fraud);
+    }
+
+    .unknown .address-status {
+      background: rgba(255, 165, 2, 0.2);
+      color: var(--unknown);
+    }
+
+    .address-card-body {
+      padding: 1.2rem;
+      flex: 1;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.8rem;
+      border-radius: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .appeal-history {
+      margin-top: 1rem;
+    }
+
+    .appeal-history-title {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+
+    .appeal-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .appeal-item:last-child {
+      border-bottom: none;
+    }
+
+    .appeal-date {
+      font-size: 0.85rem;
+      min-width: 90px;
+      opacity: 0.8;
+    }
+
+    .appeal-images {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    /* Увеличиваем размер изображений в обращениях */
+    .appeal-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      object-fit: cover;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: transform 0.2s ease;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .appeal-image i {
+      font-size: 1.2rem;
+      opacity: 0.7;
+    }
+
+    .appeal-image:hover {
+      transform: scale(1.1);
+    }
+
+    .address-card-footer {
+      padding: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: rgba(30, 30, 50, 0.95);
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow: auto;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      padding: 2rem;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(90deg);
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: white;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: white;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.3);
+    }
+
+    .image-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+
+    .preview-item {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-image {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.7rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .fraud-toggle {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .toggle-option {
+      flex: 1;
+      text-align: center;
+      padding: 0.8rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .toggle-option.active {
+      border-color: currentColor;
+    }
+
+    .toggle-option[data-value="fraud"] {
+      color: var(--fraud);
+    }
+
+    .toggle-option[data-value="not-fraud"] {
+      color: var(--not-fraud);
+    }
+
+    .toggle-option[data-value="unknown"] {
+      color: var(--unknown);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .btn-cancel {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Image Viewer */
+    .image-viewer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+
+    .image-viewer.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .image-container {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .image-container img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .close-viewer {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .close-viewer:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(90deg);
+    }
+
+    .delete-image {
+      position: absolute;
+      bottom: -40px;
+      right: 0;
+      background: var(--fraud);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .delete-image:hover {
+      background: #ff2e43;
+    }
+
+    /* Import/Export */
+    .import-export {
+      display: flex;
+      gap: 1rem;
+      margin-left: auto;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      grid-column: 1 / -1;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.3;
+    }
+
+    .empty-state p {
+      opacity: 0.7;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(30, 30, 50, 0.95);
+      color: white;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 3000;
+      opacity: 0;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast i {
+      font-size: 1.2rem;
+    }
+
+    .toast.success i {
+      color: var(--not-fraud);
+    }
+
+    .toast.error i {
+      color: var(--fraud);
+    }
+
+    /* Кнопка загрузки изображений */
+    .upload-btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: var(--transition);
+      border: none;
+      font-weight: 500;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .upload-btn:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(123, 44, 191, 0.35);
+    }
+
+    .upload-btn i {
+      margin-right: 8px;
+    }
+
+    .suggestion-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .suggestion-btn {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      white-space: nowrap;
+    }
+
+    .suggestion-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .suggestion-btn .text {
+      display: none;
+    }
+
+    /* Aдаптивность */
+    @media (max-width: 1024px) {
+      .app-title {
+        font-size: 1.8rem;
+      }
+      
+      .address-list {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 1rem;
+      }
+
+      .app-title {
+        font-size: 1.6rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .import-export {
+        margin-left: 0;
+        justify-content: center;
+      }
+
+      .modal-buttons {
+        flex-direction: column;
+      }
+
+      .suggestion-btn .text {
+        display: inline;
+      }
+
+      .suggestion-btn .icon {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-header {
+        padding: 1.2rem 0.8rem;
+      }
+      
+      .app-title {
+        font-size: 1.4rem;
+      }
+      
+      .app-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .address-list {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        padding: 1.5rem;
+      }
+
+      .toast {
+        width: 90%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1 class="app-title">
+      XellaInF | Горячая Линия
+    </h1>
+    <p class="app-subtitle">База данных адресов и обращений с автоматическим определением ФРОД</p>
+  </header>
+
+  <main class="app-container">
+    <div class="controls">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Поиск адреса...">
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+      
+      <button class="btn" id="add-address-btn">
+        <i class="fas fa-plus"></i> Добавить адрес
+      </button>
+      
+      <div class="import-export">
+        <button class="btn btn-outline" id="export-btn">
+          <i class="fas fa-download"></i> Экспорт
+        </button>
+        <button class="btn btn-outline" id="import-btn">
+          <i class="fas fa-upload"></i> Импорт
+        </button>
+      </div>
+    </div>
+
+    <div class="address-list" id="address-list">
+      <!-- Адреса будут загружены динамически -->
+    </div>
+  </main>
+
+  <!-- Модальное окно добавления/редактирования адреса -->
+  <div class="modal" id="address-modal">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <h2 class="modal-title" id="modal-title">Добавить адрес</h2>
+      
+      <div class="form-group">
+        <label for="address-input">Адрес</label>
+        <input type="text" id="address-input" class="form-control" placeholder="Введите полный адрес">
+      </div>
+      
+      <div class="form-group">
+        <label>Статус ФРОД</label>
+        <div class="fraud-toggle">
+          <div class="toggle-option" data-value="fraud">ФРОД</div>
+          <div class="toggle-option" data-value="not-fraud">Не ФРОД</div>
+          <div class="toggle-option active" data-value="unknown">Не определен</div>
+        </div>
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="btn btn-cancel" id="cancel-btn">Отмена</button>
+        <button class="btn" id="save-btn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно добавления обращения со скриншотом -->
+  <div class="modal" id="add-appeal-modal">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <h2 class="modal-title">Добавить обращение со скриншотом</h2>
+      
+      <div class="form-group">
+        <label for="image-upload">Добавить скриншот</label>
+        <label for="image-upload" class="upload-btn">
+          <i class="fas fa-cloud-upload-alt"></i> Выбрать файлы
+        </label>
+        <input type="file" id="image-upload" accept="image/*" multiple style="display: none">
+        <div class="image-preview" id="image-preview"></div>
+      </div>
+      
+      <div class="modal-buttons">
+        <button class="btn btn-cancel" id="cancel-appeal-btn">Отмена</button>
+        <button class="btn" id="save-appeal-btn">Добавить обращение</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Просмотрщик изображений -->
+  <div class="image-viewer" id="image-viewer">
+    <div class="image-container">
+      <img id="viewed-image" src="" alt="Просмотр изображения">
+      <button class="close-viewer">&times;</button>
+      <button class="delete-image" id="delete-image-btn">
+        <i class="fas fa-trash"></i> Удалить
+      </button>
+    </div>
+  </div>
+
+  <!-- Экспорт/Импорт данных -->
+  <input type="file" id="import-file" accept=".json" style="display: none">
+
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Успешно сохранено</span>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Инициализация базы данных
+      const dbName = 'HotlineDB';
+      const storeName = 'addresses';
+      let db;
+      let currentAddressId = null;
+      let currentImageIndex = null;
+      let currentAppealIndex = null;
+      let currentAddress = null;
+      let imagesToUpload = [];
+      
+      // Показать уведомление
+      const showToast = (message, isSuccess = true) => {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        const toastIcon = toast.querySelector('i');
+        
+        toastMessage.textContent = message;
+        toast.className = isSuccess ? 'toast success' : 'toast error';
+        toastIcon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+        
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      };
+      
+      // Блокировка скролла при открытии модальных окон
+      const lockScroll = () => {
+        document.body.classList.add('modal-open');
+      };
+      
+      const unlockScroll = () => {
+        document.body.classList.remove('modal-open');
+      };
+      
+      // Получить строку сегодняшней даты в формате YYYY-MM-DD
+      const getTodayString = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      
+      // Инициализация базы данных
+      const initDB = () => {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(dbName, 1);
+          
+          request.onerror = (event) => {
+            console.error('Ошибка открытия базы данных:', event.target.error);
+            showToast('Ошибка базы данных', false);
+            reject(event.target.error);
+          };
+          
+          request.onsuccess = (event) => {
+            db = event.target.result;
+            console.log('База данных успешно открыта');
+            loadAddresses();
+            resolve(db);
+          };
+          
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(storeName)) {
+              const store = db.createObjectStore(storeName, { keyPath: 'id' });
+              store.createIndex('address', 'address', { unique: false });
+              console.log('Хранилище адресов создано');
+            }
+          };
+        });
+      };
+      
+      // Сохранение данных в localStorage
+      const saveToLocalStorage = (data) => {
+        try {
+          localStorage.setItem('hotlineAddresses', JSON.stringify(data));
+          console.log('Данные сохранены в localStorage');
+        } catch (e) {
+          console.error('Ошибка сохранения в localStorage:', e);
+        }
+      };
+      
+      // Загрузка данных из localStorage
+      const loadFromLocalStorage = () => {
+        try {
+          const data = localStorage.getItem('hotlineAddresses');
+          return data ? JSON.parse(data) : null;
+        } catch (e) {
+          console.error('Ошибка загрузки из localStorage:', e);
+          return null;
+        }
+      };
+      
+      // Сохранение адреса в IndexedDB и localStorage
+      const saveAddress = (address) => {
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction([storeName], 'readwrite');
+          const store = transaction.objectStore(storeName);
+          
+          const request = store.put(address);
+          
+          request.onsuccess = () => {
+            console.log('Адрес сохранен в IndexedDB');
+            
+            // Обновляем localStorage
+            const allAddresses = loadFromLocalStorage() || [];
+            const existingIndex = allAddresses.findIndex(a => a.id === address.id);
+            
+            if (existingIndex !== -1) {
+              allAddresses[existingIndex] = address;
+            } else {
+              allAddresses.push(address);
+            }
+            
+            saveToLocalStorage(allAddresses);
+            resolve();
+          };
+          
+          request.onerror = (event) => {
+            console.error('Ошибка сохранения адреса:', event.target.error);
+            showToast('Ошибка сохранения', false);
+            reject(event.target.error);
+          };
+        });
+      };
+      
+      // Загрузка всех адресов
+      const loadAddresses = () => {
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+        
+        request.onsuccess = (event) => {
+          const addresses = event.target.result;
+          renderAddresses(addresses);
+          
+          // Если в IndexedDB пусто, пробуем загрузить из localStorage
+          if (addresses.length === 0) {
+            const localData = loadFromLocalStorage();
+            if (localData && localData.length > 0) {
+              console.log('Загрузка данных из localStorage');
+              const savePromises = localData.map(address => saveAddress(address));
+              Promise.all(savePromises).then(() => {
+                renderAddresses(localData);
+              });
+            }
+          }
+        };
+        
+        request.onerror = (event) => {
+          console.error('Ошибка загрузки адресов:', event.target.error);
+          showToast('Ошибка загрузки данных', false);
+        };
+      };
+      
+      // Удаление адреса
+      const deleteAddress = (id) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.delete(id);
+        
+        request.onsuccess = () => {
+          console.log('Адрес удален из IndexedDB');
+          showToast('Адрес удален');
+          
+          // Обновляем localStorage
+          const allAddresses = loadFromLocalStorage() || [];
+          const filtered = allAddresses.filter(a => a.id !== id);
+          saveToLocalStorage(filtered);
+          
+          loadAddresses();
+        };
+        
+        request.onerror = (event) => {
+          console.error('Ошибка удаления адреса:', event.target.error);
+          showToast('Ошибка удаления', false);
+        };
+      };
+      
+      // Отрисовка адресов
+      const renderAddresses = (addresses) => {
+        const addressList = document.getElementById('address-list');
+        
+        if (!addresses || addresses.length === 0) {
+          addressList.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <h3>База адресов пуста</h3>
+              <p>Добавьте первый адрес, используя кнопку "Добавить адрес"</p>
+              <button class="btn" id="add-first-btn">
+                <i class="fas fa-plus"></i> Добавить адрес
+              </button>
+            </div>
+          `;
+          document.getElementById('add-first-btn').addEventListener('click', openAddModal);
+          return;
+        }
+        
+        // Сортируем по количеству обращений (по убыванию)
+        addresses.sort((a, b) => b.appeals.length - a.appeals.length);
+        
+        const todayStr = getTodayString();
+        
+        addressList.innerHTML = addresses.map(address => {
+          const fraudStatus = address.fraudStatus || 'unknown';
+          const statusText = fraudStatus === 'fraud' ? 'ФРОД' : 
+                            fraudStatus === 'not-fraud' ? 'Не ФРОД' : 'Не определен';
+          
+          // Подсчет обращений по дням, месяцам и годам
+          const today = new Date();
+          const thisMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+          const thisYear = today.getFullYear();
+          
+          // Исправленный счетчик для "Сегодня"
+          const daily = address.appeals.filter(a => a.date === todayStr).length;
+          
+          const monthly = address.appeals.filter(a => a.date.startsWith(thisMonth)).length;
+          const yearly = address.appeals.filter(a => a.date.startsWith(String(thisYear))).length;
+          
+          // Последние 5 обращений
+          const lastAppeals = [];
+          // Собираем последние 5 обращений с сохранением их индексов
+          for (let i = address.appeals.length - 1; i >= 0 && lastAppeals.length < 5; i--) {
+            lastAppeals.push({
+              data: address.appeals[i],
+              index: i
+            });
+          }
+          
+          return `
+            <div class="address-card ${fraudStatus}" data-id="${address.id}" id="address-${address.id}">
+              <div class="address-card-header">
+                <div class="address-title">${address.address}</div>
+                <div class="address-status">${statusText}</div>
+              </div>
+              
+              <div class="address-card-body">
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <div class="stat-value">${address.appeals.length}</div>
+                    <div class="stat-label">Всего</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">${daily}</div>
+                    <div class="stat-label">Сегодня</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">${monthly}</div>
+                    <div class="stat-label">В этом месяце</div>
+                  </div>
+                </div>
+                
+                <div class="appeal-history">
+                  <div class="appeal-history-title">Последние обращения:</div>
+                  ${lastAppeals.map(item => {
+                    const appeal = item.data;
+                    const appealDate = new Date(appeal.date);
+                    const formattedDate = appealDate.toLocaleDateString('ru-RU');
+                    
+                    return `
+                      <div class="appeal-item">
+                        <div class="appeal-date">${formattedDate}</div>
+                        <div class="appeal-images">
+                          ${appeal.images ? appeal.images.map((img, imgIndex) => `
+                            <div class="appeal-image" 
+                                 data-address-id="${address.id}"
+                                 data-appeal-index="${item.index}"
+                                 data-image-index="${imgIndex}"
+                                 style="${img ? `background-image: url('${img}')` : ''}">
+                              ${!img ? '<i class="fas fa-image"></i>' : ''}
+                            </div>
+                          `).join('') : ''}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+              
+              <div class="address-card-footer">
+                <button class="action-btn add-appeal-btn" title="Добавить обращение">
+                  <i class="fas fa-plus"></i>
+                </button>
+                <button class="action-btn add-appeal-with-image-btn" title="Добавить обращение со скриншотом">
+                  <i class="fas fa-camera"></i>
+                </button>
+                <button class="action-btn edit-btn" title="Редактировать">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn delete-btn" title="Удалить">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        // Обработчики событий
+        document.querySelectorAll('.add-appeal-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.address-card');
+            const id = card.dataset.id;
+            addAppeal(id);
+          });
+        });
+        
+        document.querySelectorAll('.add-appeal-with-image-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.address-card');
+            const id = card.dataset.id;
+            openAddAppealModal(id);
+          });
+        });
+        
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.address-card');
+            const id = card.dataset.id;
+            openEditModal(id);
+          });
+        });
+        
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.address-card');
+            const id = card.dataset.id;
+            if (confirm('Вы уверены, что хотите удалить этот адрес?')) {
+              deleteAddress(id);
+            }
+          });
+        });
+        
+        document.querySelectorAll('.appeal-image').forEach(img => {
+          img.addEventListener('click', (e) => {
+            const addressId = img.dataset.addressId;
+            const appealIndex = parseInt(img.dataset.appealIndex);
+            const imageIndex = parseInt(img.dataset.imageIndex);
+            openImageViewer(addressId, appealIndex, imageIndex);
+          });
+        });
+      };
+      
+      // Добавление нового обращения
+      const addAppeal = (addressId, images = []) => {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        const request = store.get(addressId);
+
+        request.onsuccess = (event) => {
+          const address = event.target.result;
+          if (address) {
+            const todayStr = getTodayString();
+
+            // Добавляем новое обращение
+            address.appeals.push({
+              date: todayStr,
+              images: images
+            });
+
+            // Обновляем счетчики
+            address.totalAppeals = address.appeals.length;
+
+            // Автоматическая пометка как ФРОД при более 10 обращениях
+            if (address.totalAppeals > 10 && address.fraudStatus !== 'not-fraud') {
+              address.fraudStatus = 'fraud';
+            }
+
+            saveAddress(address).then(() => {
+              showToast('Обращение добавлено');
+              loadAddresses();
+            });
+          }
+        };
+      };
+      
+      // Открытие модального окна для добавления обращения со скриншотом
+      const openAddAppealModal = (addressId) => {
+        lockScroll();
+        const modal = document.getElementById('add-appeal-modal');
+        currentAddressId = addressId;
+        imagesToUpload = [];
+        document.getElementById('image-preview').innerHTML = '';
+        document.getElementById('image-upload').value = '';
+        modal.classList.add('active');
+      };
+      
+      // Открытие модального окна для добавления
+      const openAddModal = () => {
+        lockScroll();
+        const modal = document.getElementById('address-modal');
+        const title = document.getElementById('modal-title');
+        const addressInput = document.getElementById('address-input');
+        
+        currentAddressId = null;
+        title.textContent = 'Добавить адрес';
+        addressInput.value = '';
+        addressInput.disabled = false;
+        
+        // Сброс статуса
+        document.querySelectorAll('.toggle-option').forEach(option => {
+          option.classList.remove('active');
+        });
+        document.querySelector('.toggle-option[data-value="unknown"]').classList.add('active');
+        
+        modal.classList.add('active');
+      };
+      
+      // Открытие модального окна для редактирования
+      const openEditModal = (addressId) => {
+        lockScroll();
+        const modal = document.getElementById('address-modal');
+        const title = document.getElementById('modal-title');
+        const addressInput = document.getElementById('address-input');
+        
+        currentAddressId = addressId;
+        title.textContent = 'Редактировать адрес';
+        
+        // Загрузка данных адреса
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.get(addressId);
+        
+        request.onsuccess = (event) => {
+          const address = event.target.result;
+          if (address) {
+            addressInput.value = address.address;
+            addressInput.disabled = false;
+            currentAddress = address;
+            
+            // Установка статуса
+            document.querySelectorAll('.toggle-option').forEach(option => {
+              option.classList.remove('active');
+              if (option.dataset.value === (address.fraudStatus || 'unknown')) {
+                option.classList.add('active');
+              }
+            });
+          }
+        };
+        
+        modal.classList.add('active');
+      };
+      
+      // Закрытие модальных окон
+      const closeModal = () => {
+        unlockScroll();
+        document.getElementById('address-modal').classList.remove('active');
+      };
+      
+      const closeAppealModal = () => {
+        unlockScroll();
+        document.getElementById('add-appeal-modal').classList.remove('active');
+      };
+      
+      // Открытие просмотрщика изображений
+      const openImageViewer = (addressId, appealIndex, imageIndex) => {
+        lockScroll();
+        const viewer = document.getElementById('image-viewer');
+        const image = document.getElementById('viewed-image');
+        
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.get(addressId);
+        
+        request.onsuccess = (event) => {
+          const address = event.target.result;
+          if (address) {
+            if (address.appeals[appealIndex] && 
+                address.appeals[appealIndex].images && 
+                address.appeals[appealIndex].images[imageIndex]) {
+                
+              image.src = address.appeals[appealIndex].images[imageIndex];
+              currentAddressId = addressId;
+              currentAppealIndex = appealIndex;
+              currentImageIndex = imageIndex;
+              viewer.classList.add('active');
+            } else {
+              // Если изображение не найдено - разблокируем экран
+              unlockScroll();
+              showToast('Изображение не найдено', false);
+            }
+          } else {
+            unlockScroll();
+          }
+        };
+      };
+      
+      // Закрытие просмотрщика изображений
+      document.querySelector('.close-viewer').addEventListener('click', () => {
+        unlockScroll();
+        document.getElementById('image-viewer').classList.remove('active');
+      });
+      
+      // Обработчик загрузки изображений для обращения
+      document.getElementById('image-upload').addEventListener('change', (e) => {
+        const files = e.target.files;
+        const imagePreview = document.getElementById('image-preview');
+        
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+          
+          reader.onload = (event) => {
+            const imageData = event.target.result;
+            imagesToUpload.push(imageData);
+            
+            const previewItem = document.createElement('div');
+            previewItem.className = 'preview-item';
+            previewItem.innerHTML = `
+              <img src="${imageData}" alt="Предпросмотр">
+              <button class="remove-image">&times;</button>
+            `;
+            
+            previewItem.querySelector('.remove-image').addEventListener('click', () => {
+              const index = imagesToUpload.indexOf(imageData);
+              if (index !== -1) {
+                imagesToUpload.splice(index, 1);
+              }
+              previewItem.remove();
+            });
+            
+            imagePreview.appendChild(previewItem);
+          };
+          
+          reader.readAsDataURL(file);
+        }
+        
+        // Сброс input, чтобы можно было загружать те же файлы снова
+        e.target.value = '';
+      });
+      
+      // Сохранение адреса
+      document.getElementById('save-btn').addEventListener('click', () => {
+        const addressInput = document.getElementById('address-input');
+        const activeStatus = document.querySelector('.toggle-option.active').dataset.value;
+        
+        if (!addressInput.value.trim()) {
+          showToast('Пожалуйста, введите адрес', false);
+          return;
+        }
+        
+        if (currentAddressId) {
+          // Редактирование существующего адреса
+          const transaction = db.transaction([storeName], 'readwrite');
+          const store = transaction.objectStore(storeName);
+          const request = store.get(currentAddressId);
+          
+          request.onsuccess = (event) => {
+            const address = event.target.result;
+            if (address) {
+              address.address = addressInput.value;
+              address.fraudStatus = activeStatus;
+              
+              saveAddress(address).then(() => {
+                showToast('Данные сохранены');
+                loadAddresses();
+                closeModal();
+              });
+            }
+          };
+        } else {
+          // Создание нового адреса
+          const newAddress = {
+            id: Date.now().toString(),
+            address: addressInput.value,
+            fraudStatus: activeStatus,
+            appeals: []
+          };
+          
+          saveAddress(newAddress).then(() => {
+            showToast('Адрес добавлен');
+            loadAddresses();
+            closeModal();
+          });
+        }
+      });
+      
+      // Сохранение обращения со скриншотом
+      document.getElementById('save-appeal-btn').addEventListener('click', () => {
+        if (currentAddressId) {
+          addAppeal(currentAddressId, [...imagesToUpload]);
+          closeAppealModal();
+        }
+      });
+      
+      // Удаление изображения
+      document.getElementById('delete-image-btn').addEventListener('click', () => {
+        if (currentAddressId && currentAppealIndex !== null && currentImageIndex !== null) {
+          const transaction = db.transaction([storeName], 'readwrite');
+          const store = transaction.objectStore(storeName);
+          const request = store.get(currentAddressId);
+          
+          request.onsuccess = (event) => {
+            const address = event.target.result;
+            if (address) {
+              if (address.appeals[currentAppealIndex] && address.appeals[currentAppealIndex].images) {
+                address.appeals[currentAppealIndex].images.splice(currentImageIndex, 1);
+                
+                // Если больше нет изображений, удаляем массив
+                if (address.appeals[currentAppealIndex].images.length === 0) {
+                  delete address.appeals[currentAppealIndex].images;
+                }
+                
+                saveAddress(address).then(() => {
+                  showToast('Изображение удалено');
+                  loadAddresses();
+                  document.getElementById('image-viewer').classList.remove('active');
+                  unlockScroll();
+                });
+              }
+            }
+          };
+        }
+      });
+      
+      // Экспорт данных
+      document.getElementById('export-btn').addEventListener('click', () => {
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+        
+        request.onsuccess = (event) => {
+          const addresses = event.target.result;
+          const dataStr = JSON.stringify(addresses);
+          const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+          
+          const exportFileDefaultName = `hotline_export_${new Date().toISOString().slice(0,10)}.json`;
+          
+          const linkElement = document.createElement('a');
+          linkElement.setAttribute('href', dataUri);
+          linkElement.setAttribute('download', exportFileDefaultName);
+          linkElement.click();
+          
+          showToast('Данные экспортированы');
+        };
+      });
+      
+      // Импорт данных
+      document.getElementById('import-btn').addEventListener('click', () => {
+        document.getElementById('import-file').click();
+      });
+      
+      document.getElementById('import-file').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const addresses = JSON.parse(event.target.result);
+            
+            if (Array.isArray(addresses)) {
+              // Очистка базы данных перед импортом
+              const clearRequest = indexedDB.deleteDatabase(dbName);
+              
+              clearRequest.onsuccess = () => {
+                initDB().then(() => {
+                  // Сохраняем импортированные адреса
+                  const promises = addresses.map(address => saveAddress(address));
+                  
+                  Promise.all(promises).then(() => {
+                    showToast(`Импортировано ${addresses.length} адресов`);
+                    loadAddresses();
+                  });
+                });
+              };
+            } else {
+              throw new Error('Некорректный формат файла');
+            }
+          } catch (error) {
+            showToast(`Ошибка импорта: ${error.message}`, false);
+          }
+        };
+        
+        reader.readAsText(file);
+      });
+      
+      // Поиск адресов
+      document.getElementById('search-input').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const suggestions = document.getElementById('suggestions');
+        
+        if (searchTerm.length < 2) {
+          suggestions.style.display = 'none';
+          return;
+        }
+        
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+        
+        request.onsuccess = (event) => {
+          const addresses = event.target.result;
+          const filtered = addresses.filter(address => 
+            address.address.toLowerCase().includes(searchTerm)
+          );
+          
+          if (filtered.length > 0) {
+            suggestions.innerHTML = filtered.map(address => {
+              const status = address.fraudStatus || 'unknown';
+              const statusClass = `status-${status}`;
+              const statusText = status === 'fraud' ? 'ФРОД' : 
+                                status === 'not-fraud' ? 'Не ФРОД' : 'Не определен';
+              
+              return `
+                <div class="suggestion-item" data-id="${address.id}">
+                  <span>${address.address}</span>
+                  <div class="suggestion-actions">
+                    <span class="suggestion-status ${statusClass}">${statusText}</span>
+                    <button class="suggestion-btn go-to-btn" title="Перейти к адресу">
+                      <i class="fas fa-external-link-alt icon"></i>
+                      <span class="text">Перейти</span>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+            
+            suggestions.style.display = 'block';
+            
+            // Обработчик выбора подсказки
+            document.querySelectorAll('.suggestion-item').forEach(item => {
+              item.addEventListener('click', (e) => {
+                if (!e.target.closest('.go-to-btn')) {
+                  const addressId = item.dataset.id;
+                  addAppeal(addressId);
+                  document.getElementById('search-input').value = '';
+                  suggestions.style.display = 'none';
+                }
+              });
+            });
+            
+            // Обработчик кнопки "Перейти"
+            document.querySelectorAll('.go-to-btn').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const item = e.target.closest('.suggestion-item');
+                const addressId = item.dataset.id;
+                
+                // Находим карточку адреса
+                const card = document.getElementById(`address-${addressId}`);
+                if (card) {
+                  // Прокручиваем к карточке
+                  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  
+                  // Подсвечиваем карточку
+                  card.style.boxShadow = '0 0 20px rgba(123, 44, 191, 0.5)';
+                  card.style.transition = 'box-shadow 0.5s ease';
+                  setTimeout(() => {
+                    card.style.boxShadow = '';
+                  }, 2000);
+                }
+                
+                // Очищаем поиск
+                document.getElementById('search-input').value = '';
+                suggestions.style.display = 'none';
+              });
+            });
+          } else {
+            suggestions.style.display = 'none';
+          }
+        };
+      });
+      
+      // Выбор статуса
+      document.querySelectorAll('.toggle-option').forEach(option => {
+        option.addEventListener('click', () => {
+          document.querySelectorAll('.toggle-option').forEach(opt => {
+            opt.classList.remove('active');
+          });
+          option.classList.add('active');
+        });
+      });
+      
+      // Закрытие модальных окон
+      document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+          unlockScroll();
+          document.getElementById('address-modal').classList.remove('active');
+          document.getElementById('add-appeal-modal').classList.remove('active');
+        });
+      });
+      
+      document.getElementById('cancel-btn').addEventListener('click', closeModal);
+      document.getElementById('cancel-appeal-btn').addEventListener('click', closeAppealModal);
+      
+      // Инициализация
+      initDB().then(() => {
+        // Добавляем обработчик кнопки добавления
+        document.getElementById('add-address-btn').addEventListener('click', openAddModal);
+      });
+    });
+  </script>
+</body>
+</html>
