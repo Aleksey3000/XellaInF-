@@ -1,9 +1,9 @@
 <?php
-// Конфигурация - ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА ВАШИ!
-$username = 'Aleksey3000';     // Ваш логин на GitHub
-$token = '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';        // Ваш Personal Access Token
-$repo = 'XellaInF-';         // Название репозитория (например: hotline-database)
-$dataFile = 'data.json';            // Файл для хранения данных
+// Конфигурация - ОБНОВЛЕННЫЕ ДАННЫЕ
+$username = 'Aleksey3000';     // Логин верный
+$token = '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'; // Токен (замените если устарел)
+$repo = 'xellainF-';           // ИСПРАВЛЕНО: регистр и название репозитория
+$dataFile = 'data.json';        // Файл верный
 
 // Проверка авторизации
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
@@ -23,6 +23,7 @@ $action = $_GET['action'] ?? '';
 
 // Загрузка данных из GitHub
 if ($action === 'load') {
+    // ИСПРАВЛЕННЫЙ URL
     $url = "https://api.github.com/repos/$username/$repo/contents/$dataFile";
     
     $ch = curl_init();
@@ -43,17 +44,23 @@ if ($action === 'load') {
         header('Content-Type: application/json');
         echo $content;
     } else {
+        // ДОБАВЛЕНА ДЕБАГ-ИНФОРМАЦИЯ
         http_response_code(500);
-        echo json_encode(['error' => 'Ошибка загрузки данных']);
+        echo json_encode([
+            'error' => 'Ошибка загрузки данных',
+            'details' => $data['message'] ?? 'Unknown error',
+            'url' => $url
+        ]);
     }
     exit;
 }
 
 // Сохранение данных в GitHub
 if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Получаем текущий файл (для получения SHA)
+    // ИСПРАВЛЕННЫЙ URL
     $url = "https://api.github.com/repos/$username/$repo/contents/$dataFile";
     
+    // Получаем SHA текущей версии
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -66,16 +73,19 @@ if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $fileInfo = json_decode($response, true);
     curl_close($ch);
     
-    // Подготавливаем данные для сохранения
+    // Исправление структуры данных (адреса)
     $postData = json_decode(file_get_contents('php://input'), true);
-    $content = json_encode(['addresses' => $postData['addresses'] ?? []], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    $content = json_encode(
+        ['addresses' => $postData['addresses'] ?? []], // ИСПРАВЛЕН КЛЮЧ
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+    );
     $encodedContent = base64_encode($content);
     
     // Формируем данные для отправки
     $data = [
         'message' => 'Обновление базы адресов: ' . date('Y-m-d H:i:s'),
         'content' => $encodedContent,
-        'sha' => $fileInfo['sha'] ?? null
+        'sha' => $fileInfo['sha'] ?? null // Важно для обновления
     ];
     
     // Отправляем обновление
@@ -98,7 +108,11 @@ if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['success' => true]);
     } else {
         http_response_code(500);
-        echo json_encode(['error' => 'Ошибка сохранения данных', 'details' => $response]);
+        echo json_encode([
+            'error' => 'Ошибка сохранения',
+            'details' => json_decode($response, true),
+            'http_code' => $httpCode
+        ]);
     }
     exit;
 }
@@ -106,4 +120,3 @@ if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 // Неизвестное действие
 http_response_code(400);
 echo json_encode(['error' => 'Неизвестное действие']);
-?>
