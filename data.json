@@ -1,1 +1,21 @@
-{"addresses":[]}
+async function loadDataFromGitHub() {
+  {"addresses":[]}
+  
+  try {
+    const response = await fetch('github-proxy.php?action=load', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    // Логируем сырой ответ
+    const rawResponse = await response.text();
+    console.log("Raw response:", rawResponse);
+    
+    // Пытаемся распарсить JSON
+    const data = JSON.parse(rawResponse);
+    renderAddresses(data.addresses || []);
+    
+  } catch (error) {
+    console.error('Full error:', error, 'Response text:', rawResponse);
+    alert('Error: ' + error.message);
+  }
+}
