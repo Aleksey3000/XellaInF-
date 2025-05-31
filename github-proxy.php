@@ -3,7 +3,7 @@
 $username = 'Aleksey3000';     // Логин верный
 $token = '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'; // Токен (замените если устарел)
 $repo = 'XellaInF-';           // ИСПРАВЛЕНО: регистр и название репозитория
-$dataFile = 'data.json';        // Файл верный
+$dataFile = 'application.json';        // Файл верный
 
 // Проверка авторизации
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
