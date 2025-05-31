@@ -5,17 +5,28 @@ $token = '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';
 $repo = 'XellaInF-';
 $dataFile = 'data.json';
 
+// Убедимся, что никакие данные не выводятся до этого места
+if (ob_get_length()) ob_clean();
+
 // Проверка авторизации
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-if (strpos($authHeader, 'Bearer ') !== 0) {
+if (empty($authHeader) {
+    header('Content-Type: application/json');
     http_response_code(401);
-    die(json_encode(['error' => 'Не авторизован']));
+    die(json_encode(['error' => 'Authorization header missing']));
+}
+
+if (strpos($authHeader, 'Bearer ') !== 0) {
+    header('Content-Type: application/json');
+    http_response_code(401);
+    die(json_encode(['error' => 'Invalid authorization format']));
 }
 
 $clientToken = substr($authHeader, 7);
 if ($clientToken !== $token) {
+    header('Content-Type: application/json');
     http_response_code(403);
-    die(json_encode(['error' => 'Неверный токен']));
+    die(json_encode(['error' => 'Invalid token']));
 }
 
 // Определяем действие
@@ -27,7 +38,7 @@ if ($action === 'load') {
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'User-Agent: HotlineApp',
         "Authorization: token $token"
@@ -37,19 +48,26 @@ if ($action === 'load') {
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     
-    if ($httpCode === 200) {
-        $data = json_decode($response, true);
-        if (isset($data['content'])) {
-            $content = base64_decode($data['content']);
-            header('Content-Type: application/json');
-            echo $content;
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Файл данных не найден в репозитории']);
-        }
+    // Всегда возвращаем JSON
+    header('Content-Type: application/json');
+    
+    if ($httpCode !== 200) {
+        http_response_code(500);
+        echo json_encode([
+            'error' => 'GitHub API error',
+            'code' => $httpCode,
+            'response' => $response
+        ]);
+        exit;
+    }
+    
+    $data = json_decode($response, true);
+    
+    if (isset($data['content'])) {
+        $content = base64_decode($data['content']);
+        echo $content;
     } else {
-        http_response_code(404);
-        echo json_encode(['error' => 'Репозиторий или файл не найдены', 'details' => $response]);
+        echo json_encode(['addresses' => []]);
     }
     exit;
 }
@@ -61,7 +79,7 @@ if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Получаем SHA текущей версии
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'User-Agent: HotlineApp',
         "Authorization: token $token"
@@ -71,8 +89,11 @@ if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $fileInfo = json_decode($response, true);
     curl_close($ch);
     
+    $postData = json_decode(file_get_contents('php://input'), true);
+    $addresses = $postData['addresses'] ?? [];
+    
     $content = json_encode(
-        ['addresses' => json_decode(file_get_contents('php://input'), true)['addresses'] ?? []],
+        ['addresses' => $addresses],
         JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
     );
     $encodedContent = base64_encode($content);
@@ -85,7 +106,7 @@ if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -102,14 +123,17 @@ if ($action === 'save' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($httpCode >= 200 && $httpCode < 300) {
         echo json_encode(['success' => true]);
     } else {
+        http_response_code(500);
         echo json_encode([
-            'error' => 'Ошибка сохранения',
-            'details' => json_decode($response, true),
-            'http_code' => $httpCode
+            'error' => 'GitHub save error',
+            'code' => $httpCode,
+            'response' => $response
         ]);
     }
     exit;
 }
 
+// Все остальные случаи
+header('Content-Type: application/json');
 http_response_code(400);
-echo json_encode(['error' => 'Неизвестное действие']);
+echo json_encode(['error' => 'Invalid request']);
