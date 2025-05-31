@@ -1,8 +1,8 @@
 <?php
 // Конфигурация - ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА ВАШИ!
-$username = 'XellaInF-';     // Ваш логин на GitHub
-$token = 'ВАШ_GITHUB_ТОКЕН';        // Ваш Personal Access Token
-$repo = 'ВАШ_РЕПОЗИТОРИЙ';         // Название репозитория (например: hotline-database)
+$username = 'Aleksey3000';     // Ваш логин на GitHub
+$token = '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';        // Ваш Personal Access Token
+$repo = 'XellaInF-';         // Название репозитория (например: hotline-database)
 $dataFile = 'data.json';            // Файл для хранения данных
 
 // Проверка авторизации
