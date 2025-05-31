@@ -1,92 +1,145 @@
-<!DOCTYPE html><html lang="ru">
+<!DOCTYPE html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>XellaInF — Кино-трекер</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XellaInF — Кинотрекер</title>
   <link rel="icon" href="icon.png" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #6a0dad;
-      --primary-light: #9c4dff;
-      --accent: #00c9b7;
-      --accent-dark: #009688;
+      --primary: #7b2cbf;
+      --primary-dark: #5a189a;
+      --primary-light: #9d4edd;
+      --secondary: #00b4d8;
+      --secondary-dark: #0096c7;
+      --accent: #f72585;
       --light: #f8f9fa;
-      --dark: #212529;
-      --gray: #6c757d;
-      --watched-bg: #f0f0f0;
-      --card-bg: #ffffff;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      --transition: all 0.3s ease;
+      --dark: #0d1b2a;
+      --gray: #adb5bd;
+      --card-bg: rgba(255, 255, 255, 0.12);
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --border-radius: 16px;
+      --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
+      --grid-gap: 24px;
+      --watched-bg: rgba(0, 180, 216, 0.1);
     }
+
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-      color: var(--dark);
+      background: #0d1b2a;
+      color: var(--light);
       min-height: 100vh;
-      touch-action: manipulation;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+      padding-bottom: 2rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      z-index: -3;
     }
 
     .app-header {
-      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      background: var(--futuristic-gradient);
       color: white;
-      padding: 1.2rem 1rem;
+      padding: 2rem 1.5rem;
       text-align: center;
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 40px rgba(123, 44, 191, 0.25);
+      z-index: 10;
     }
 
     .app-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 0.3rem;
-      word-break: break-word;
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      position: relative;
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      letter-spacing: -0.5px;
     }
 
     .app-subtitle {
-      opacity: 0.9;
-      font-size: 0.9rem;
-      word-break: break-word;
+      opacity: 0.85;
+      font-size: 1.1rem;
+      font-weight: 400;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
 
     .app-container {
-      padding: 1rem;
+      padding: 2rem;
       max-width: 1200px;
       margin: 0 auto;
+      width: 100%;
+      position: relative;
     }
 
     .add-movie-form {
       display: flex;
-      gap: 8px;
-      margin-bottom: 1.5rem;
+      gap: 15px;
+      margin-bottom: 2rem;
       flex-wrap: wrap;
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--border-radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
     }
 
     .add-movie-form input[type="text"] {
       flex: 1;
-      min-width: 0;
-      padding: 0.7rem;
-      border: 2px solid var(--primary);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      width: 100%;
-      word-break: break-word;
-      white-space: normal;
+      min-width: 200px;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      color: white;
+      transition: var(--transition);
+    }
+
+    .add-movie-form input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.3);
+    }
+
+    .add-movie-form input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
     }
 
     .custom-file {
       position: relative;
       overflow: hidden;
       flex: 1;
-      min-width: 0;
+      min-width: 180px;
     }
 
     .custom-file input[type="file"] {
@@ -101,48 +154,58 @@
 
     .custom-file-label {
       display: inline-block;
-      padding: 0.7rem;
-      background: var(--accent);
+      padding: 1rem;
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
       color: white;
-      border-radius: 6px;
+      border-radius: var(--border-radius);
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
-      font-size: 0.9rem;
+      font-size: 1rem;
       text-align: center;
       width: 100%;
-      word-break: break-word;
-      white-space: normal;
+      box-shadow: 0 5px 15px rgba(0, 180, 216, 0.25));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .custom-file-label:hover {
-      background: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 180, 216, 0.35));
+    }
+
+    .custom-file-label i {
+      margin-right: 8px;
     }
 
     .add-movie-form button {
-      padding: 0.7rem;
-      background: var(--primary);
+      padding: 1rem 1.8rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--border-radius);
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
       flex: 1;
-      min-width: 0;
-      font-size: 0.9rem;
-      word-break: break-word;
-      white-space: normal;
+      min-width: 180px;
+      font-size: 1rem;
+      box-shadow: 0 5px 15px rgba(123, 44, 191, 0.25));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .add-movie-form button:hover {
-      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(123, 44, 191, 0.35));
     }
 
     .filter-buttons {
       display: flex;
-      gap: 8px;
-      margin-bottom: 1.2rem;
+      gap: 12px;
+      margin-bottom: 1.8rem;
       overflow-x: auto;
       padding-bottom: 5px;
       -webkit-overflow-scrolling: touch;
@@ -153,65 +216,71 @@
     }
 
     .filter-buttons button {
-      padding: 0.5rem 0.9rem;
+      padding: 0.8rem 1.5rem;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--border-radius);
       font-weight: 500;
       cursor: pointer;
       transition: var(--transition);
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       flex-shrink: 0;
-      max-width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--light);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      min-width: 120px;
     }
 
     .filter-buttons button.active {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
       color: white;
-    }
-
-    .filter-buttons button:not(.active) {
-      background: var(--light);
-      color: var(--dark);
+      box-shadow: 0 5px 15px rgba(123, 44, 191, 0.25));
     }
 
     .filter-buttons button:not(.active):hover {
-      background: #e9ecef;
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .movies-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: var(--grid-gap);
     }
 
     .movie-card {
       background: var(--card-bg);
-      border-radius: 8px;
+      border-radius: var(--border-radius);
       overflow: hidden;
       box-shadow: var(--shadow);
       transition: var(--transition);
       position: relative;
-      border: 1px solid rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateY(0);
+      will-change: transform;
     }
 
     .movie-card.watched {
-      background: var(--watched-bg);
+      background: linear-gradient(135deg, rgba(0, 180, 216, 0.1), rgba(0, 180, 216, 0.05));
     }
 
     .movie-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .movie-poster {
-      height: 140px;
+      height: 200px;
       background-size: cover;
       background-position: center;
       position: relative;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .movie-poster::after {
@@ -221,91 +290,111 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.3);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.5) 100%);
     }
 
     .movie-poster .placeholder {
       z-index: 1;
-      font-size: 2.5rem;
+      font-size: 3.5rem;
       color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
+      opacity: 0.7;
     }
 
     .movie-info {
-      padding: 0.8rem;
+      padding: 1.5rem;
     }
 
     .movie-title {
-      font-size: 1rem;
+      font-size: 1.2rem;
       font-weight: 600;
-      margin-bottom: 0.3rem;
-      color: var(--primary);
+      margin-bottom: 0.5rem;
+      color: white;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
-      min-height: 2.4em;
-      line-height: 1.2;
+      min-height: 2.8em;
+      line-height: 1.3;
+    }
+
+    .movie-card.watched .movie-title {
+      color: rgba(255, 255, 255, 0.7);
     }
 
     .movie-year {
-      color: var(--gray);
-      font-size: 0.8rem;
-      margin-bottom: 0.3rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      color: var(--secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
     }
 
     .movie-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 0.8rem;
+      gap: 10px;
+      margin-top: 1rem;
     }
 
     .movie-actions button {
-      padding: 0.4rem 0.7rem;
-      background: var(--accent);
+      padding: 0.6rem 1rem;
+      background: rgba(255, 255, 255, 0.15);
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 10px;
       cursor: pointer;
       transition: var(--transition);
-      font-size: 0.8rem;
+      font-size: 0.9rem;
       flex: 1;
       min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
-    .movie-card.watched .movie-title {
-      color: var(--gray);
+    .movie-actions button.toggle-watched {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+      min-width: 0;
+      flex: 2;
     }
 
     .movie-card.watched .movie-actions button.toggle-watched {
-      background: var(--gray);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .movie-actions button.delete-movie {
+      background: rgba(247, 37, 133, 0.2);
+      color: var(--accent);
+      flex: 0 0 auto;
+      width: 40px;
+      padding: 0.6rem;
+    }
+
+    .movie-actions button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
 
     .watched-badge {
       position: absolute;
-      top: 8px;
-      right: 8px;
-      background: var(--accent);
+      top: 15px;
+      right: 15px;
+      background: var(--secondary);
       color: white;
-      padding: 0.3rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.75rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
       z-index: 2;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
       max-width: 80%;
+      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
 
     /* Fullscreen poster view */
@@ -315,7 +404,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
+      background-color: rgba(0, 0, 0, 0.95);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -334,67 +423,130 @@
       max-width: 95%;
       max-height: 95%;
       object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     }
 
     .close-fullscreen {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 25px;
+      right: 25px;
       color: white;
-      font-size: 2rem;
+      font-size: 2.5rem;
       cursor: pointer;
-      background: rgba(0, 0, 0, 0.5);
-      width: 40px;
-      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       display: flex;
       justify-content: center;
       align-items: center;
       border: none;
+      transition: var(--transition);
     }
 
-    @media (min-width: 480px) {
-      .movies-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      }
-      .movie-poster {
-        height: 160px;
-      }
+    .close-fullscreen:hover {
+      transform: rotate(90deg);
+      background: rgba(247, 37, 133, 0.2);
     }
 
-    @media (min-width: 768px) {
+    /* Анимации */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .movie-card {
+      animation: fadeIn 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
       .app-container {
         padding: 1.5rem;
       }
+
+      .app-title {
+        font-size: 1.8rem;
+      }
+
+      .add-movie-form {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .add-movie-form input[type="text"],
+      .custom-file,
+      .add-movie-form button {
+        width: 100%;
+        min-width: auto;
+      }
+
       .movies-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
       }
+
       .movie-poster {
-        height: 200px;
+        height: 180px;
       }
-      .movie-title {
-        font-size: 1.1rem;
+      
+      .movie-actions button.toggle-watched span {
+        display: none;
       }
+    }
+
+    @media (max-width: 480px) {
+      .app-header {
+        padding: 1.5rem 1rem;
+      }
+
+      .app-title {
+        font-size: 1.6rem;
+      }
+
+      .app-subtitle {
+        font-size: 0.95rem;
+      }
+
+      .movies-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .movie-actions button {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.8rem;
+      }
+      
       .filter-buttons button {
-        padding: 0.6rem 1rem;
+        padding: 0.7rem 1rem;
+        min-width: 100px;
+        font-size: 0.85rem;
+      }
+      
+      .movie-actions button.toggle-watched {
+        flex: 1;
       }
     }
   </style>
 </head>
 <body>
   <header class="app-header">
-    <h1 class="app-title">Кино-трекер</h1>
-    <p class="app-subtitle">Добавляйте фильмы, загружайте свои постеры, отмечайте просмотры</p>
+    <h1 class="app-title">
+      <i class="fas fa-film"></i> Кинотрекер
+    </h1>
+    <p class="app-subtitle">Ваша персональная коллекция фильмов</p>
   </header>
+
   <main class="app-container">
     <div class="add-movie-form">
       <input type="text" id="movieTitle" placeholder="Название фильма" required>
       <label class="custom-file">
-        <span class="custom-file-label">Добавить постер</span>
+        <span class="custom-file-label"><i class="fas fa-image"></i> Добавить постер</span>
         <input type="file" id="moviePosterInput" accept="image/*">
       </label>
-      <button id="addMovie">Добавить фильм</button>
+      <button id="addMovie"><i class="fas fa-plus-circle"></i> Добавить фильм</button>
     </div>
     <div class="filter-buttons">
       <button class="filter-btn active" data-filter="all">Все фильмы</button>
@@ -507,20 +659,26 @@
           const card = document.createElement('div');
           card.className = `movie-card ${movie.watched ? 'watched' : ''}`;
           const poster = movie.customPoster || movie.posterUrl || '';
-          const posterStyle = poster ? `background-image: url('${poster}')` : 'background: #6a0dad';
+          const posterStyle = poster ? `background-image: url('${poster}')` : 'background: linear-gradient(135deg, var(--primary), var(--primary-dark))';
 
           card.innerHTML = `
             <div class="movie-poster" style="${posterStyle}" data-poster="${poster}">
-              ${!poster ? '<div class="placeholder">🎬</div>' : ''}
-              ${movie.watched ? '<div class="watched-badge">✓ Просмотрено</div>' : ''}
+              ${!poster ? '<div class="placeholder"><i class="fas fa-film"></i></div>' : ''}
+              ${movie.watched ? '<div class="watched-badge"><i class="fas fa-check"></i> Просмотрено</div>' : ''}
             </div>
             <div class="movie-info">
               <h3 class="movie-title" title="${movie.title}">${movie.title}</h3>
               <div class="movie-year">${movie.year || ''}</div>
               <div class="movie-actions">
-                <button class="toggle-watched" title="${movie.watched ? 'Не просмотрено' : 'Просмотрено'}">${movie.watched ? 'Не просмотрено' : 'Просмотрено'}</button>
-                <button class="change-poster" title="Изменить постер">Изменить</button>
-                <button class="delete-movie" title="Удалить">✕</button>
+                <button class="toggle-watched" title="${movie.watched ? 'Не просмотрено' : 'Просмотрено'}">
+                  <i class="fas fa-${movie.watched ? 'undo' : 'check'}"></i> <span>${movie.watched ? 'Не просмотрено' : 'Просмотрено'}</span>
+                </button>
+                <button class="change-poster" title="Изменить постер">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="delete-movie" title="Удалить">
+                  <i class="fas fa-trash"></i>
+                </button>
               </div>
             </div>
           `;
@@ -534,8 +692,10 @@
 
           card.querySelector('.delete-movie').addEventListener('click', async (e) => {
             e.stopPropagation();
-            await deleteMovie(movie.id);
-            renderMovies();
+            if (confirm('Удалить фильм из коллекции?')) {
+              await deleteMovie(movie.id);
+              renderMovies();
+            }
           });
 
           card.querySelector('.change-poster').addEventListener('click', (e) => {
@@ -594,7 +754,7 @@
           }
           const newMovie = {
             title,
-            year: '',
+            year: new Date().getFullYear(),
             watched: false,
             posterUrl: '',
             customPoster,
@@ -603,6 +763,13 @@
           movieTitleInput.value = '';
           moviePosterInput.value = '';
           renderMovies();
+        }
+      });
+
+      // Enter для добавления фильма
+      movieTitleInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          addMovieBtn.click();
         }
       });
 
