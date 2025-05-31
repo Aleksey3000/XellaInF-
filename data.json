@@ -1,5 +1,5 @@
 async function loadDataFromGitHub() {
-  {"addresses":[]}
+  
   
   try {
     const response = await fetch('github-proxy.php?action=load', {
