@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -21,21 +23,22 @@
             --glass-bg: rgba(255, 255, 255, 0.15);
             --glass-border: rgba(255, 255, 255, 0.25);
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            --border-radius: 20px;
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --border-radius: 15px;
             --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
             --danger-bright: #f72585;
             --warning: #f8961e;
             --success: #4cc9f0;
+            --subtask-bg: rgba(255, 255, 255, 0.08);
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
-        
+
         body {
             background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%) fixed;
             color: var(--light);
@@ -46,7 +49,7 @@
             margin: 0 auto;
             overflow-x: hidden;
         }
-        
+
         .app-header {
             background: var(--futuristic-gradient);
             color: white;
@@ -59,7 +62,7 @@
             z-index: 10;
             box-shadow: 0 4px 30px rgba(123, 44, 191, 0.3);
         }
-        
+
         h1 {
             font-size: 2.2rem;
             font-weight: 700;
@@ -72,7 +75,7 @@
             text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             letter-spacing: -0.5px;
         }
-        
+
         .app-subtitle {
             opacity: 0.9;
             font-size: 1rem;
@@ -82,14 +85,14 @@
             position: relative;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
         .task-form {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        
+
         .task-input {
             flex: 1;
             padding: 12px 15px;
@@ -101,17 +104,17 @@
             color: var(--light);
             border: 1px solid var(--glass-border);
         }
-        
+
         .task-input:focus {
             outline: none;
             border-color: var(--primary-light);
             box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.3);
         }
-        
+
         .task-input::placeholder {
             color: var(--gray);
         }
-        
+
         .priority-selector {
             padding: 8px;
             border-radius: var(--border-radius);
@@ -119,8 +122,9 @@
             cursor: pointer;
             background: rgba(255, 255, 255, 0.1);
             color: var(--light);
+            height: 45px;
         }
-        
+
         .add-btn {
             background: var(--futuristic-gradient);
             color: white;
@@ -134,45 +138,50 @@
             box-shadow: 0 6px 20px rgba(123, 44, 191, 0.3);
             position: relative;
             overflow: hidden;
+            height: 45px;
         }
-        
+
         .add-btn:hover {
             background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(123, 44, 191, 0.4);
         }
-        
+
         .task-list {
             list-style: none;
             padding: 0;
         }
-        
+
         .task-item {
             background: rgba(255, 255, 255, 0.1);
             padding: 15px 20px;
             margin-bottom: 15px;
             border-radius: var(--border-radius);
-            display: flex;
-            align-items: center;
             box-shadow: var(--shadow);
             transition: var(--transition);
-            cursor: pointer;
             border: 1px solid var(--glass-border);
             position: relative;
             overflow: hidden;
             will-change: transform;
         }
-        
+
         .task-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
-        
+
+        .task-content {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
         .task-priority {
             width: 16px;
             height: 16px;
             border-radius: 50%;
-            margin-right: 8px; 
+            margin-right: 8px;
             flex-shrink: 0;
             box-shadow: 0 0 10px currentColor;
         }
@@ -182,29 +191,29 @@
             height: 20px;
             cursor: pointer;
             accent-color: var(--primary);
-            margin-right: 12px; 
+            margin-right: 12px;
             flex-shrink: 0;
         }
-        
+
         .task-text {
-            flex: 1; 
-            margin: 0; 
-            margin-right: 12px; 
+            flex: 1;
+            margin: 0;
+            margin-right: 12px;
             word-break: break-word;
             color: var(--light);
         }
-        
+
         .task-completed .task-text {
             text-decoration: line-through;
             color: var(--gray);
         }
-        
+
         .task-date {
             font-size: 12px;
             color: var(--gray);
-            margin:0; 
-            margin-right: 12px; 
-            white-space: nowrap; 
+            margin:0;
+            margin-right: 12px;
+            white-space: nowrap;
             flex-shrink: 0;
         }
 
@@ -215,15 +224,17 @@
         }
 
         .task-actions .move-btn,
-        .task-actions .delete-btn {
-            margin-left: 4px; 
+        .task-actions .delete-btn,
+        .task-actions .add-subtask-btn,
+        .task-actions .edit-btn {
+            margin-left: 4px;
         }
 
-        .task-actions > button:first-child { 
-            margin-left: 0; 
+        .task-actions > button:first-child {
+            margin-left: 0;
         }
 
-        .delete-btn, .move-btn {
+        .delete-btn, .move-btn, .add-subtask-btn, .edit-btn {
             background: none;
             border: none;
             color: var(--gray);
@@ -236,24 +247,136 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .delete-btn:hover {
             background-color: rgba(247, 37, 133, 0.1);
             color: var(--danger-bright);
         }
-        
+
         .move-btn:hover {
             background-color: rgba(0, 180, 216, 0.1);
             color: var(--secondary);
         }
-        
+
+        .add-subtask-btn:hover {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        .edit-btn:hover {
+            background-color: rgba(248, 150, 30, 0.1);
+            color: var(--warning);
+        }
+
+        .subtask-list {
+            list-style: none;
+            padding-left: 30px;
+            margin-top: 10px;
+            border-left: 2px solid var(--glass-border);
+        }
+
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            margin-bottom: 5px;
+            background: var(--subtask-bg);
+            border-radius: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .subtask-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .subtask-text {
+            flex: 1;
+            margin: 0 10px;
+            font-size: 14px;
+            word-break: break-word;
+            color: var(--light);
+        }
+
+        .subtask-completed .subtask-text {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        .subtask-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .subtask-actions .edit-subtask-btn,
+        .subtask-actions .delete-subtask-btn {
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 3px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .subtask-actions .edit-subtask-btn:hover {
+            color: var(--warning);
+            background-color: rgba(248, 150, 30, 0.1);
+        }
+
+        .subtask-actions .delete-subtask-btn:hover {
+            color: var(--danger-bright);
+            background-color: rgba(247, 37, 133, 0.1);
+        }
+
+        .add-subtask-form {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            padding-left: 30px;
+        }
+
+        .add-subtask-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--light);
+            border: 1px solid var(--glass-border);
+        }
+
+        .add-subtask-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.2);
+        }
+
+        .add-subtask-confirm-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .add-subtask-confirm-btn:hover {
+            background: var(--secondary-dark);
+        }
+
         .status {
             font-size: 14px;
             color: var(--gray);
             margin-top: 20px;
             text-align: right;
         }
-        
+
         .empty-state {
             text-align: center;
             color: var(--gray);
@@ -263,7 +386,7 @@
             box-shadow: var(--shadow);
             border: 1px solid var(--glass-border);
         }
-        
+
         .controls {
             display: flex;
             gap: 10px;
@@ -271,7 +394,7 @@
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        
+
         .controls button {
             flex: 1;
             min-width: 120px;
@@ -286,48 +409,48 @@
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
         }
-        
+
         .controls button:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
-        
+
         #exportBtn {
             color: var(--success);
         }
-        
+
         #exportBtn:hover {
             background: rgba(76, 201, 240, 0.2);
         }
-        
+
         #importBtn {
             color: var(--warning);
         }
-        
+
         #importBtn:hover {
             background: rgba(248, 150, 30, 0.2);
         }
-        
+
         #clearCompletedBtn {
             color: var(--gray);
         }
-        
+
         #clearCompletedBtn:hover {
             background: rgba(173, 181, 189, 0.2);
         }
-        
+
         #clearAllBtn {
             color: var(--danger-bright);
         }
-        
+
         #clearAllBtn:hover {
             background: rgba(247, 37, 133, 0.2);
         }
-        
+
         #file-input {
             display: none;
         }
-        
+
         .notification {
             position: fixed;
             top: 20px;
@@ -342,31 +465,31 @@
             z-index: 1000;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .notification.show {
             transform: translateX(0);
         }
-        
+
         .notification.error {
             background: rgba(247, 37, 133, 0.9);
         }
-        
+
         .notification.warning {
             background: rgba(248, 150, 30, 0.9);
         }
-                
+
         .priority-high {
             background-color: var(--danger-bright);
         }
-        
+
         .priority-medium {
             background-color: var(--warning);
         }
-        
+
         .priority-low {
             background-color: var(--success);
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -374,29 +497,30 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             z-index: 1001;
             justify-content: center;
             align-items: center;
         }
-        
+
         .modal.show {
             display: flex;
         }
-        
+
         .modal-content {
-            background: rgba(13, 27, 42, 0.9);
+            background: rgba(13, 27, 42, 0.95);
             padding: 25px;
             border-radius: var(--border-radius);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             width: 90%;
             max-width: 500px;
             transform: translateY(-20px);
-            transition: transform 0.3s;
+            transition: transform 0.3s, opacity 0.3s;
             animation: modal-appear 0.3s forwards;
             border: 1px solid var(--glass-border);
+            backdrop-filter: blur(5px);
         }
-        
+
         @keyframes modal-appear {
             from {
                 opacity: 0;
@@ -407,21 +531,21 @@
                 transform: translateY(0);
             }
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-        
+
         .modal-title {
             font-size: 20px;
             font-weight: 600;
             color: var(--primary-light);
             margin: 0;
         }
-        
+
         .modal-close {
             background: none;
             border: none;
@@ -430,21 +554,21 @@
             color: var(--gray);
             transition: color 0.2s;
         }
-        
+
         .modal-close:hover {
             color: var(--danger-bright);
         }
-        
+
         .modal-body {
             margin-bottom: 20px;
         }
-        
+
         .modal-footer {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
         }
-        
+
         .btn {
             padding: 10px 20px;
             border: none;
@@ -454,39 +578,39 @@
             font-weight: 600;
             transition: var(--transition);
         }
-        
+
         .btn-primary {
             background: var(--futuristic-gradient);
             color: white;
         }
-        
+
         .btn-primary:hover {
             background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             transform: translateY(-3px);
         }
-        
+
         .btn-secondary {
             background: rgba(173, 181, 189, 0.2);
             color: white;
             border: 1px solid var(--glass-border);
         }
-        
+
         .btn-secondary:hover {
             background: rgba(173, 181, 189, 0.3);
             transform: translateY(-3px);
         }
-        
+
         .form-group {
             margin-bottom: 15px;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
             font-weight: 500;
             color: var(--light);
         }
-        
+
         .tasklist-selector {
             padding: 12px 15px;
             border: 1px solid var(--glass-border);
@@ -497,21 +621,22 @@
             width: 100%;
             background: rgba(255, 255, 255, 0.1);
             color: var(--light);
+            height: 45px;
         }
-        
+
         .tasklist-selector:focus {
             outline: none;
             border-color: var(--primary-light);
             box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.3);
         }
-        
+
         .bulk-actions {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
             flex-wrap: wrap;
         }
-        
+
         .bulk-actions button {
             padding: 8px 15px;
             border: none;
@@ -524,50 +649,52 @@
             transition: var(--transition);
             border: 1px solid var(--glass-border);
         }
-        
+
         .bulk-actions button:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
-        
-        /* Анимации для карточек задач */
+
         .task-item {
-            animation: fadeIn 0.8s ease-out;
+            animation: fadeIn 0.5s ease-out;
             animation-fill-mode: both;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @media (max-width: 600px) {
             .task-form {
                 flex-direction: column;
             }
-            
+
             .add-btn {
                 width: 100%;
             }
-            
+
             .controls {
                 flex-direction: column;
             }
-            
+
             .bulk-actions {
                 flex-direction: column;
             }
 
             .task-item {
+                padding: 12px 15px;
+            }
+
+            .task-content {
                 flex-wrap: wrap;
                 align-items: flex-start;
-                padding: 12px 15px;
             }
 
             .task-date {
                 flex-basis: 100%;
                 margin-top: 8px;
-                margin-left: 0;
+                margin-left: 38px; /* Align with task text */
                 margin-right: 0;
                 white-space: normal;
             }
@@ -577,16 +704,26 @@
                 margin-top: 10px;
                 margin-left: 0;
                 justify-content: flex-start;
+                padding-left: 38px; /* Align with task text */
             }
 
             .task-actions .move-btn,
-            .task-actions .delete-btn {
+            .task-actions .delete-btn,
+            .task-actions .add-subtask-btn,
+            .task-actions .edit-btn {
                 padding: 8px;
                 font-size: 16px;
             }
+
+            .subtask-list {
+                padding-left: 15px;
+            }
+
+            .add-subtask-form {
+                padding-left: 15px;
+            }
         }
-        
-        /* Футуристичные элементы */
+
         .futuristic-dots {
             position: fixed;
             width: 100%;
@@ -618,25 +755,22 @@
 </head>
 <body>
     <div class="futuristic-dots" id="dotsContainer"></div>
-    
+
     <div class="app-header">
         <h1>Мой задачник<i class="fas fa-tasks"></i></h1>
-        <p class="app-subtitle">Управляйте задачами</p>
+        <p class="app-subtitle">Управляйте задачами и подзадачами</p>
     </div>
-    
+
     <select class="tasklist-selector" id="tasklistSelector">
-        <option value="default" selected>Основной список</option>
-        <option value="work">Работа</option>
-        <option value="home">Дом</option>
         <option value="add">+ Добавить новый список</option>
     </select>
-    
+
     <div class="bulk-actions">
         <button id="markAllBtn"><i class="fas fa-check-circle"></i> Отметить все</button>
         <button id="unmarkAllBtn"><i class="fas fa-times-circle"></i> Снять все отметки</button>
         <button id="clearAllTasksBtn"><i class="fas fa-trash"></i> Очистить все задачи</button>
     </div>
-    
+
     <div class="task-form">
         <input type="text" class="task-input" placeholder="Добавьте новую задачу..." id="taskInput">
         <select class="priority-selector" id="prioritySelect">
@@ -646,16 +780,16 @@
         </select>
         <button class="add-btn" id="addTask">Добавить <i class="fas fa-plus"></i></button>
     </div>
-    
+
     <ul class="task-list" id="taskList">
         <div class="empty-state" id="emptyState">
             <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
             <p>Нет задач. Добавьте первую!</p>
         </div>
     </ul>
-    
+
     <div class="status" id="status">Всего задач: 0, выполнено: 0</div>
-    
+
     <div class="controls">
         <button id="exportBtn"><i class="fas fa-download"></i> Экспорт задач</button>
         <button id="importBtn"><i class="fas fa-upload"></i> Импорт задач</button>
@@ -663,9 +797,9 @@
         <button id="clearAllBtn"><i class="fas fa-trash-alt"></i> Очистить все</button>
         <input type="file" id="file-input" accept=".json">
     </div>
-    
+
     <div class="notification" id="notification"></div>
-    
+
     <div class="modal" id="editTaskModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -693,7 +827,28 @@
             </div>
         </div>
     </div>
-    
+
+    <div class="modal" id="editSubtaskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Редактирование подзадачи</h3>
+                <button class="modal-close" id="closeSubtaskModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editSubtaskText">Текст подзадачи:</label>
+                    <input type="text" class="task-input" id="editSubtaskText">
+                </div>
+                <input type="hidden" id="editSubtaskId">
+                <input type="hidden" id="editSubtaskParentId">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSubtaskEdit">Отмена</button>
+                <button class="btn btn-primary" id="saveSubtaskEdit">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal" id="addTasklistModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -712,10 +867,9 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Создаем футуристичные точки
             const dotsContainer = document.getElementById('dotsContainer');
             for (let i = 0; i < 40; i++) {
                 const dot = document.createElement('div');
@@ -728,7 +882,7 @@
                 dot.style.animationDuration = `${Math.random() * 10 + 10}s`;
                 dotsContainer.appendChild(dot);
             }
-            
+
             const taskInput = document.getElementById('taskInput');
             const prioritySelect = document.getElementById('prioritySelect');
             const addTaskBtn = document.getElementById('addTask');
@@ -745,7 +899,7 @@
             const markAllBtn = document.getElementById('markAllBtn');
             const unmarkAllBtn = document.getElementById('unmarkAllBtn');
             const clearAllTasksBtn = document.getElementById('clearAllTasksBtn');
-            
+
             const editTaskModal = document.getElementById('editTaskModal');
             const editTaskText = document.getElementById('editTaskText');
             const editTaskPriority = document.getElementById('editTaskPriority');
@@ -753,104 +907,395 @@
             const closeModal = document.getElementById('closeModal');
             const cancelEdit = document.getElementById('cancelEdit');
             const saveTaskEdit = document.getElementById('saveTaskEdit');
-            
+
+            const editSubtaskModal = document.getElementById('editSubtaskModal');
+            const editSubtaskText = document.getElementById('editSubtaskText');
+            const editSubtaskId = document.getElementById('editSubtaskId');
+            const editSubtaskParentId = document.getElementById('editSubtaskParentId');
+            const closeSubtaskModal = document.getElementById('closeSubtaskModal');
+            const cancelSubtaskEdit = document.getElementById('cancelSubtaskEdit');
+            const saveSubtaskEdit = document.getElementById('saveSubtaskEdit');
+
             const addTasklistModal = document.getElementById('addTasklistModal');
             const newTasklistName = document.getElementById('newTasklistName');
             const closeTasklistModal = document.getElementById('closeTasklistModal');
             const cancelTasklist = document.getElementById('cancelTasklist');
             const saveTasklist = document.getElementById('saveTasklist');
-            
-            let tasklists = JSON.parse(localStorage.getItem('tasklists')) || {
-                default: { name: 'Основной список', tasks: [] },
-                work: { name: 'Работа', tasks: [] },
-                home: { name: 'Дом', tasks: [] }
-            };
-            
-            let currentTasklist = localStorage.getItem('currentTasklist') || 'default';
-            
-            const oldTasks = JSON.parse(localStorage.getItem('tasks'));
-            if (oldTasks && Array.isArray(oldTasks) && oldTasks.length > 0) {
-                if (!tasklists.default.tasks || tasklists.default.tasks.length === 0) {
-                    tasklists.default.tasks = oldTasks;
-                    saveTasklists();
-                    localStorage.removeItem('tasks'); 
-                }
+
+            let db;
+            let currentTasklistId = localStorage.getItem('currentTasklistId') || null;
+            let tasksCache = [];
+
+            const DB_NAME = 'TaskAppDB';
+            const DB_VERSION = 1;
+            const TASKLISTS_STORE = 'tasklists';
+            const TASKS_STORE = 'tasks';
+
+            function initDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                    request.onerror = (event) => {
+                        console.error('Database error:', event.target.error);
+                        showNotification('Ошибка базы данных', 'error');
+                        reject(event.target.error);
+                    };
+
+                    request.onsuccess = (event) => {
+                        db = event.target.result;
+                        console.log('Database initialized');
+                        resolve(db);
+                    };
+
+                    request.onupgradeneeded = (event) => {
+                        db = event.target.result;
+                        if (!db.objectStoreNames.contains(TASKLISTS_STORE)) {
+                            db.createObjectStore(TASKLISTS_STORE, { keyPath: 'id', autoIncrement: true });
+                        }
+                        if (!db.objectStoreNames.contains(TASKS_STORE)) {
+                            const taskStore = db.createObjectStore(TASKS_STORE, { keyPath: 'id', autoIncrement: true });
+                            taskStore.createIndex('listId_order', ['listId', 'order'], { unique: false });
+                            taskStore.createIndex('listId', 'listId', { unique: false });
+                        }
+                    };
+                });
             }
-            
-            function initTasklistSelector() {
+
+            function getStore(storeName, mode) {
+                const transaction = db.transaction(storeName, mode);
+                return transaction.objectStore(storeName);
+            }
+
+            function addTasklistToDB(name) {
+                return new Promise((resolve, reject) => {
+                    const store = getStore(TASKLISTS_STORE, 'readwrite');
+                    const request = store.add({ name: name });
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function getTasklistsFromDB() {
+                return new Promise((resolve, reject) => {
+                    const store = getStore(TASKLISTS_STORE, 'readonly');
+                    const request = store.getAll();
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function getTasksFromDB(listId) {
+                return new Promise((resolve, reject) => {
+                    if (!listId) return resolve([]);
+                    const store = getStore(TASKS_STORE, 'readonly');
+                    const index = store.index('listId_order');
+                    const request = index.getAll(IDBKeyRange.bound([listId, -Infinity], [listId, Infinity]));
+                    request.onsuccess = (event) => {
+                        tasksCache = event.target.result || [];
+                        resolve(tasksCache);
+                    };
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function addTaskToDB(task) {
+                return new Promise((resolve, reject) => {
+                    const store = getStore(TASKS_STORE, 'readwrite');
+                    const request = store.add(task);
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function updateTaskInDB(task) {
+                return new Promise((resolve, reject) => {
+                    const store = getStore(TASKS_STORE, 'readwrite');
+                    const request = store.put(task);
+                    request.onsuccess = (event) => resolve(event.target.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function deleteTaskFromDB(taskId) {
+                return new Promise((resolve, reject) => {
+                    const store = getStore(TASKS_STORE, 'readwrite');
+                    const request = store.delete(taskId);
+                    request.onsuccess = (event) => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function updateTaskOrderInDB(tasksToUpdate) {
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(TASKS_STORE, 'readwrite');
+                    const store = transaction.objectStore(TASKS_STORE);
+                    let completed = 0;
+
+                    tasksToUpdate.forEach(task => {
+                        const request = store.put(task);
+                        request.onsuccess = () => {
+                            completed++;
+                            if (completed === tasksToUpdate.length) {
+                                resolve();
+                            }
+                        };
+                        request.onerror = (event) => {
+                            console.error('Error updating task order:', event.target.error);
+                            transaction.abort();
+                            reject(event.target.error);
+                        };
+                    });
+
+                    transaction.oncomplete = () => {
+                        if (completed !== tasksToUpdate.length) {
+                             console.warn('Transaction completed but not all updates were successful?');
+                        }
+                    };
+                    transaction.onerror = (event) => {
+                        console.error('Transaction error during order update:', event.target.error);
+                        reject(event.target.error);
+                    };
+                });
+            }
+
+            function clearTasksByListId(listId) {
+                return new Promise((resolve, reject) => {
+                    const store = getStore(TASKS_STORE, 'readwrite');
+                    const index = store.index('listId');
+                    const request = index.openCursor(IDBKeyRange.only(listId));
+                    request.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            cursor.delete();
+                            cursor.continue();
+                        } else {
+                            resolve();
+                        }
+                    };
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function clearCompletedTasksByListId(listId) {
+                return new Promise((resolve, reject) => {
+                    const store = getStore(TASKS_STORE, 'readwrite');
+                    const index = store.index('listId');
+                    const request = index.openCursor(IDBKeyRange.only(listId));
+                    let deletedCount = 0;
+                    request.onsuccess = (event) => {
+                        const cursor = event.target.result;
+                        if (cursor) {
+                            if (cursor.value.completed) {
+                                cursor.delete();
+                                deletedCount++;
+                            }
+                            cursor.continue();
+                        } else {
+                            resolve(deletedCount);
+                        }
+                    };
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            function getAllDataForExport() {
+                return new Promise(async (resolve, reject) => {
+                    try {
+                        const tasklists = await getTasklistsFromDB();
+                        const allTasks = await new Promise((res, rej) => {
+                            const store = getStore(TASKS_STORE, 'readonly');
+                            const req = store.getAll();
+                            req.onsuccess = e => res(e.target.result);
+                            req.onerror = e => rej(e.target.error);
+                        });
+
+                        const exportData = {
+                            tasklists: tasklists,
+                            tasks: allTasks
+                        };
+                        resolve(exportData);
+                    } catch (error) {
+                        reject(error);
+                    }
+                });
+            }
+
+            function importData(data) {
+                return new Promise(async (resolve, reject) => {
+                    if (!data || typeof data !== 'object' || !Array.isArray(data.tasklists) || !Array.isArray(data.tasks)) {
+                        return reject(new Error('Неверный формат импортируемых данных'));
+                    }
+
+                    const tasklistTx = db.transaction(TASKLISTS_STORE, 'readwrite');
+                    const taskTx = db.transaction(TASKS_STORE, 'readwrite');
+                    const tasklistStore = tasklistTx.objectStore(TASKLISTS_STORE);
+                    const taskStore = taskTx.objectStore(TASKS_STORE);
+
+                    try {
+                        await new Promise((res, rej) => {
+                            const req = tasklistStore.clear();
+                            req.onsuccess = res;
+                            req.onerror = rej;
+                        });
+                        await new Promise((res, rej) => {
+                            const req = taskStore.clear();
+                            req.onsuccess = res;
+                            req.onerror = rej;
+                        });
+
+                        for (const list of data.tasklists) {
+                            await new Promise((res, rej) => {
+                                const req = tasklistStore.add(list);
+                                req.onsuccess = res;
+                                req.onerror = rej;
+                            });
+                        }
+
+                        for (const task of data.tasks) {
+                            await new Promise((res, rej) => {
+                                const req = taskStore.add(task);
+                                req.onsuccess = res;
+                                req.onerror = rej;
+                            });
+                        }
+
+                        await Promise.all([
+                            new Promise(res => tasklistTx.oncomplete = res),
+                            new Promise(res => taskTx.oncomplete = res)
+                        ]);
+
+                        resolve();
+                    } catch (error) {
+                        console.error('Import transaction error:', error);
+                        tasklistTx.abort();
+                        taskTx.abort();
+                        reject(error);
+                    }
+                });
+            }
+
+            async function initTasklistSelector() {
+                const tasklists = await getTasklistsFromDB();
                 const addOption = tasklistSelector.querySelector('option[value="add"]');
                 tasklistSelector.innerHTML = '';
-                
-                Object.keys(tasklists).forEach(key => {
+
+                if (tasklists.length === 0) {
+                    const defaultListId = await addTasklistToDB('Основной список');
+                    tasklists.push({ id: defaultListId, name: 'Основной список' });
+                    if (!currentTasklistId) {
+                        currentTasklistId = defaultListId;
+                        localStorage.setItem('currentTasklistId', currentTasklistId);
+                    }
+                }
+
+                if (!currentTasklistId || !tasklists.some(list => list.id === currentTasklistId)) {
+                    currentTasklistId = tasklists[0]?.id || null;
+                    if (currentTasklistId) {
+                         localStorage.setItem('currentTasklistId', currentTasklistId);
+                    } else {
+                         localStorage.removeItem('currentTasklistId');
+                    }
+                }
+
+                tasklists.forEach(list => {
                     const option = document.createElement('option');
-                    option.value = key;
-                    option.textContent = tasklists[key].name;
-                    if (key === currentTasklist) {
+                    option.value = list.id;
+                    option.textContent = list.name;
+                    if (list.id === currentTasklistId) {
                         option.selected = true;
                     }
                     tasklistSelector.appendChild(option);
                 });
-                
-                if (addOption) { 
+
+                if (addOption) {
                     tasklistSelector.appendChild(addOption);
                 }
             }
-            
+
             function showNotification(message, type = 'success') {
                 notification.textContent = message;
                 notification.className = 'notification show';
                 notification.classList.add(type);
-                
+
                 setTimeout(() => {
                     notification.classList.remove('show');
                     setTimeout(() => notification.classList.remove(type), 300);
                 }, 3000);
             }
-            
-            function renderTasks() {
+
+            async function renderTasks() {
+                if (!currentTasklistId) {
+                    taskList.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    updateStatus();
+                    return;
+                }
+
+                const tasks = await getTasksFromDB(currentTasklistId);
                 taskList.innerHTML = '';
-                const tasks = tasklists[currentTasklist].tasks;
-                
+
                 if (tasks.length === 0) {
                     emptyState.style.display = 'block';
                 } else {
                     emptyState.style.display = 'none';
-                    
-                    const sortedTasks = [...tasks].sort((a, b) => {
-                        if (a.completed !== b.completed) {
-                            return a.completed ? 1 : -1;
-                        }
-                        const priorityOrder = { high: 3, medium: 2, low: 1 };
-                        return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0);
-                    });
-                    
-                    sortedTasks.forEach((task) => {
-                        const originalIndex = tasks.findIndex(t => t === task);
-
+                    tasks.forEach((task) => {
                         const taskItem = document.createElement('li');
                         taskItem.className = `task-item ${task.completed ? 'task-completed' : ''}`;
-                        taskItem.setAttribute('data-id', originalIndex); 
-                        
+                        taskItem.setAttribute('data-id', task.id);
+
                         const priorityClass = `priority-${task.priority || 'medium'}`;
-                        
+
                         taskItem.innerHTML = `
-                            <div class="task-priority ${priorityClass}"></div>
-                            <input type="checkbox" class="checkbox" ${task.completed ? 'checked' : ''} data-id="${originalIndex}">
-                            <span class="task-text">${task.text}</span>
-                            <span class="task-date">${formatDate(task.createdAt)}</span>
-                            <div class="task-actions">
-                                <button class="move-btn move-up" data-id="${originalIndex}" title="Переместить вверх"><i class="fas fa-arrow-up"></i></button>
-                                <button class="move-btn move-down" data-id="${originalIndex}" title="Переместить вниз"><i class="fas fa-arrow-down"></i></button>
-                                <button class="delete-btn" data-id="${originalIndex}" title="Удалить"><i class="fas fa-trash"></i></button>
+                            <div class="task-content">
+                                <div class="task-priority ${priorityClass}"></div>
+                                <input type="checkbox" class="checkbox task-checkbox" ${task.completed ? 'checked' : ''} data-id="${task.id}">
+                                <span class="task-text">${escapeHtml(task.text)}</span>
+                                <span class="task-date">${formatDate(task.createdAt)}</span>
+                                <div class="task-actions">
+                                    <button class="move-btn move-up" data-id="${task.id}" title="Переместить вверх"><i class="fas fa-arrow-up"></i></button>
+                                    <button class="move-btn move-down" data-id="${task.id}" title="Переместить вниз"><i class="fas fa-arrow-down"></i></button>
+                                    <button class="edit-btn" data-id="${task.id}" title="Редактировать"><i class="fas fa-edit"></i></button>
+                                    <button class="add-subtask-btn" data-id="${task.id}" title="Добавить подзадачу"><i class="fas fa-plus-circle"></i></button>
+                                    <button class="delete-btn" data-id="${task.id}" title="Удалить"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <ul class="subtask-list" data-parent-id="${task.id}">
+                                ${renderSubtasks(task.subtasks || [], task.id)}
+                            </ul>
+                            <div class="add-subtask-form" data-parent-id="${task.id}" style="display: none;">
+                                <input type="text" class="add-subtask-input" placeholder="Новая подзадача...">
+                                <button class="add-subtask-confirm-btn" title="Добавить"><i class="fas fa-check"></i></button>
                             </div>
                         `;
-                        
                         taskList.appendChild(taskItem);
                     });
                 }
                 updateStatus();
             }
-            
+
+            function renderSubtasks(subtasks, parentId) {
+                return subtasks.map((subtask, index) => `
+                    <li class="subtask-item ${subtask.completed ? 'subtask-completed' : ''}" data-id="${index}" data-parent-id="${parentId}">
+                        <input type="checkbox" class="checkbox subtask-checkbox" ${subtask.completed ? 'checked' : ''} data-id="${index}" data-parent-id="${parentId}">
+                        <span class="subtask-text">${escapeHtml(subtask.text)}</span>
+                        <div class="subtask-actions">
+                            <button class="edit-subtask-btn" data-id="${index}" data-parent-id="${parentId}" title="Редактировать"><i class="fas fa-edit"></i></button>
+                            <button class="delete-subtask-btn" data-id="${index}" data-parent-id="${parentId}" title="Удалить"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </li>
+                `).join('');
+            }
+
+            function escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&")
+                    .replace(/</g, "<")
+                    .replace(/>/g, ">")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
             function formatDate(dateString) {
                 if (!dateString) return '';
                 const date = new Date(dateString);
@@ -859,188 +1304,367 @@
                     hour: '2-digit', minute: '2-digit'
                 });
             }
-            
-            function updateStatus() {
-                const tasks = tasklists[currentTasklist].tasks;
+
+            async function updateStatus() {
+                const tasks = tasksCache;
                 const totalTasks = tasks.length;
                 const completedTasks = tasks.filter(task => task.completed).length;
                 statusElement.textContent = `Всего задач: ${totalTasks}, выполнено: ${completedTasks} (${totalTasks > 0 ? Math.round(completedTasks / totalTasks * 100) : 0}%)`;
             }
-            
-            function saveTasklists() {
-                localStorage.setItem('tasklists', JSON.stringify(tasklists));
-                localStorage.setItem('currentTasklist', currentTasklist);
-                renderTasks();
-            }
-            
-            function addTask() {
+
+            async function addTask() {
                 const text = taskInput.value.trim();
-                if (text) {
-                    tasklists[currentTasklist].tasks.push({ 
-                        text, 
-                        completed: false, 
+                if (text && currentTasklistId) {
+                    const maxOrder = tasksCache.length > 0 ? Math.max(...tasksCache.map(t => t.order)) : -1;
+                    const newTask = {
+                        listId: currentTasklistId,
+                        text: text,
+                        completed: false,
                         priority: prioritySelect.value,
-                        createdAt: new Date().toISOString()
-                    });
-                    taskInput.value = '';
-                    saveTasklists();
-                    showNotification('Задача добавлена');
-                } else {
+                        createdAt: new Date().toISOString(),
+                        subtasks: [],
+                        order: maxOrder + 1
+                    };
+                    try {
+                        const newId = await addTaskToDB(newTask);
+                        newTask.id = newId;
+                        tasksCache.push(newTask);
+                        taskInput.value = '';
+                        await renderTasks();
+                        showNotification('Задача добавлена');
+                    } catch (error) {
+                        console.error('Failed to add task:', error);
+                        showNotification('Не удалось добавить задачу', 'error');
+                    }
+                } else if (!text) {
                     showNotification('Введите текст задачи', 'error');
+                } else {
+                    showNotification('Сначала выберите или создайте список задач', 'warning');
                 }
             }
-            
-            function moveTaskUp(taskId) {
-                const tasks = tasklists[currentTasklist].tasks;
-                if (taskId > 0 && taskId < tasks.length) {
-                    [tasks[taskId], tasks[taskId - 1]] = [tasks[taskId - 1], tasks[taskId]];
-                    saveTasklists();
-                    showNotification('Задача перемещена вверх');
+
+            async function moveTask(taskId, direction) {
+                const taskIndex = tasksCache.findIndex(t => t.id === taskId);
+                if (taskIndex === -1) return;
+
+                const swapIndex = direction === 'up' ? taskIndex - 1 : taskIndex + 1;
+
+                if (swapIndex < 0 || swapIndex >= tasksCache.length) return;
+
+                const task1 = tasksCache[taskIndex];
+                const task2 = tasksCache[swapIndex];
+
+                const tempOrder = task1.order;
+                task1.order = task2.order;
+                task2.order = tempOrder;
+
+                try {
+                    await updateTaskOrderInDB([task1, task2]);
+                    tasksCache.sort((a, b) => a.order - b.order);
+                    await renderTasks();
+                    showNotification(`Задача перемещена ${direction === 'up' ? 'вверх' : 'вниз'}`);
+                } catch (error) {
+                    console.error('Failed to move task:', error);
+                    showNotification('Не удалось переместить задачу', 'error');
+                    task2.order = task1.order;
+                    task1.order = tempOrder;
                 }
             }
-            
-            function moveTaskDown(taskId) {
-                const tasks = tasklists[currentTasklist].tasks;
-                if (taskId >= 0 && taskId < tasks.length - 1) {
-                    [tasks[taskId], tasks[taskId + 1]] = [tasks[taskId + 1], tasks[taskId]];
-                    saveTasklists();
-                    showNotification('Задача перемещена вниз');
-                }
-            }
-            
-            function markAllTasks() {
-                const tasks = tasklists[currentTasklist].tasks;
-                if (tasks.length === 0) {
+
+            async function markAllTasks() {
+                if (tasksCache.length === 0) {
                     showNotification('Нет задач для отметки', 'warning'); return;
                 }
-                tasks.forEach(task => task.completed = true);
-                saveTasklists();
-                showNotification('Все задачи отмечены как выполненные');
+                const updates = [];
+                tasksCache.forEach(task => {
+                    if (!task.completed) {
+                        task.completed = true;
+                        updates.push(updateTaskInDB(task));
+                    }
+                });
+                if (updates.length > 0) {
+                    try {
+                        await Promise.all(updates);
+                        await renderTasks();
+                        showNotification('Все задачи отмечены как выполненные');
+                    } catch (error) {
+                        console.error('Failed to mark all tasks:', error);
+                        showNotification('Не удалось отметить все задачи', 'error');
+                    }
+                } else {
+                    showNotification('Все задачи уже выполнены', 'info');
+                }
             }
-            
-            function unmarkAllTasks() {
-                const tasks = tasklists[currentTasklist].tasks;
-                if (tasks.length === 0) {
+
+            async function unmarkAllTasks() {
+                if (tasksCache.length === 0) {
                     showNotification('Нет задач для снятия отметок', 'warning'); return;
                 }
-                tasks.forEach(task => task.completed = false);
-                saveTasklists();
-                showNotification('Со всех задач сняты отметки');
+                 const updates = [];
+                tasksCache.forEach(task => {
+                    if (task.completed) {
+                        task.completed = false;
+                        updates.push(updateTaskInDB(task));
+                    }
+                });
+                 if (updates.length > 0) {
+                    try {
+                        await Promise.all(updates);
+                        await renderTasks();
+                        showNotification('Со всех задач сняты отметки');
+                    } catch (error) {
+                        console.error('Failed to unmark all tasks:', error);
+                        showNotification('Не удалось снять отметки со всех задач', 'error');
+                    }
+                } else {
+                     showNotification('Нет выполненных задач', 'info');
+                }
             }
-            
-            function clearAllTasks() {
-                const tasks = tasklists[currentTasklist].tasks;
-                if (tasks.length === 0) {
+
+            async function clearAllTasksInList() {
+                if (tasksCache.length === 0) {
                     showNotification('Список задач уже пуст', 'warning'); return;
                 }
                 if (confirm('Вы уверены, что хотите удалить все задачи из текущего списка?')) {
-                    tasklists[currentTasklist].tasks = [];
-                    saveTasklists();
-                    showNotification('Все задачи удалены');
+                    try {
+                        await clearTasksByListId(currentTasklistId);
+                        tasksCache = [];
+                        await renderTasks();
+                        showNotification('Все задачи удалены');
+                    } catch (error) {
+                        console.error('Failed to clear tasks:', error);
+                        showNotification('Не удалось удалить задачи', 'error');
+                    }
                 }
             }
-            
+
             function openEditModal(taskId) {
-                const task = tasklists[currentTasklist].tasks[taskId];
+                const task = tasksCache.find(t => t.id === taskId);
                 if (!task) return;
                 editTaskText.value = task.text;
                 editTaskPriority.value = task.priority || 'medium';
                 editTaskId.value = taskId;
                 editTaskModal.classList.add('show');
             }
-            
+
             function closeEditModal() {
                 editTaskModal.classList.remove('show');
             }
-            
-            function saveEditedTask() {
+
+            async function saveEditedTask() {
                 const taskId = parseInt(editTaskId.value);
                 const newText = editTaskText.value.trim();
                 const newPriority = editTaskPriority.value;
-                
+
                 if (!newText) {
                     showNotification('Текст задачи не может быть пустым', 'error'); return;
                 }
-                const tasks = tasklists[currentTasklist].tasks;
-                if (taskId >= 0 && taskId < tasks.length) {
-                    tasks[taskId].text = newText;
-                    tasks[taskId].priority = newPriority;
-                    saveTasklists();
-                    closeEditModal();
-                    showNotification('Задача обновлена');
+                const taskIndex = tasksCache.findIndex(t => t.id === taskId);
+                if (taskIndex !== -1) {
+                    const task = tasksCache[taskIndex];
+                    task.text = newText;
+                    task.priority = newPriority;
+                    try {
+                        await updateTaskInDB(task);
+                        closeEditModal();
+                        await renderTasks();
+                        showNotification('Задача обновлена');
+                    } catch (error) {
+                        console.error('Failed to save task:', error);
+                        showNotification('Не удалось сохранить задачу', 'error');
+                    }
                 }
             }
-            
+
             function openAddTasklistModal() {
                 newTasklistName.value = '';
                 addTasklistModal.classList.add('show');
             }
-            
+
             function closeAddTasklistModal() {
                 addTasklistModal.classList.remove('show');
             }
-            
-            function saveNewTasklist() {
+
+            async function saveNewTasklist() {
                 const name = newTasklistName.value.trim();
                 if (!name) {
                     showNotification('Введите название списка задач', 'error'); return;
                 }
-                const key = 'list_' + Date.now();
-                tasklists[key] = { name: name, tasks: [] };
-                currentTasklist = key;
-                saveTasklists();
-                closeAddTasklistModal();
-                initTasklistSelector();
-                showNotification(`Создан новый список задач "${name}"`);
-            }
-            
-            exportBtn.addEventListener('click', function() {
-                if (Object.keys(tasklists).length === 0 || Object.values(tasklists).every(list => list.tasks.length === 0)) {
-                    showNotification('Нет задач для экспорта', 'warning'); return;
+                try {
+                    const newId = await addTasklistToDB(name);
+                    currentTasklistId = newId;
+                    localStorage.setItem('currentTasklistId', currentTasklistId);
+                    await initTasklistSelector();
+                    closeAddTasklistModal();
+                    await renderTasks();
+                    showNotification(`Создан новый список задач "${name}"`);
+                } catch (error) {
+                    console.error('Failed to add tasklist:', error);
+                    showNotification('Не удалось создать список задач', 'error');
                 }
-                const dataStr = JSON.stringify(tasklists, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `tasks_export_${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                showNotification('Задачи экспортированы');
+            }
+
+            function toggleAddSubtaskForm(parentId) {
+                const form = document.querySelector(`.add-subtask-form[data-parent-id="${parentId}"]`);
+                if (form) {
+                    form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+                    if (form.style.display === 'flex') {
+                        form.querySelector('.add-subtask-input').focus();
+                    }
+                }
+            }
+
+            async function addSubtask(parentId) {
+                const form = document.querySelector(`.add-subtask-form[data-parent-id="${parentId}"]`);
+                const input = form.querySelector('.add-subtask-input');
+                const text = input.value.trim();
+
+                if (!text) {
+                    showNotification('Введите текст подзадачи', 'error');
+                    return;
+                }
+
+                const taskIndex = tasksCache.findIndex(t => t.id === parentId);
+                if (taskIndex !== -1) {
+                    const task = tasksCache[taskIndex];
+                    if (!task.subtasks) {
+                        task.subtasks = [];
+                    }
+                    task.subtasks.push({ text: text, completed: false });
+                    try {
+                        await updateTaskInDB(task);
+                        input.value = '';
+                        form.style.display = 'none';
+                        await renderTasks();
+                        showNotification('Подзадача добавлена');
+                    } catch (error) {
+                        console.error('Failed to add subtask:', error);
+                        showNotification('Не удалось добавить подзадачу', 'error');
+                        task.subtasks.pop(); // Revert change on error
+                    }
+                }
+            }
+
+            async function toggleSubtaskCompletion(parentId, subtaskId) {
+                const taskIndex = tasksCache.findIndex(t => t.id === parentId);
+                if (taskIndex !== -1 && tasksCache[taskIndex].subtasks && tasksCache[taskIndex].subtasks[subtaskId]) {
+                    const task = tasksCache[taskIndex];
+                    const subtask = task.subtasks[subtaskId];
+                    subtask.completed = !subtask.completed;
+                    try {
+                        await updateTaskInDB(task);
+                        await renderTasks();
+                        showNotification(`Подзадача отмечена как ${subtask.completed ? 'выполнена' : 'не выполнена'}`);
+                    } catch (error) {
+                        console.error('Failed to toggle subtask:', error);
+                        showNotification('Не удалось изменить статус подзадачи', 'error');
+                        subtask.completed = !subtask.completed; // Revert
+                    }
+                }
+            }
+
+            async function deleteSubtask(parentId, subtaskId) {
+                const taskIndex = tasksCache.findIndex(t => t.id === parentId);
+                if (taskIndex !== -1 && tasksCache[taskIndex].subtasks && tasksCache[taskIndex].subtasks[subtaskId]) {
+                    const task = tasksCache[taskIndex];
+                    const deletedSubtask = task.subtasks.splice(subtaskId, 1)[0];
+                    try {
+                        await updateTaskInDB(task);
+                        await renderTasks();
+                        showNotification(`Подзадача "${deletedSubtask.text}" удалена`);
+                    } catch (error) {
+                        console.error('Failed to delete subtask:', error);
+                        showNotification('Не удалось удалить подзадачу', 'error');
+                        task.subtasks.splice(subtaskId, 0, deletedSubtask); // Revert
+                    }
+                }
+            }
+
+            function openEditSubtaskModal(parentId, subtaskId) {
+                const task = tasksCache.find(t => t.id === parentId);
+                if (task && task.subtasks && task.subtasks[subtaskId]) {
+                    const subtask = task.subtasks[subtaskId];
+                    editSubtaskText.value = subtask.text;
+                    editSubtaskId.value = subtaskId;
+                    editSubtaskParentId.value = parentId;
+                    editSubtaskModal.classList.add('show');
+                }
+            }
+
+            function closeEditSubtaskModal() {
+                editSubtaskModal.classList.remove('show');
+            }
+
+            async function saveEditedSubtask() {
+                const parentId = parseInt(editSubtaskParentId.value);
+                const subtaskId = parseInt(editSubtaskId.value);
+                const newText = editSubtaskText.value.trim();
+
+                if (!newText) {
+                    showNotification('Текст подзадачи не может быть пустым', 'error'); return;
+                }
+
+                const taskIndex = tasksCache.findIndex(t => t.id === parentId);
+                if (taskIndex !== -1 && tasksCache[taskIndex].subtasks && tasksCache[taskIndex].subtasks[subtaskId]) {
+                    const task = tasksCache[taskIndex];
+                    const subtask = task.subtasks[subtaskId];
+                    const oldText = subtask.text;
+                    subtask.text = newText;
+                    try {
+                        await updateTaskInDB(task);
+                        closeEditSubtaskModal();
+                        await renderTasks();
+                        showNotification('Подзадача обновлена');
+                    } catch (error) {
+                        console.error('Failed to save subtask:', error);
+                        showNotification('Не удалось сохранить подзадачу', 'error');
+                        subtask.text = oldText; // Revert
+                    }
+                }
+            }
+
+            exportBtn.addEventListener('click', async () => {
+                try {
+                    const data = await getAllDataForExport();
+                    if (!data || (!data.tasklists.length && !data.tasks.length)) {
+                        showNotification('Нет данных для экспорта', 'warning'); return;
+                    }
+                    const dataStr = JSON.stringify(data, null, 2);
+                    const blob = new Blob([dataStr], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `tasks_export_${new Date().toISOString().split('T')[0]}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showNotification('Задачи экспортированы');
+                } catch (error) {
+                    console.error('Export failed:', error);
+                    showNotification('Ошибка экспорта', 'error');
+                }
             });
-            
+
             importBtn.addEventListener('click', () => fileInput.click());
-            
+
             fileInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = async function(e) {
                     try {
                         const importedData = JSON.parse(e.target.result);
-                        if (typeof importedData !== 'object' || importedData === null) {
-                            throw new Error('Неверный формат данных');
-                        }
-                        for (const key in importedData) {
-                            if (typeof importedData[key] !== 'object' || 
-                                !importedData[key].hasOwnProperty('name') || 
-                                !importedData[key].hasOwnProperty('tasks') ||
-                                !Array.isArray(importedData[key].tasks)) {
-                                throw new Error('Неверная структура списка задач в импортируемом файле.');
+                        if (confirm(`Импортировать данные? Текущие списки и задачи будут ЗАМЕНЕНЫ.`)) {
+                            await importData(importedData);
+                            currentTasklistId = importedData.tasklists[0]?.id || null;
+                            if (currentTasklistId) {
+                                localStorage.setItem('currentTasklistId', currentTasklistId);
+                            } else {
+                                localStorage.removeItem('currentTasklistId');
                             }
-                        }
-
-                        if (confirm(`Импортировать данные? Текущие списки задач будут заменены.`)) {
-                            tasklists = importedData;
-                            currentTasklist = Object.keys(tasklists)[0] || 'default';
-                            if (!tasklists[currentTasklist]) { 
-                                tasklists.default = { name: 'Основной список', tasks: [] };
-                                currentTasklist = 'default';
-                            }
-                            saveTasklists();
-                            initTasklistSelector();
+                            await initTasklistSelector();
+                            await renderTasks();
                             showNotification(`Данные успешно импортированы`);
                         }
                     } catch (error) {
@@ -1051,93 +1675,142 @@
                 };
                 reader.readAsText(file);
             });
-            
-            clearCompletedBtn.addEventListener('click', function() {
-                const tasks = tasklists[currentTasklist].tasks;
-                const completedCount = tasks.filter(task => task.completed).length;
+
+            clearCompletedBtn.addEventListener('click', async function() {
+                if (!currentTasklistId) return;
+                const completedCount = tasksCache.filter(task => task.completed).length;
                 if (completedCount === 0) {
                     showNotification('Нет выполненных задач для удаления', 'warning'); return;
                 }
-                if (confirm(`Удалить ${completedCount} выполненных задач?`)) {
-                    tasklists[currentTasklist].tasks = tasks.filter(task => !task.completed);
-                    saveTasklists();
-                    showNotification(`Удалено ${completedCount} выполненных задач`);
+                if (confirm(`Удалить ${completedCount} выполненных задач из текущего списка?`)) {
+                    try {
+                        const deletedCount = await clearCompletedTasksByListId(currentTasklistId);
+                        await renderTasks();
+                        showNotification(`Удалено ${deletedCount} выполненных задач`);
+                    } catch (error) {
+                        console.error('Failed to clear completed tasks:', error);
+                        showNotification('Не удалось удалить выполненные задачи', 'error');
+                    }
                 }
             });
-            
-            clearAllBtn.addEventListener('click', function() { 
-                clearAllTasks(); 
-            });
-            
+
+            clearAllBtn.addEventListener('click', clearAllTasksInList);
+
             closeModal.addEventListener('click', closeEditModal);
             cancelEdit.addEventListener('click', closeEditModal);
             saveTaskEdit.addEventListener('click', saveEditedTask);
-            
+
+            closeSubtaskModal.addEventListener('click', closeEditSubtaskModal);
+            cancelSubtaskEdit.addEventListener('click', closeEditSubtaskModal);
+            saveSubtaskEdit.addEventListener('click', saveEditedSubtask);
+
             closeTasklistModal.addEventListener('click', closeAddTasklistModal);
             cancelTasklist.addEventListener('click', closeAddTasklistModal);
             saveTasklist.addEventListener('click', saveNewTasklist);
-            
+
             window.addEventListener('click', function(e) {
                 if (e.target === editTaskModal) closeEditModal();
+                if (e.target === editSubtaskModal) closeEditSubtaskModal();
                 if (e.target === addTasklistModal) closeAddTasklistModal();
             });
-            
-            tasklistSelector.addEventListener('change', function() {
+
+            tasklistSelector.addEventListener('change', async function() {
                 const selectedValue = tasklistSelector.value;
                 if (selectedValue === 'add') {
-                    tasklistSelector.value = currentTasklist;
+                    tasklistSelector.value = currentTasklistId;
                     openAddTasklistModal();
                 } else {
-                    currentTasklist = selectedValue;
-                    saveTasklists(); 
+                    currentTasklistId = parseInt(selectedValue);
+                    localStorage.setItem('currentTasklistId', currentTasklistId);
+                    await renderTasks();
                 }
             });
-            
+
             markAllBtn.addEventListener('click', markAllTasks);
             unmarkAllBtn.addEventListener('click', unmarkAllTasks);
-            clearAllTasksBtn.addEventListener('click', clearAllTasks); 
-            
+            clearAllTasksBtn.addEventListener('click', clearAllTasksInList);
+
             addTaskBtn.addEventListener('click', addTask);
             taskInput.addEventListener('keypress', e => e.key === 'Enter' && addTask());
-            
-            taskList.addEventListener('click', function(e) {
+
+            taskList.addEventListener('click', async function(e) {
                 const target = e.target;
                 const taskItemElement = target.closest('.task-item');
-                if (!taskItemElement) return;
+                const subtaskItemElement = target.closest('.subtask-item');
 
-                const taskIdString = taskItemElement.getAttribute('data-id');
-                if (taskIdString === null) {
-                     console.error("Task item is missing data-id attribute.");
-                     return;
-                }
-                const taskId = parseInt(taskIdString);
-
-                if (isNaN(taskId) || taskId < 0 || !tasklists[currentTasklist] || taskId >= tasklists[currentTasklist].tasks.length) {
-                    console.error("Invalid task ID or task not found for ID:", taskIdString, "Current list:", currentTasklist, "Tasks:", tasklists[currentTasklist] ? tasklists[currentTasklist].tasks.length : 'undefined');
-                    return;
-                }
-
-                if (target.classList.contains('checkbox')) {
-                    tasklists[currentTasklist].tasks[taskId].completed = target.checked;
-                    saveTasklists();
-                    showNotification(`Задача отмечена как ${target.checked ? 'выполнена' : 'не выполнена'}`);
+                if (target.classList.contains('task-checkbox')) {
+                    const taskId = parseInt(target.getAttribute('data-id'));
+                    const taskIndex = tasksCache.findIndex(t => t.id === taskId);
+                    if (taskIndex !== -1) {
+                        const task = tasksCache[taskIndex];
+                        task.completed = target.checked;
+                        try {
+                            await updateTaskInDB(task);
+                            await renderTasks();
+                            showNotification(`Задача отмечена как ${target.checked ? 'выполнена' : 'не выполнена'}`);
+                        } catch (error) {
+                            console.error('Failed to toggle task completion:', error);
+                            showNotification('Не удалось изменить статус задачи', 'error');
+                            task.completed = !target.checked; // Revert
+                        }
+                    }
                 } else if (target.classList.contains('delete-btn') || target.closest('.delete-btn')) {
-                    const deletedTaskText = tasklists[currentTasklist].tasks[taskId].text;
-                    tasklists[currentTasklist].tasks.splice(taskId, 1);
-                    saveTasklists();
-                    showNotification(`Задача "${deletedTaskText}" удалена`);
+                    const taskId = parseInt(target.closest('.task-actions').querySelector('.delete-btn').getAttribute('data-id'));
+                    const task = tasksCache.find(t => t.id === taskId);
+                    if (task && confirm(`Удалить задачу "${task.text}"?`)) {
+                        try {
+                            await deleteTaskFromDB(taskId);
+                            await renderTasks();
+                            showNotification(`Задача "${task.text}" удалена`);
+                        } catch (error) {
+                            console.error('Failed to delete task:', error);
+                            showNotification('Не удалось удалить задачу', 'error');
+                        }
+                    }
                 } else if (target.classList.contains('move-up') || target.closest('.move-up')) {
-                    moveTaskUp(taskId);
+                    const taskId = parseInt(target.closest('.task-actions').querySelector('.move-up').getAttribute('data-id'));
+                    await moveTask(taskId, 'up');
                 } else if (target.classList.contains('move-down') || target.closest('.move-down')) {
-                    moveTaskDown(taskId);
-                } else if (taskItemElement && !target.classList.contains('checkbox') && !target.closest('.task-actions')) {
+                    const taskId = parseInt(target.closest('.task-actions').querySelector('.move-down').getAttribute('data-id'));
+                    await moveTask(taskId, 'down');
+                } else if (target.classList.contains('edit-btn') || target.closest('.edit-btn')) {
+                    const taskId = parseInt(target.closest('.task-actions').querySelector('.edit-btn').getAttribute('data-id'));
                     openEditModal(taskId);
+                } else if (target.classList.contains('add-subtask-btn') || target.closest('.add-subtask-btn')) {
+                    const taskId = parseInt(target.closest('.task-actions').querySelector('.add-subtask-btn').getAttribute('data-id'));
+                    toggleAddSubtaskForm(taskId);
+                } else if (target.classList.contains('add-subtask-confirm-btn') || target.closest('.add-subtask-confirm-btn')) {
+                    const parentId = parseInt(target.closest('.add-subtask-form').getAttribute('data-parent-id'));
+                    await addSubtask(parentId);
+                } else if (target.classList.contains('subtask-checkbox')) {
+                    const subtaskId = parseInt(target.getAttribute('data-id'));
+                    const parentId = parseInt(target.getAttribute('data-parent-id'));
+                    await toggleSubtaskCompletion(parentId, subtaskId);
+                } else if (target.classList.contains('delete-subtask-btn') || target.closest('.delete-subtask-btn')) {
+                    const subtaskId = parseInt(target.closest('.subtask-actions').querySelector('.delete-subtask-btn').getAttribute('data-id'));
+                    const parentId = parseInt(target.closest('.subtask-actions').querySelector('.delete-subtask-btn').getAttribute('data-parent-id'));
+                    await deleteSubtask(parentId, subtaskId);
+                } else if (target.classList.contains('edit-subtask-btn') || target.closest('.edit-subtask-btn')) {
+                    const subtaskId = parseInt(target.closest('.subtask-actions').querySelector('.edit-subtask-btn').getAttribute('data-id'));
+                    const parentId = parseInt(target.closest('.subtask-actions').querySelector('.edit-subtask-btn').getAttribute('data-parent-id'));
+                    openEditSubtaskModal(parentId, subtaskId);
                 }
             });
-            
-            initTasklistSelector();
-            renderTasks();
+
+            async function initializeApp() {
+                try {
+                    await initDB();
+                    await initTasklistSelector();
+                    await renderTasks();
+                } catch (error) {
+                    console.error('Initialization failed:', error);
+                    showNotification('Ошибка инициализации приложения', 'error');
+                }
+            }
+
+            initializeApp();
         });
     </script>
 </body>
 </html>
+
