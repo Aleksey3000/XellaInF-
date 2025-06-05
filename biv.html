@@ -1,4 +1,3 @@
- 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -26,6 +25,7 @@
       --border-radius: 16px;
       --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
       --grid-gap: 24px;
+      --error: #ff6b6b;
     }
 
     * {
@@ -111,6 +111,7 @@
     .input-group {
       flex: 1;
       min-width: 250px;
+      position: relative;
     }
 
     .input-group label {
@@ -135,6 +136,15 @@
       outline: none;
       border-color: var(--primary-light);
       box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.3);
+    }
+
+    .input-error {
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      color: var(--error);
+      font-size: 0.8rem;
+      display: none;
     }
 
     .btn {
@@ -244,6 +254,10 @@
       font-weight: 600;
     }
 
+    .future-event {
+      color: var(--accent);
+    }
+
     .time-details {
       color: rgba(255, 255, 255, 0.7);
       font-size: 0.95rem;
@@ -295,6 +309,26 @@
       font-size: 3rem;
       margin-bottom: 1rem;
       opacity: 0.3;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .notification.show {
+      opacity: 1;
     }
 
     .modal {
@@ -462,16 +496,20 @@
     <p class="app-subtitle">Отслеживайте время, прошедшее с важных моментов вашей жизни</p>
   </header>
 
+  <div class="notification" id="notification"></div>
+
   <main class="app-container">
     <div class="controls-container">
       <div class="input-group">
         <label for="event-title">Название события</label>
         <input type="text" id="event-title" placeholder="Например: Первое свидание">
+        <div class="input-error" id="title-error"></div>
       </div>
       
       <div class="input-group">
         <label for="event-date">Дата события</label>
         <input type="date" id="event-date">
+        <div class="input-error" id="date-error"></div>
       </div>
       
       <button class="btn btn-primary" id="add-event">
@@ -530,11 +568,33 @@
       const cancelImportBtn = document.getElementById('cancel-import');
       const confirmImportBtn = document.getElementById('confirm-import');
       const fileInput = document.getElementById('file-input');
+      const notification = document.getElementById('notification');
+      const titleError = document.getElementById('title-error');
+      const dateError = document.getElementById('date-error');
+      
+      // Установка максимальной даты (сегодня)
+      const today = new Date();
+      const maxDate = today.toISOString().split('T')[0];
+      eventDateInput.max = maxDate;
       
       // Имя базы данных и хранилища
       const DB_NAME = 'PastEventsDB';
       const STORE_NAME = 'events';
       const LOCAL_STORAGE_KEY = 'pastEvents';
+      
+      // Глобальная переменная для хранения событий
+      let events = [];
+      
+      // Показать уведомление
+      const showNotification = (message, isError = false) => {
+        notification.textContent = message;
+        notification.style.background = isError ? 'var(--error)' : 'var(--primary)';
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      };
       
       // Инициализация базы данных
       let db;
@@ -643,6 +703,18 @@
         const now = new Date();
         const past = new Date(eventDate);
         
+        // Проверка на будущее событие
+        if (past > now) {
+          return {
+            isFuture: true,
+            years: 0,
+            months: 0,
+            days: 0,
+            weeks: 0,
+            hours: 0
+          };
+        }
+        
         // Разница в миллисекундах
         const diff = now - past;
         
@@ -656,6 +728,7 @@
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         
         return {
+          isFuture: false,
           years,
           months,
           days,
@@ -666,6 +739,10 @@
       
       // Форматирование времени для отображения
       const formatTimePassed = (time) => {
+        if (time.isFuture) {
+          return "Событие еще не произошло";
+        }
+        
         let result = '';
         
         if (time.years > 0) {
@@ -724,12 +801,16 @@
             </div>
           </div>
           <div class="event-card-content">
-            <div class="time-passed">Прошло: ${timeString}</div>
+            <div class="time-passed ${timePassed.isFuture ? 'future-event' : ''}">
+              ${timePassed.isFuture ? 'Событие в будущем' : `Прошло: ${timeString}`}
+            </div>
+            ${!timePassed.isFuture ? `
             <div class="time-details">
               <span>${timePassed.years} ${timePassed.years === 1 ? 'год' : timePassed.years < 5 ? 'года' : 'лет'}</span>
               <span>${timePassed.months} ${timePassed.months === 1 ? 'месяц' : timePassed.months < 5 ? 'месяца' : 'месяцев'}</span>
               <span>${timePassed.days} ${timePassed.days === 1 ? 'день' : timePassed.days < 5 ? 'дня' : 'дней'}</span>
             </div>
+            ` : ''}
             <div class="event-card-actions">
               <button class="btn-icon delete-btn" title="Удалить">
                 <i class="fas fa-trash"></i>
@@ -741,9 +822,33 @@
         return card;
       };
       
+      // Обновление всех карточек событий
+      const updateEventCards = () => {
+        document.querySelectorAll('.event-card').forEach(card => {
+          const id = card.dataset.id;
+          const event = events.find(e => e.id === id);
+          
+          if (event) {
+            const newCard = createEventCard(event);
+            card.replaceWith(newCard);
+            
+            // Добавляем обработчик удаления на новую карточку
+            newCard.querySelector('.delete-btn').addEventListener('click', () => {
+              deleteEvent(event.id);
+              events = events.filter(e => e.id !== event.id);
+              newCard.remove();
+              showNotification(`Событие "${event.title}" удалено`);
+              if (eventsContainer.children.length === 0) {
+                renderEvents();
+              }
+            });
+          }
+        });
+      };
+      
       // Отрисовка событий
       const renderEvents = async () => {
-        const events = await getEvents();
+        events = await getEvents();
         eventsContainer.innerHTML = '';
         
         if (events.length === 0) {
@@ -767,7 +872,9 @@
           // Добавляем обработчик удаления
           card.querySelector('.delete-btn').addEventListener('click', () => {
             deleteEvent(event.id);
+            events = events.filter(e => e.id !== event.id);
             card.remove();
+            showNotification(`Событие "${event.title}" удалено`);
             if (eventsContainer.children.length === 0) {
               renderEvents();
             }
@@ -780,8 +887,35 @@
         const title = eventTitleInput.value.trim();
         const date = eventDateInput.value;
         
-        if (!title || !date) {
-          alert('Пожалуйста, заполните все поля');
+        // Сброс ошибок
+        titleError.style.display = 'none';
+        dateError.style.display = 'none';
+        
+        // Валидация
+        let isValid = true;
+        
+        if (!title) {
+          titleError.textContent = 'Введите название события';
+          titleError.style.display = 'block';
+          isValid = false;
+        }
+        
+        if (!date) {
+          dateError.textContent = 'Выберите дату события';
+          dateError.style.display = 'block';
+          isValid = false;
+        }
+        
+        if (!isValid) return;
+        
+        // Проверка на будущую дату
+        const selectedDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (selectedDate > today) {
+          dateError.textContent = 'Дата события не может быть в будущем';
+          dateError.style.display = 'block';
           return;
         }
         
@@ -793,11 +927,13 @@
         
         const saved = await saveEvent(event);
         if (saved) {
+          events.push(event);
           eventTitleInput.value = '';
           eventDateInput.value = '';
           renderEvents();
+          showNotification(`Событие "${title}" добавлено`);
         } else {
-          alert('Не удалось сохранить событие');
+          showNotification('Не удалось сохранить событие', true);
         }
       });
       
@@ -806,7 +942,7 @@
         const events = await getEvents();
         
         if (events.length === 0) {
-          alert('Нет событий для экспорта');
+          showNotification('Нет событий для экспорта', true);
           return;
         }
         
@@ -819,6 +955,8 @@
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
+        
+        showNotification(`Экспортировано ${events.length} событий`);
       });
       
       // Импорт событий
@@ -838,7 +976,7 @@
       // Подтверждение импорта
       confirmImportBtn.addEventListener('click', async () => {
         if (!fileInput.files.length) {
-          alert('Выберите файл для импорта');
+          showNotification('Выберите файл для импорта', true);
           return;
         }
         
@@ -847,22 +985,35 @@
         
         reader.onload = async (e) => {
           try {
-            const events = JSON.parse(e.target.result);
+            const importedEvents = JSON.parse(e.target.result);
             
-            if (!Array.isArray(events)) {
+            if (!Array.isArray(importedEvents)) {
               throw new Error('Неверный формат файла');
             }
             
+            // Фильтрация будущих событий
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const validEvents = importedEvents.filter(event => {
+              const eventDate = new Date(event.date);
+              return eventDate <= today;
+            });
+            
+            if (validEvents.length === 0) {
+              throw new Error('Нет событий для импорта');
+            }
+            
             // Сохраняем каждое событие
-            for (const event of events) {
+            for (const event of validEvents) {
               await saveEvent(event);
             }
             
             closeModal();
             renderEvents();
-            alert(`Успешно импортировано ${events.length} событий`);
+            showNotification(`Импортировано ${validEvents.length} событий`);
           } catch (error) {
-            alert(`Ошибка импорта: ${error.message}`);
+            showNotification(`Ошибка импорта: ${error.message}`, true);
           }
         };
         
@@ -877,6 +1028,18 @@
       };
       
       initApp();
+      
+      // Автоматическое обновление времени каждую минуту
+      setInterval(() => {
+        updateEventCards();
+      }, 60000); // 60 000 мс = 1 минута
+      
+      // Обновление при возврате на вкладку
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          renderEvents();
+        }
+      });
     });
   </script>
 </body>
