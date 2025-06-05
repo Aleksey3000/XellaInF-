@@ -1,0 +1,883 @@
+ 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Календарь бывших событий | XellaInF</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #7b2cbf;
+      --primary-dark: #5a189a;
+      --primary-light: #9d4edd;
+      --secondary: #00b4d8;
+      --secondary-dark: #0096c7;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #0d1b2a;
+      --gray: #adb5bd;
+      --card-bg: rgba(255, 255, 255, 0.12);
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --border-radius: 16px;
+      --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
+      --grid-gap: 24px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background: #0d1b2a;
+      color: var(--light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      z-index: -3;
+    }
+
+    .app-header {
+      background: var(--futuristic-gradient);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 40px rgba(123, 44, 191, 0.25);
+      z-index: 10;
+    }
+
+    .app-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      position: relative;
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      letter-spacing: -0.5px;
+    }
+
+    .app-subtitle {
+      opacity: 0.85;
+      font-size: 1rem;
+      font-weight: 400;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .app-container {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+    }
+
+    .controls-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: flex-end;
+    }
+
+    .input-group {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.3);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      will-change: transform;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      box-shadow: 0 5px 15px rgba(123, 44, 191, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(123, 44, 191, 0.35);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--grid-gap);
+      margin-top: 1rem;
+    }
+
+    .event-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateY(0);
+      will-change: transform;
+    }
+
+    .event-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .event-card-header {
+      padding: 1.5rem;
+      background: linear-gradient(135deg, rgba(123, 44, 191, 0.2) 0%, rgba(0, 180, 216, 0.2) 100%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .event-card-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .event-card-date {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .event-card-content {
+      padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .time-passed {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .time-details {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      flex: 1;
+    }
+
+    .time-details span {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .event-card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-icon {
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem;
+      color: rgba(255, 255, 255, 0.5);
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--border-radius);
+      margin-top: 1rem;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 27, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: #1b263b;
+      border-radius: var(--border-radius);
+      width: 90%;
+      max-width: 500px;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .close-modal:hover {
+      color: white;
+    }
+
+    .modal-body {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-input-label {
+      display: block;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      transition: var(--transition);
+    }
+
+    .file-input-wrapper:hover .file-input-label {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    /* Анимации */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .event-card {
+      animation: fadeIn 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 1rem;
+      }
+      
+      .controls-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .events-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .app-title {
+        font-size: 1.5rem;
+      }
+      
+      .app-subtitle {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-header {
+        padding: 1rem;
+      }
+      
+      .event-card-title {
+        font-size: 1.2rem;
+      }
+      
+      .time-passed {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1 class="app-title">
+      <i class="fas fa-history"></i> Календарь бывших событий
+    </h1>
+    <p class="app-subtitle">Отслеживайте время, прошедшее с важных моментов вашей жизни</p>
+  </header>
+
+  <main class="app-container">
+    <div class="controls-container">
+      <div class="input-group">
+        <label for="event-title">Название события</label>
+        <input type="text" id="event-title" placeholder="Например: Первое свидание">
+      </div>
+      
+      <div class="input-group">
+        <label for="event-date">Дата события</label>
+        <input type="date" id="event-date">
+      </div>
+      
+      <button class="btn btn-primary" id="add-event">
+        <i class="fas fa-plus"></i> Добавить событие
+      </button>
+      
+      <div class="import-export">
+        <button class="btn btn-secondary" id="export-btn">
+          <i class="fas fa-download"></i> Экспорт
+        </button>
+        <button class="btn btn-secondary" id="import-btn">
+          <i class="fas fa-upload"></i> Импорт
+        </button>
+      </div>
+    </div>
+    
+    <div class="events-grid" id="events-container">
+      <!-- События будут добавляться сюда -->
+    </div>
+  </main>
+  
+  <!-- Модальное окно для импорта -->
+  <div class="modal" id="import-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Импорт событий</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Выберите файл для импорта данных (.json)</p>
+        <div class="file-input-wrapper">
+          <input type="file" id="file-input" accept=".json">
+          <label for="file-input" class="file-input-label">
+            <i class="fas fa-cloud-upload-alt"></i> Выбрать файл
+          </label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancel-import">Отмена</button>
+        <button class="btn btn-primary" id="confirm-import">Импортировать</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Элементы интерфейса
+      const eventsContainer = document.getElementById('events-container');
+      const eventTitleInput = document.getElementById('event-title');
+      const eventDateInput = document.getElementById('event-date');
+      const addEventBtn = document.getElementById('add-event');
+      const exportBtn = document.getElementById('export-btn');
+      const importBtn = document.getElementById('import-btn');
+      const importModal = document.getElementById('import-modal');
+      const closeModalBtn = document.querySelector('.close-modal');
+      const cancelImportBtn = document.getElementById('cancel-import');
+      const confirmImportBtn = document.getElementById('confirm-import');
+      const fileInput = document.getElementById('file-input');
+      
+      // Имя базы данных и хранилища
+      const DB_NAME = 'PastEventsDB';
+      const STORE_NAME = 'events';
+      const LOCAL_STORAGE_KEY = 'pastEvents';
+      
+      // Инициализация базы данных
+      let db;
+      const initDB = () => {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, 1);
+          
+          request.onerror = (event) => {
+            console.error('Ошибка IndexedDB:', event.target.error);
+            // При ошибке IndexedDB используем localStorage
+            resolve(false);
+          };
+          
+          request.onsuccess = (event) => {
+            db = event.target.result;
+            resolve(true);
+          };
+          
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+              store.createIndex('date', 'date', { unique: false });
+            }
+          };
+        });
+      };
+      
+      // Сохранение события
+      const saveEvent = async (event) => {
+        try {
+          // Пытаемся сохранить в IndexedDB
+          if (db) {
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.add(event);
+            return true;
+          }
+          
+          // Если IndexedDB недоступен, сохраняем в localStorage
+          const events = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+          events.push(event);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(events));
+          return true;
+        } catch (error) {
+          console.error('Ошибка сохранения:', error);
+          return false;
+        }
+      };
+      
+      // Получение всех событий
+      const getEvents = async () => {
+        try {
+          // Пытаемся получить из IndexedDB
+          if (db) {
+            return new Promise((resolve) => {
+              const transaction = db.transaction([STORE_NAME], 'readonly');
+              const store = transaction.objectStore(STORE_NAME);
+              const request = store.getAll();
+              
+              request.onsuccess = (event) => {
+                resolve(event.target.result || []);
+              };
+              
+              request.onerror = () => {
+                // При ошибке получаем из localStorage
+                const events = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+                resolve(events);
+              };
+            });
+          }
+          
+          // Получаем из localStorage
+          const events = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+          return events;
+        } catch (error) {
+          console.error('Ошибка получения событий:', error);
+          return [];
+        }
+      };
+      
+      // Удаление события
+      const deleteEvent = async (id) => {
+        try {
+          // Пытаемся удалить из IndexedDB
+          if (db) {
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+            store.delete(id);
+            return true;
+          }
+          
+          // Удаляем из localStorage
+          const events = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+          const updatedEvents = events.filter(event => event.id !== id);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedEvents));
+          return true;
+        } catch (error) {
+          console.error('Ошибка удаления:', error);
+          return false;
+        }
+      };
+      
+      // Расчет времени, прошедшего с события
+      const calculateTimePassed = (eventDate) => {
+        const now = new Date();
+        const past = new Date(eventDate);
+        
+        // Разница в миллисекундах
+        const diff = now - past;
+        
+        // Расчет лет, месяцев и дней
+        const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+        const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30.44));
+        const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+        
+        // Расчет недель и часов для детализации
+        const weeks = Math.floor(days / 7);
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        
+        return {
+          years,
+          months,
+          days,
+          weeks,
+          hours
+        };
+      };
+      
+      // Форматирование времени для отображения
+      const formatTimePassed = (time) => {
+        let result = '';
+        
+        if (time.years > 0) {
+          result += `${time.years} ${time.years === 1 ? 'год' : time.years < 5 ? 'года' : 'лет'}`;
+        }
+        
+        if (time.months > 0) {
+          if (result) result += ', ';
+          result += `${time.months} ${time.months === 1 ? 'месяц' : time.months < 5 ? 'месяца' : 'месяцев'}`;
+        }
+        
+        if (time.days > 0 && time.years === 0) {
+          if (result) result += ', ';
+          result += `${time.days} ${time.days === 1 ? 'день' : time.days < 5 ? 'дня' : 'дней'}`;
+        }
+        
+        if (!result) {
+          if (time.weeks > 0) {
+            result = `${time.weeks} ${time.weeks === 1 ? 'неделя' : time.weeks < 5 ? 'недели' : 'недель'}`;
+          } else {
+            result = `${time.hours} ${time.hours === 1 ? 'час' : time.hours < 5 ? 'часа' : 'часов'}`;
+          }
+        }
+        
+        return result;
+      };
+      
+      // Форматирование даты
+      const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ru-RU', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long'
+        });
+      };
+      
+      // Создание карточки события
+      const createEventCard = (event) => {
+        const timePassed = calculateTimePassed(event.date);
+        const formattedDate = formatDate(event.date);
+        const timeString = formatTimePassed(timePassed);
+        
+        const card = document.createElement('div');
+        card.className = 'event-card';
+        card.dataset.id = event.id;
+        
+        card.innerHTML = `
+          <div class="event-card-header">
+            <h3 class="event-card-title">
+              <i class="far fa-calendar-check"></i> ${event.title}
+            </h3>
+            <div class="event-card-date">
+              <i class="far fa-clock"></i> ${formattedDate}
+            </div>
+          </div>
+          <div class="event-card-content">
+            <div class="time-passed">Прошло: ${timeString}</div>
+            <div class="time-details">
+              <span>${timePassed.years} ${timePassed.years === 1 ? 'год' : timePassed.years < 5 ? 'года' : 'лет'}</span>
+              <span>${timePassed.months} ${timePassed.months === 1 ? 'месяц' : timePassed.months < 5 ? 'месяца' : 'месяцев'}</span>
+              <span>${timePassed.days} ${timePassed.days === 1 ? 'день' : timePassed.days < 5 ? 'дня' : 'дней'}</span>
+            </div>
+            <div class="event-card-actions">
+              <button class="btn-icon delete-btn" title="Удалить">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        
+        return card;
+      };
+      
+      // Отрисовка событий
+      const renderEvents = async () => {
+        const events = await getEvents();
+        eventsContainer.innerHTML = '';
+        
+        if (events.length === 0) {
+          eventsContainer.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-calendar-times"></i>
+              <h3>Нет сохраненных событий</h3>
+              <p>Добавьте первое событие, чтобы начать отслеживать время</p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Сортируем события по дате (от новых к старым)
+        events.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        events.forEach(event => {
+          const card = createEventCard(event);
+          eventsContainer.appendChild(card);
+          
+          // Добавляем обработчик удаления
+          card.querySelector('.delete-btn').addEventListener('click', () => {
+            deleteEvent(event.id);
+            card.remove();
+            if (eventsContainer.children.length === 0) {
+              renderEvents();
+            }
+          });
+        });
+      };
+      
+      // Добавление нового события
+      addEventBtn.addEventListener('click', async () => {
+        const title = eventTitleInput.value.trim();
+        const date = eventDateInput.value;
+        
+        if (!title || !date) {
+          alert('Пожалуйста, заполните все поля');
+          return;
+        }
+        
+        const event = {
+          id: Date.now().toString(),
+          title,
+          date
+        };
+        
+        const saved = await saveEvent(event);
+        if (saved) {
+          eventTitleInput.value = '';
+          eventDateInput.value = '';
+          renderEvents();
+        } else {
+          alert('Не удалось сохранить событие');
+        }
+      });
+      
+      // Экспорт событий
+      exportBtn.addEventListener('click', async () => {
+        const events = await getEvents();
+        
+        if (events.length === 0) {
+          alert('Нет событий для экспорта');
+          return;
+        }
+        
+        const dataStr = JSON.stringify(events, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+        
+        const exportFileDefaultName = `past-events-${new Date().toISOString().slice(0, 10)}.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+      });
+      
+      // Импорт событий
+      importBtn.addEventListener('click', () => {
+        importModal.classList.add('active');
+      });
+      
+      // Закрытие модального окна
+      const closeModal = () => {
+        importModal.classList.remove('active');
+        fileInput.value = '';
+      };
+      
+      closeModalBtn.addEventListener('click', closeModal);
+      cancelImportBtn.addEventListener('click', closeModal);
+      
+      // Подтверждение импорта
+      confirmImportBtn.addEventListener('click', async () => {
+        if (!fileInput.files.length) {
+          alert('Выберите файл для импорта');
+          return;
+        }
+        
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = async (e) => {
+          try {
+            const events = JSON.parse(e.target.result);
+            
+            if (!Array.isArray(events)) {
+              throw new Error('Неверный формат файла');
+            }
+            
+            // Сохраняем каждое событие
+            for (const event of events) {
+              await saveEvent(event);
+            }
+            
+            closeModal();
+            renderEvents();
+            alert(`Успешно импортировано ${events.length} событий`);
+          } catch (error) {
+            alert(`Ошибка импорта: ${error.message}`);
+          }
+        };
+        
+        reader.readAsText(file);
+      });
+      
+      // Инициализация приложения
+      const initApp = async () => {
+        const dbAvailable = await initDB();
+        console.log(`Используется ${dbAvailable ? 'IndexedDB' : 'LocalStorage'}`);
+        await renderEvents();
+      };
+      
+      initApp();
+    });
+  </script>
+</body>
+</html>
