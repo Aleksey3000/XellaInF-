@@ -35,8 +35,12 @@
       font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      background: #0d1b2a; /* Статичный фон вместо градиента */
+      background: #0d1b2a;
       color: var(--light);
       min-height: 100vh;
       display: flex;
@@ -46,7 +50,7 @@
       position: relative;
     }
 
-    /* Фиксированный фон для предотвращения мерцания */
+    /* Текстурный фон */
     body::before {
       content: '';
       position: fixed;
@@ -54,8 +58,44 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      background: 
+        linear-gradient(rgba(13, 27, 42, 0.9), rgba(13, 27, 42, 0.9)),
+        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230d1b2a"/><path d="M0 50L50 0L100 50L50 100Z" fill="%231b263b" opacity="0.2"/></svg>');
+      background-size: cover;
       z-index: -3;
+    }
+
+    /* Индикатор загрузки */
+    .loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--dark);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+
+    .loader-spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(123, 44, 191, 0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+
+    .loader-hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
 
     .app-header {
@@ -80,6 +120,12 @@
       position: relative;
       text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       letter-spacing: -0.5px;
+      animation: titleGlow 3s infinite alternate;
+    }
+
+    @keyframes titleGlow {
+      0% { text-shadow: 0 0 10px rgba(123, 44, 191, 0.7); }
+      100% { text-shadow: 0 0 25px #9d4edd, 0 0 35px #7b2cbf; }
     }
 
     .app-title .version {
@@ -125,6 +171,12 @@
       margin-top: 2.5rem;
     }
 
+    @media (min-width: 1800px) {
+      .apps-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      }
+    }
+
     .app-card {
       background: var(--card-bg);
       border-radius: var(--border-radius);
@@ -136,12 +188,30 @@
       height: 100%;
       position: relative;
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid transparent;
       transform: translateY(0);
-      will-change: transform; /* Улучшает производительность анимации */
+      will-change: transform;
+      z-index: 1;
+      background-clip: padding-box;
     }
 
+    /* Градиентная рамка */
     .app-card::before {
+      content: '';
+      position: absolute;
+      top: -2px; 
+      left: -2px;
+      right: -2px; 
+      bottom: -2px;
+      background: linear-gradient(135deg, #7b2cbf, #00b4d8);
+      border-radius: calc(var(--border-radius) + 2px);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    /* Фоновый градиент */
+    .app-card::after {
       content: '';
       position: absolute;
       top: 0;
@@ -149,7 +219,7 @@
       right: 0;
       bottom: 0;
       background: linear-gradient(135deg, rgba(123, 44, 191, 0.1) 0%, rgba(0, 180, 216, 0.1) 100%);
-      z-index: -1;
+      z-index: -2;
       opacity: 0;
       transition: var(--transition);
     }
@@ -157,10 +227,10 @@
     .app-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
-      border-color: rgba(255, 255, 255, 0.2);
     }
 
-    .app-card:hover::before {
+    .app-card:hover::before,
+    .app-card:hover::after {
       opacity: 1;
     }
 
@@ -190,14 +260,14 @@
       font-size: 4.5rem;
       opacity: 0.9;
       text-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-      transition: var(--transition);
+      transition: transform 0.5s, filter 0.5s;
       z-index: 2;
       position: relative;
     }
 
     .app-card:hover .app-card-image i {
-      transform: scale(1.1);
-      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.3));
+      transform: rotate(10deg) scale(1.2);
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.8));
     }
 
     .app-card-content {
@@ -249,7 +319,22 @@
       position: relative;
       overflow: hidden;
       font-size: 0.95rem;
-      will-change: transform; /* Улучшает производительность */
+      will-change: transform;
+      z-index: 1;
+    }
+
+    /* Эффект заполнения для кнопки */
+    .app-card-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; 
+      left: 0;
+      width: 100%; 
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      clip-path: circle(0% at 50% 50%);
+      transition: clip-path 0.5s ease;
+      z-index: -1;
     }
 
     .app-card-btn::before {
@@ -267,6 +352,10 @@
       background: linear-gradient(135deg, var(--primary-dark), var(--primary));
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(123, 44, 191, 0.35));
+    }
+
+    .app-card-btn:hover::after {
+      clip-path: circle(100% at 50% 50%);
     }
 
     .app-card-btn:hover::before {
@@ -294,7 +383,7 @@
 
     /* Упрощенные футуристичные элементы */
     .futuristic-dots {
-      position: fixed; /* Фиксированное позиционирование */
+      position: fixed;
       width: 100%;
       height: 100%;
       top: 0;
@@ -306,10 +395,7 @@
 
     .dot {
       position: absolute;
-      width: 2px;
-      height: 2px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08); /* Более прозрачные */
       animation: float 20s infinite linear;
     }
 
@@ -320,7 +406,7 @@
       100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
     }
 
-    /* Упрощенные анимации */
+    /* Анимации появления */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -338,7 +424,6 @@
     .app-card:nth-child(5) { animation-delay: 0.5s; }
     .app-card:nth-child(6) { animation-delay: 0.6s; }
     .app-card:nth-child(7) { animation-delay: 0.7s; }
-    .app-card:nth-child(8) { animation-delay: 0.8s; } /* Добавлена задержка для новой карточки */
 
     /* Упрощенный параллакс */
     .parallax-bg {
@@ -352,7 +437,7 @@
         radial-gradient(circle at 10% 20%, rgba(123, 44, 191, 0.03) 0%, transparent 25%),
         radial-gradient(circle at 90% 80%, rgba(0, 180, 216, 0.03) 0%, transparent 25%);
       opacity: 0.3;
-      will-change: transform; /* Улучшает производительность */
+      will-change: transform;
     }
 
     /* Адаптивность */
@@ -429,15 +514,28 @@
         padding: 0.8rem 1.5rem;
       }
     }
+
+    /* Темная тема улучшения */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --card-bg: rgba(30, 30, 45, 0.3);
+        --glass-bg: rgba(25, 25, 40, 0.4);
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Индикатор загрузки -->
+  <div class="loader">
+    <div class="loader-spinner"></div>
+  </div>
+  
   <div class="parallax-bg"></div>
   
   <header class="app-header">
     <h1 class="app-title">
       <span>XellaInF</span>
-      <span class="version">V. 1.0.5</span>
+      <span class="version">V. 1.0.6</span>
     </h1>
     <p class="app-subtitle">Интеллектуальные инструменты для продуктивности</p>
   </header>
@@ -541,53 +639,52 @@
           <a href="line.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
-      
-      <!-- КАЛЕНДАРЬ БЫВШИХ СОБЫТИЙ - НОВАЯ КАРТОЧКА -->
-      <div class="app-card">
-        <div class="app-card-image" style="background: linear-gradient(135deg, #5a5a5a, #3a3a3a);">
-          <i class="fas fa-history"></i>
-        </div>
-        <div class="app-card-content">
-          <h3 class="app-card-title">
-            <i class="fas fa-history"></i> Календарь бывших событий
-          </h3>
-          <p class="app-card-desc">Архив важных событий с годовщинами и аналитикой. Отслеживайте повторяющиеся события из прошлого.</p>
-          <a href="biv.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
-        </div>
-      </div>
     </div>
   </main>
 
   <footer class="app-footer">
-    <p>© XellaInF | V. 1.0.5</p>
+    <p>© XellaInF | V. 1.0.6</p>
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Создаем футуристичные точки (уменьшено количество)
-      const dotsContainer = document.createElement('div');
-      dotsContainer.className = 'futuristic-dots';
-      document.body.appendChild(dotsContainer);
+      // Скрываем индикатор загрузки
+      window.addEventListener('load', () => {
+        document.querySelector('.loader').classList.add('loader-hidden');
+      });
+
+      // Динамические точки фона
+      const createDots = () => {
+        if (window.innerWidth <= 768) return;
+        
+        const dotsContainer = document.createElement('div');
+        dotsContainer.className = 'futuristic-dots';
+        document.body.appendChild(dotsContainer);
+        
+        const colors = ['rgba(123, 44, 191, 0.15)', 'rgba(0, 180, 216, 0.15)', 'rgba(247, 37, 133, 0.1)'];
+        
+        for (let i = 0; i < 25; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          dot.style.left = `${Math.random() * 100}%`;
+          dot.style.top = `${Math.random() * 100}%`;
+          dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+          dot.style.width = dot.style.height = `${Math.random() * 4 + 1}px`;
+          dot.style.animationDelay = `${Math.random() * 20}s`;
+          dot.style.animationDuration = `${Math.random() * 15 + 15}s`;
+          dotsContainer.appendChild(dot);
+        }
+      };
       
-      for (let i = 0; i < 20; i++) { // Уменьшено с 35 до 20
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dot.style.left = `${Math.random() * 100}%`;
-        dot.style.top = `${Math.random() * 100}%`;
-        dot.style.width = `${Math.random() * 2 + 1}px`;
-        dot.style.height = dot.style.width;
-        dot.style.animationDelay = `${Math.random() * 15}s`;
-        dot.style.animationDuration = `${Math.random() * 20 + 20}s`; // Более медленная анимация
-        dotsContainer.appendChild(dot);
-      }
-      
+      createDots();
+
       // Упрощенный параллакс эффект
       const parallaxBg = document.querySelector('.parallax-bg');
       
       // Отключаем параллакс на мобильных
       if (window.innerWidth > 768) {
         window.addEventListener('mousemove', (e) => {
-          const x = (e.clientX / window.innerWidth - 0.5) * 10; // Уменьшена интенсивность
+          const x = (e.clientX / window.innerWidth - 0.5) * 10;
           const y = (e.clientY / window.innerHeight - 0.5) * 10;
           parallaxBg.style.transform = `translate(${x}px, ${y}px)`;
         });
@@ -601,7 +698,6 @@
         lastScrollY = window.scrollY;
         if (!ticking) {
           window.requestAnimationFrame(() => {
-            // Принудительный ререндер для предотвращения мерцания
             document.body.style.backfaceVisibility = 'hidden';
             ticking = false;
           });
@@ -609,7 +705,7 @@
         }
       });
 
-      console.log('XellaInF v1.0.0 успешно загружен');
+      console.log('XellaInF v1.0.3 успешно загружен');
     });
   </script>
 </body>
