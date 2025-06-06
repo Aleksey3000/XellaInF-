@@ -48,6 +48,8 @@
       line-height: 1.6;
       overflow-x: hidden;
       position: relative;
+      -webkit-tap-highlight-color: transparent; /* Убираем подсветку при тапе */
+      -webkit-font-smoothing: antialiased; /* Сглаживание текста */
     }
 
     /* Текстурный фон */
@@ -193,6 +195,9 @@
       will-change: transform;
       z-index: 1;
       background-clip: padding-box;
+      /* Оптимизация для Android */
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
     }
 
     /* Градиентная рамка */
@@ -243,6 +248,8 @@
       justify-content: center;
       align-items: center;
       overflow: hidden;
+      /* Оптимизация для Android */
+      transform: translate3d(0, 0, 0);
     }
 
     .app-card-image::after {
@@ -321,6 +328,9 @@
       font-size: 0.95rem;
       will-change: transform;
       z-index: 1;
+      /* Оптимизация для Android */
+      transform: translate3d(0, 0, 0);
+      -webkit-tap-highlight-color: transparent;
     }
 
     /* Эффект заполнения для кнопки */
@@ -397,6 +407,8 @@
       position: absolute;
       border-radius: 50%;
       animation: float 20s infinite linear;
+      /* Оптимизация для Android */
+      transform: translate3d(0, 0, 0);
     }
 
     @keyframes float {
@@ -424,6 +436,7 @@
     .app-card:nth-child(5) { animation-delay: 0.5s; }
     .app-card:nth-child(6) { animation-delay: 0.6s; }
     .app-card:nth-child(7) { animation-delay: 0.7s; }
+    .app-card:nth-child(8) { animation-delay: 0.8s; } /* Новая карточка */
 
     /* Упрощенный параллакс */
     .parallax-bg {
@@ -487,6 +500,26 @@
       .futuristic-dots {
         display: none;
       }
+
+      /* Упрощаем анимации для мобильных */
+      .app-card:hover {
+        transform: none;
+        box-shadow: var(--shadow);
+      }
+      
+      .app-card:hover::before,
+      .app-card:hover::after {
+        opacity: 0;
+      }
+      
+      .app-card:hover .app-card-image i {
+        transform: none;
+        filter: none;
+      }
+      
+      .app-card-btn:hover {
+        transform: none;
+      }
     }
 
     @media (max-width: 480px) {
@@ -513,6 +546,12 @@
       .app-card-btn {
         padding: 0.8rem 1.5rem;
       }
+      
+      /* Убираем градиентные рамки на маленьких экранах */
+      .app-card::before,
+      .app-card::after {
+        display: none;
+      }
     }
 
     /* Темная тема улучшения */
@@ -520,6 +559,26 @@
       :root {
         --card-bg: rgba(30, 30, 45, 0.3);
         --glass-bg: rgba(25, 25, 40, 0.4);
+      }
+    }
+
+    /* Отключение сложных анимаций на Android */
+    @media only screen and (max-width: 768px) and (pointer: coarse) {
+      .app-card-image i {
+        transition: none !important;
+      }
+      
+      .app-card-btn::after,
+      .app-card-btn::before {
+        display: none;
+      }
+      
+      .app-card-btn:hover {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+      }
+      
+      .app-card-btn:hover i {
+        transform: none !important;
       }
     }
   </style>
@@ -639,6 +698,20 @@
           <a href="line.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
+      
+      <!-- Новая карточка: Календарь бывших событий -->
+      <div class="app-card">
+        <div class="app-card-image" style="background: linear-gradient(135deg, #4a4e69, #22223b);">
+          <i class="fas fa-history"></i>
+        </div>
+        <div class="app-card-content">
+          <h3 class="app-card-title">
+            <i class="fas fa-history"></i> Календарь бывших событий
+          </h3>
+          <p class="app-card-desc">Архив прошедших событий с возможностью поиска и анализа вашей активности за прошедшие периоды.</p>
+          <a href="history.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -655,7 +728,8 @@
 
       // Динамические точки фона
       const createDots = () => {
-        if (window.innerWidth <= 768) return;
+        // Отключаем на мобильных и планшетах для производительности
+        if (window.innerWidth <= 1024) return;
         
         const dotsContainer = document.createElement('div');
         dotsContainer.className = 'futuristic-dots';
@@ -663,13 +737,14 @@
         
         const colors = ['rgba(123, 44, 191, 0.15)', 'rgba(0, 180, 216, 0.15)', 'rgba(247, 37, 133, 0.1)'];
         
-        for (let i = 0; i < 25; i++) {
+        // Уменьшаем количество точек для производительности
+        for (let i = 0; i < 15; i++) {
           const dot = document.createElement('div');
           dot.className = 'dot';
           dot.style.left = `${Math.random() * 100}%`;
           dot.style.top = `${Math.random() * 100}%`;
           dot.style.background = colors[Math.floor(Math.random() * colors.length)];
-          dot.style.width = dot.style.height = `${Math.random() * 4 + 1}px`;
+          dot.style.width = dot.style.height = `${Math.random() * 3 + 1}px`;
           dot.style.animationDelay = `${Math.random() * 20}s`;
           dot.style.animationDuration = `${Math.random() * 15 + 15}s`;
           dotsContainer.appendChild(dot);
@@ -705,7 +780,34 @@
         }
       });
 
+      // Оптимизация для Android: отключаем сложные hover-эффекты
+      if ('ontouchstart' in window || navigator.maxTouchPoints) {
+        document.querySelectorAll('.app-card').forEach(card => {
+          card.classList.add('touch-device');
+        });
+      }
+
       console.log('XellaInF v1.0.3 успешно загружен');
+      
+      // Улучшаем производительность на Android
+      const isAndroid = /android/i.test(navigator.userAgent);
+      if (isAndroid) {
+        // Упрощаем анимации
+        document.querySelectorAll('.app-card-image i').forEach(icon => {
+          icon.style.transition = 'none';
+        });
+        
+        // Убираем сложные градиентные эффекты
+        document.querySelectorAll('.app-card').forEach(card => {
+          card.style.backdropFilter = 'none';
+          card.style.setProperty('--transition', 'none');
+        });
+        
+        // Отключаем фильтры тени
+        document.querySelectorAll('*').forEach(el => {
+          el.style.filter = 'none !important';
+        });
+      }
     });
   </script>
 </body>
