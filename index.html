@@ -250,6 +250,7 @@
       overflow: hidden;
       /* Оптимизация для Android */
       transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
     }
 
     .app-card-image::after {
@@ -436,7 +437,9 @@
     .app-card:nth-child(5) { animation-delay: 0.5s; }
     .app-card:nth-child(6) { animation-delay: 0.6s; }
     .app-card:nth-child(7) { animation-delay: 0.7s; }
-    .app-card:nth-child(8) { animation-delay: 0.8s; } /* Новая карточка */
+    .app-card:nth-child(8) { animation-delay: 0.8s; }
+    .app-card:nth-child(9) { animation-delay: 0.9s; } /* Новая карточка - Генератор штрих-кода */
+    .app-card:nth-child(10) { animation-delay: 1.0s; } /* Новая карточка - Генератор штрих-кода */
 
     /* Упрощенный параллакс */
     .parallax-bg {
@@ -594,7 +597,7 @@
   <header class="app-header">
     <h1 class="app-title">
       <span>XellaInF</span>
-      <span class="version">V. 1.0.6</span>
+      <span class="version">V. 1.0.7</span>
     </h1>
     <p class="app-subtitle">Интеллектуальные инструменты для продуктивности</p>
   </header>
@@ -699,7 +702,7 @@
         </div>
       </div>
       
-      <!-- Новая карточка: Календарь бывших событий -->
+      <!-- Календарь бывших событий -->
       <div class="app-card">
         <div class="app-card-image" style="background: linear-gradient(135deg, #4a4e69, #22223b);">
           <i class="fas fa-history"></i>
@@ -712,11 +715,25 @@
           <a href="history.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
         </div>
       </div>
+
+      <!-- Генератор штрих-кода -->
+      <div class="app-card">
+        <div class="app-card-image" style="background: linear-gradient(135deg, #4361ee, #3a0ca3);">
+          <i class="fas fa-barcode"></i>
+        </div>
+        <div class="app-card-content">
+          <h3 class="app-card-title">
+            <i class="fas fa-barcode"></i> Генератор штрих-кода
+          </h3>
+          <p class="app-card-desc">Создание и сканирование штрих-кодов.</p>
+          <a href="barcode.html" class="app-card-btn">Открыть <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
     </div>
   </main>
 
   <footer class="app-footer">
-    <p>© XellaInF | V. 1.0.6</p>
+    <p>© XellaInF | V. 1.0.7</p>
   </footer>
 
   <script>
@@ -787,7 +804,7 @@
         });
       }
 
-      console.log('XellaInF v1.0.3 успешно загружен');
+      console.log('XellaInF v1.0.7 успешно загружен');
       
       // Улучшаем производительность на Android
       const isAndroid = /android/i.test(navigator.userAgent);
