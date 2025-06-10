@@ -1,0 +1,1232 @@
+ 
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XellaInF — Генератор штрих-кодов</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    :root {
+      --primary: #7b2cbf;
+      --primary-dark: #5a189a;
+      --primary-light: #9d4edd;
+      --secondary: #00b4d8;
+      --secondary-dark: #0096c7;
+      --accent: #f72585;
+      --light: #f8f9fa;
+      --dark: #0d1b2a;
+      --gray: #adb5bd;
+      --card-bg: rgba(255, 255, 255, 0.12);
+      --glass-bg: rgba(255, 255, 255, 0.15);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      --border-radius: 16px;
+      --futuristic-gradient: linear-gradient(135deg, #7b2cbf 0%, #00b4d8 100%);
+      --grid-gap: 24px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background: #0d1b2a;
+      color: var(--light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+      z-index: -3;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(13, 27, 42, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      transform: translateY(30px);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .modal.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-body {
+      margin-bottom: 2rem;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.7;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .close-modal:hover {
+      color: var(--accent);
+      transform: rotate(90deg);
+    }
+
+    .app-header {
+      background: var(--futuristic-gradient);
+      color: white;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 40px rgba(123, 44, 191, 0.25);
+      z-index: 10;
+    }
+
+    .app-title {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      position: relative;
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      letter-spacing: -0.5px;
+    }
+
+    .app-title .version {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.4rem 0.8rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-left: 0.8rem;
+      animation: pulse 3s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+
+    .app-subtitle {
+      opacity: 0.85;
+      font-size: 1.15rem;
+      font-weight: 400;
+      max-width: 700px;
+      margin: 0 auto;
+      position: relative;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .app-container {
+      flex: 1;
+      padding: 2.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+    }
+
+    .generator-container {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .input-field {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .input-field label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    .input-field input {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .input-field input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(123, 44, 191, 0.3);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0.9rem 1.8rem;
+      border-radius: 12px;
+      font-weight: 500;
+      text-align: center;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      will-change: transform;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      box-shadow: 0 5px 15px rgba(123, 44, 191, 0.25);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-accent {
+      background: linear-gradient(135deg, var(--accent), #ff4d9e);
+      color: white;
+      box-shadow: 0 5px 15px rgba(247, 37, 133, 0.25);
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(123, 44, 191, 0.35);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-accent:hover {
+      background: linear-gradient(135deg, #e01e6e, var(--accent));
+    }
+
+    .barcode-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 2rem;
+      padding: 2rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--border-radius);
+      position: relative;
+    }
+
+    #barcode {
+      max-width: 100%;
+      height: auto;
+      min-height: 150px;
+    }
+
+    .barcode-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .saved-items-container {
+      margin-top: 2.5rem;
+    }
+
+    .search-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--grid-gap);
+    }
+
+    .app-card {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateY(0);
+      will-change: transform;
+    }
+
+    .app-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(123, 44, 191, 0.1) 0%, rgba(0, 180, 216, 0.1) 100%);
+      z-index: -1;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .app-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .app-card:hover::before {
+      opacity: 1;
+    }
+
+    .app-card-image {
+      height: 180px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .app-card-image svg {
+      max-width: 80%;
+      height: auto;
+    }
+
+    .app-card-content {
+      padding: 1.8rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(90deg, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .app-card-desc {
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 1.8rem;
+      flex: 1;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ КНОПОК КАРТОЧЕК */
+    .app-card-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: auto;
+      flex-wrap: wrap;
+    }
+
+    .app-card-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0.7rem 0.8rem;
+      border-radius: 10px;
+      font-weight: 500;
+      text-align: center;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-decoration: none;
+      flex: 1;
+      min-width: 85px;
+    }
+
+    .app-card-btn.view {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .app-card-btn.edit {
+      background: rgba(0, 180, 216, 0.15);
+      color: var(--secondary);
+      border: 1px solid rgba(0, 180, 216, 0.3);
+    }
+
+    .app-card-btn.delete {
+      background: rgba(247, 37, 133, 0.2);
+      color: var(--accent);
+      border: 1px solid rgba(247, 37, 133, 0.3);
+    }
+
+    .app-card-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .app-card-btn.view:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .app-card-btn.edit:hover {
+      background: rgba(0, 180, 216, 0.25);
+    }
+
+    .app-card-btn.delete:hover {
+      background: rgba(247, 37, 133, 0.3);
+    }
+
+    .app-footer {
+      text-align: center;
+      padding: 1.8rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(13, 27, 42, 0.85);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Анимации */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .app-card {
+      animation: fadeIn 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 1024px) {
+      .app-title {
+        font-size: 2.4rem;
+      }
+      
+      .apps-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+      }
+      
+      .app-container {
+        padding: 2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 1.5rem;
+      }
+
+      .app-title {
+        font-size: 2rem;
+      }
+      
+      .input-row {
+        flex-direction: column;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+
+      /* Адаптация кнопок карточек для мобильных */
+      .app-card-btn {
+        font-size: 0.75rem;
+        padding: 0.6rem 0.7rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-header {
+        padding: 2rem 1rem;
+      }
+      
+      .app-title {
+        font-size: 1.8rem;
+      }
+      
+      .app-subtitle {
+        font-size: 1rem;
+      }
+
+      .app-card-buttons {
+        flex-direction: column;
+      }
+
+      .app-card-btn {
+        width: 100%;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1.1rem;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.8rem;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 100;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      background: rgba(40, 167, 69, 0.2);
+      border-color: rgba(40, 167, 69, 0.3);
+    }
+
+    .toast.error {
+      background: rgba(220, 53, 69, 0.2);
+      border-color: rgba(220, 53, 69, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <!-- Модальные окна -->
+  <div id="confirmation-modal" class="modal">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Подтверждение</h3>
+      </div>
+      <div class="modal-body" id="modal-message">
+        Вы уверены, что хотите удалить этот товар?
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modal-cancel">Отмена</button>
+        <button class="btn btn-accent" id="modal-confirm">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-edit"></i> Редактировать товар</h3>
+      </div>
+      <div class="modal-body">
+        <div class="input-field">
+          <label for="edit-product-name"><i class="fas fa-tag"></i> Название товара</label>
+          <input type="text" id="edit-product-name" placeholder="Введите название товара...">
+        </div>
+        <div class="input-field" style="margin-top: 1rem;">
+          <label for="edit-barcode-input"><i class="fas fa-barcode"></i> Штрих-код (цифры)</label>
+          <input type="text" id="edit-barcode-input" placeholder="Введите цифры штрих-кода..." 
+                 onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="edit-cancel">Отмена</button>
+        <button class="btn btn-primary" id="edit-save">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Основной интерфейс -->
+  <header class="app-header">
+    <h1 class="app-title">
+      <span>XellaInF</span>
+      <span class="version">ГЕНЕРАТОР ШТРИХ-КОДОВ</span>
+    </h1>
+    <p class="app-subtitle">Создавайте, сохраняйте и управляйте штрих-кодами для товаров</p>
+  </header>
+
+  <main class="app-container">
+    <div class="generator-container">
+      <div class="input-group">
+        <div class="input-row">
+          <div class="input-field">
+            <label for="product-name"><i class="fas fa-tag"></i> Название товара</label>
+            <input type="text" id="product-name" placeholder="Введите название товара...">
+          </div>
+          
+          <div class="input-field">
+            <label for="barcode-input"><i class="fas fa-barcode"></i> Штрих-код (цифры)</label>
+            <input type="text" id="barcode-input" placeholder="Введите цифры штрих-кода..." 
+                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57)">
+          </div>
+        </div>
+      </div>
+      
+      <div class="barcode-preview">
+        <svg id="barcode"></svg>
+        <p id="barcode-name" style="margin-top: 15px; color: rgba(255, 255, 255, 0.7);"></p>
+        
+        <div class="barcode-actions">
+          <button id="download-btn" class="btn btn-secondary" disabled>
+            <i class="fas fa-download"></i> Скачать SVG
+          </button>
+          <button id="copy-btn" class="btn btn-secondary" disabled>
+            <i class="fas fa-copy"></i> Копировать код
+          </button>
+          <button id="generate-random-btn" class="btn btn-secondary">
+            <i class="fas fa-random"></i> Случайный код
+          </button>
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <button id="save-btn" class="btn btn-primary">
+          <i class="fas fa-save"></i> Сохранить товар
+        </button>
+        <button id="clear-btn" class="btn btn-secondary">
+          <i class="fas fa-trash"></i> Очистить
+        </button>
+      </div>
+    </div>
+    
+    <div class="saved-items-container">
+      <div class="search-container">
+        <div class="input-field">
+          <label for="search-input"><i class="fas fa-search"></i> Поиск товаров</label>
+          <input type="text" id="search-input" placeholder="Введите название для поиска...">
+        </div>
+      </div>
+      
+      <h2 style="margin-bottom: 1.5rem; color: white; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-box-open"></i> Сохранённые товары
+        <span id="item-count" style="background: var(--primary); padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.9rem;">0</span>
+      </h2>
+      
+      <div class="apps-grid" id="saved-items-grid">
+        <!-- Здесь будут отображаться карточки сохранённых товаров -->
+        <div class="empty-state">
+          <i class="fas fa-box-open"></i>
+          <p>Сохранённых товаров пока нет</p>
+          <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.7;">Создайте свой первый штрих-код выше</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>© XellaInF | Генератор штрих-кодов | V. 1.1.1</p>
+  </footer>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Элементы интерфейса
+      const barcodeInput = document.getElementById('barcode-input');
+      const productNameInput = document.getElementById('product-name');
+      const saveBtn = document.getElementById('save-btn');
+      const clearBtn = document.getElementById('clear-btn');
+      const searchInput = document.getElementById('search-input');
+      const barcodeSvg = document.getElementById('barcode');
+      const barcodeName = document.getElementById('barcode-name');
+      const savedItemsGrid = document.getElementById('saved-items-grid');
+      const itemCount = document.getElementById('item-count');
+      const downloadBtn = document.getElementById('download-btn');
+      const copyBtn = document.getElementById('copy-btn');
+      const generateRandomBtn = document.getElementById('generate-random-btn');
+      
+      // Модальные окна
+      const confirmationModal = document.getElementById('confirmation-modal');
+      const editModal = document.getElementById('edit-modal');
+      const modalMessage = document.getElementById('modal-message');
+      const modalConfirmBtn = document.getElementById('modal-confirm');
+      const modalCancelBtn = document.getElementById('modal-cancel');
+      const editSaveBtn = document.getElementById('edit-save');
+      const editCancelBtn = document.getElementById('edit-cancel');
+      const editProductNameInput = document.getElementById('edit-product-name');
+      const editBarcodeInput = document.getElementById('edit-barcode-input');
+      const toast = document.getElementById('toast');
+      const closeModalBtns = document.querySelectorAll('.close-modal');
+      
+      // Текущие данные для модальных окон
+      let currentItemId = null;
+      let currentDeleteId = null;
+      
+      // База данных
+      let db;
+      const DB_NAME = 'XellaInFBarcodeDB';
+      const STORE_NAME = 'barcodes';
+      
+      // Инициализация IndexedDB
+      const initDB = () => {
+        const request = indexedDB.open(DB_NAME, 2);
+        
+        request.onerror = (event) => {
+          console.error('Ошибка базы данных:', event.target.error);
+          showToast('Ошибка базы данных', 'error');
+        };
+        
+        request.onupgradeneeded = (event) => {
+          db = event.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+            store.createIndex('name', 'name', { unique: false });
+          }
+        };
+        
+        request.onsuccess = (event) => {
+          db = event.target.result;
+          loadBarcodes();
+        };
+      };
+      
+      // Показ уведомления
+      const showToast = (message, type = 'success') => {
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 3000);
+      };
+      
+      // Открытие модального окна
+      const openModal = (modal) => {
+        modal.classList.add('active');
+      };
+      
+      // Закрытие модального окна
+      const closeModal = (modal) => {
+        modal.classList.remove('active');
+      };
+      
+      // Обработчики закрытия модальных окон
+      closeModalBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (confirmationModal.classList.contains('active')) closeModal(confirmationModal);
+          if (editModal.classList.contains('active')) closeModal(editModal);
+        });
+      });
+      
+      modalCancelBtn.addEventListener('click', () => closeModal(confirmationModal));
+      editCancelBtn.addEventListener('click', () => closeModal(editModal));
+      
+      // Генерация случайного штрих-кода
+      const generateRandomBarcode = () => {
+        const randomCode = Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
+        barcodeInput.value = randomCode;
+        generateBarcode();
+      };
+      
+      // Генерация штрих-кода
+      const generateBarcode = () => {
+        const value = barcodeInput.value.trim();
+        const name = productNameInput.value.trim() || 'Без названия';
+        
+        if (value) {
+          try {
+            // Очищаем предыдущий штрих-код
+            barcodeSvg.innerHTML = '';
+            
+            // Генерируем новый штрих-код
+            JsBarcode(barcodeSvg, value, {
+              format: "CODE128",
+              displayValue: true,
+              fontSize: 16,
+              lineColor: "#fff",
+              width: 2,
+              height: 80,
+              background: 'transparent'
+            });
+            
+            // Обновляем название
+            barcodeName.textContent = name;
+            
+            // Активируем кнопки
+            downloadBtn.disabled = false;
+            copyBtn.disabled = false;
+          } catch (e) {
+            barcodeSvg.innerHTML = "Ошибка: " + e.message;
+            downloadBtn.disabled = true;
+            copyBtn.disabled = true;
+          }
+        } else {
+          barcodeSvg.innerHTML = "";
+          barcodeName.textContent = "";
+          downloadBtn.disabled = true;
+          copyBtn.disabled = true;
+        }
+      };
+      
+      // Скачивание SVG
+      const downloadSVG = () => {
+        const name = productNameInput.value.trim() || 'штрих-код';
+        const svgData = new XMLSerializer().serializeToString(barcodeSvg);
+        const blob = new Blob([svgData], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${name.replace(/[^a-zа-яё0-9]/gi, '_')}_${barcodeInput.value}.svg`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('SVG скачан успешно!');
+      };
+      
+      // Копирование кода
+      const copyCode = () => {
+        navigator.clipboard.writeText(barcodeInput.value)
+          .then(() => {
+            showToast('Код скопирован в буфер!');
+          })
+          .catch(err => {
+            console.error('Ошибка копирования:', err);
+            showToast('Ошибка копирования', 'error');
+          });
+      };
+      
+      // Сохранение штрих-кода в базу данных
+      const saveBarcode = () => {
+        const value = barcodeInput.value.trim();
+        const name = productNameInput.value.trim() || 'Без названия';
+        
+        if (!value) {
+          showToast('Введите цифры штрих-кода', 'error');
+          return;
+        }
+        
+        // Проверка на уникальность
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const index = store.index('name');
+        const request = index.getAll();
+        
+        request.onsuccess = (event) => {
+          const barcodes = event.target.result;
+          const isDuplicate = barcodes.some(b => b.code === value && b.name === name);
+          
+          if (isDuplicate) {
+            showToast('Такой штрих-код уже существует', 'error');
+            return;
+          }
+          
+          // Если нет дубликатов, сохраняем
+          const writeTransaction = db.transaction([STORE_NAME], 'readwrite');
+          const writeStore = writeTransaction.objectStore(STORE_NAME);
+          
+          const barcodeData = {
+            name: name,
+            code: value,
+            createdAt: new Date().toISOString()
+          };
+          
+          const addRequest = writeStore.add(barcodeData);
+          
+          addRequest.onsuccess = () => {
+            showToast('Товар успешно сохранён!');
+            loadBarcodes();
+            clearInputs();
+          };
+          
+          addRequest.onerror = (event) => {
+            console.error('Ошибка сохранения:', event.target.error);
+            showToast('Ошибка при сохранении товара', 'error');
+          };
+        };
+      };
+      
+      // Загрузка всех штрих-кодов из базы данных
+      const loadBarcodes = (searchTerm = '') => {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const index = store.index('name');
+        const request = index.getAll();
+        
+        request.onsuccess = (event) => {
+          const barcodes = event.target.result;
+          displayBarcodes(barcodes, searchTerm);
+        };
+      };
+      
+      // Отображение штрих-кодов в виде карточек
+      const displayBarcodes = (barcodes, searchTerm = '') => {
+        // Фильтрация по поисковому запросу
+        const filteredBarcodes = searchTerm 
+          ? barcodes.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase())) 
+          : barcodes;
+        
+        // Обновляем счетчик
+        itemCount.textContent = filteredBarcodes.length;
+        
+        if (filteredBarcodes.length === 0) {
+          savedItemsGrid.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-box-open"></i>
+              <p>${searchTerm ? 'Товары не найдены' : 'Сохранённых товаров пока нет'}</p>
+              <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.7;">
+                ${searchTerm ? 'Попробуйте другой запрос' : 'Создайте свой первый штрих-код выше'}
+              </p>
+            </div>
+          `;
+          return;
+        }
+        
+        // Сортируем по дате создания (новые сверху)
+        filteredBarcodes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        savedItemsGrid.innerHTML = filteredBarcodes.map(barcode => `
+          <div class="app-card">
+            <div class="app-card-image">
+              <svg id="barcode-${barcode.id}"></svg>
+            </div>
+            <div class="app-card-content">
+              <h3 class="app-card-title">${barcode.name}</h3>
+              <p class="app-card-desc">
+                <strong>Штрих-код:</strong> ${barcode.code}<br>
+                <small>Создан: ${new Date(barcode.createdAt).toLocaleDateString()}</small>
+              </p>
+              <div class="app-card-buttons">
+                <button class="app-card-btn view" data-id="${barcode.id}">
+                  <i class="fas fa-eye"></i> Просмотр
+                </button>
+                <button class="app-card-btn edit" data-id="${barcode.id}">
+                  <i class="fas fa-edit"></i> Редактировать
+                </button>
+                <button class="app-card-btn delete" data-id="${barcode.id}">
+                  <i class="fas fa-trash"></i> Удалить
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        
+        // Генерация штрих-кодов для карточек
+        filteredBarcodes.forEach(barcode => {
+          const svgElement = document.getElementById(`barcode-${barcode.id}`);
+          if (svgElement) {
+            JsBarcode(svgElement, barcode.code, {
+              format: "CODE128",
+              displayValue: false,
+              lineColor: "#fff",
+              width: 1.5,
+              height: 70,
+              background: 'transparent'
+            });
+          }
+        });
+        
+        // Добавляем обработчики событий для кнопок
+        document.querySelectorAll('.app-card-btn.view').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            viewBarcode(id);
+          });
+        });
+        
+        document.querySelectorAll('.app-card-btn.edit').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            openEditModal(id);
+          });
+        });
+        
+        document.querySelectorAll('.app-card-btn.delete').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = parseInt(btn.getAttribute('data-id'));
+            openDeleteModal(id);
+          });
+        });
+      };
+      
+      // Просмотр штрих-кода
+      const viewBarcode = (id) => {
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(id);
+        
+        request.onsuccess = (event) => {
+          const barcode = event.target.result;
+          if (barcode) {
+            productNameInput.value = barcode.name;
+            barcodeInput.value = barcode.code;
+            generateBarcode();
+            
+            // Прокручиваем к генератору
+            document.querySelector('.generator-container').scrollIntoView({ 
+              behavior: 'smooth' 
+            });
+          }
+        };
+      };
+      
+      // Открытие модального окна редактирования
+      const openEditModal = (id) => {
+        currentItemId = id;
+        
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(id);
+        
+        request.onsuccess = (event) => {
+          const barcode = event.target.result;
+          if (barcode) {
+            editProductNameInput.value = barcode.name;
+            editBarcodeInput.value = barcode.code;
+            openModal(editModal);
+          }
+        };
+      };
+      
+      // Сохранение изменений
+      const saveEdit = () => {
+        if (!currentItemId) return;
+        
+        const name = editProductNameInput.value.trim() || 'Без названия';
+        const code = editBarcodeInput.value.trim();
+        
+        if (!code) {
+          showToast('Введите цифры штрих-кода', 'error');
+          return;
+        }
+        
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const getRequest = store.get(currentItemId);
+        
+        getRequest.onsuccess = (event) => {
+          const data = event.target.result;
+          if (data) {
+            data.name = name;
+            data.code = code;
+            
+            const updateRequest = store.put(data);
+            
+            updateRequest.onsuccess = () => {
+              showToast('Товар успешно обновлён!');
+              loadBarcodes();
+              closeModal(editModal);
+              currentItemId = null;
+            };
+            
+            updateRequest.onerror = (event) => {
+              console.error('Ошибка обновления:', event.target.error);
+              showToast('Ошибка при обновлении товара', 'error');
+            };
+          }
+        };
+      };
+      
+      // Открытие модального окна удаления
+      const openDeleteModal = (id) => {
+        currentDeleteId = id;
+        
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(id);
+        
+        request.onsuccess = (event) => {
+          const barcode = event.target.result;
+          if (barcode) {
+            modalMessage.textContent = `Вы уверены, что хотите удалить товар "${barcode.name}"?`;
+            openModal(confirmationModal);
+          }
+        };
+      };
+      
+      // Удаление штрих-кода
+      const deleteBarcode = () => {
+        if (!currentDeleteId) return;
+        
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.delete(currentDeleteId);
+        
+        request.onsuccess = () => {
+          showToast('Товар успешно удалён!');
+          loadBarcodes();
+          closeModal(confirmationModal);
+          currentDeleteId = null;
+        };
+      };
+      
+      // Очистка полей ввода
+      const clearInputs = () => {
+        productNameInput.value = '';
+        barcodeInput.value = '';
+        barcodeSvg.innerHTML = '';
+        barcodeName.textContent = '';
+        downloadBtn.disabled = true;
+        copyBtn.disabled = true;
+        productNameInput.focus();
+      };
+      
+      // Инициализация приложения
+      const initApp = () => {
+        // Назначаем обработчики событий
+        saveBtn.addEventListener('click', saveBarcode);
+        clearBtn.addEventListener('click', clearInputs);
+        downloadBtn.addEventListener('click', downloadSVG);
+        copyBtn.addEventListener('click', copyCode);
+        generateRandomBtn.addEventListener('click', generateRandomBarcode);
+        modalConfirmBtn.addEventListener('click', deleteBarcode);
+        editSaveBtn.addEventListener('click', saveEdit);
+        
+        // Автоматическая генерация при вводе
+        barcodeInput.addEventListener('input', generateBarcode);
+        productNameInput.addEventListener('input', generateBarcode);
+        
+        // Поиск по товарам
+        searchInput.addEventListener('input', (e) => {
+          loadBarcodes(e.target.value);
+        });
+        
+        // Фокус на поле ввода
+        productNameInput.focus();
+        
+        // Генерация случайного кода при загрузке
+        generateRandomBarcode();
+      };
+      
+      // Запуск приложения
+      initDB();
+      initApp();
+    });
+  </script>
+</body>
+</html>
