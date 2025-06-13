@@ -106,7 +106,6 @@
       position: relative;
     }
 
-    /* Controls */
     .controls {
       display: flex;
       flex-wrap: wrap;
@@ -242,7 +241,6 @@
       font-size: 0.85rem;
     }
 
-    /* Address List */
     .address-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -381,7 +379,6 @@
       flex-wrap: wrap;
     }
 
-    /* Увеличиваем размер изображений в обращениях */
     .appeal-image {
       width: 50px;
       height: 50px;
@@ -433,7 +430,6 @@
       transform: translateY(-2px);
     }
 
-    /* Modal */
     .modal {
       position: fixed;
       top: 0;
@@ -611,7 +607,6 @@
       background: rgba(255, 255, 255, 0.1);
     }
 
-    /* Image Viewer */
     .image-viewer {
       position: fixed;
       top: 0;
@@ -686,14 +681,12 @@
       background: #ff2e43;
     }
 
-    /* Import/Export */
     .import-export {
       display: flex;
       gap: 1rem;
       margin-left: auto;
     }
 
-    /* Empty state */
     .empty-state {
       text-align: center;
       padding: 3rem;
@@ -711,7 +704,6 @@
       margin-bottom: 1.5rem;
     }
 
-    /* Toast */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -748,7 +740,6 @@
       color: var(--fraud);
     }
 
-    /* Кнопка загрузки изображений */
     .upload-btn {
       display: inline-block;
       padding: 0.8rem 1.5rem;
@@ -799,7 +790,6 @@
       display: none;
     }
 
-    /* Aдаптивность */
     @media (max-width: 1024px) {
       .app-title {
         font-size: 1.8rem;
@@ -874,6 +864,25 @@
       }
     }
   </style>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDXVzzLLrDFDosMOxRvgUyFPVOg4j0gR7k",
+    authDomain: "xellainf.firebaseapp.com",
+    projectId: "xellainf",
+    storageBucket: "xellainf.firebasestorage.app",
+    messagingSenderId: "660533082757",
+    appId: "1:660533082757:web:20dd991425e03c640887ec",
+    measurementId: "G-J9W2NR14QV"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const firestore = firebase.firestore();
+</script>
+
 </head>
 <body>
   <header class="app-header">
@@ -906,11 +915,9 @@
     </div>
 
     <div class="address-list" id="address-list">
-      <!-- Адреса будут загружены динамически -->
     </div>
   </main>
 
-  <!-- Модальное окно добавления/редактирования адреса -->
   <div class="modal" id="address-modal">
     <div class="modal-content">
       <button class="close-modal">&times;</button>
@@ -937,7 +944,6 @@
     </div>
   </div>
 
-  <!-- Модальное окно добавления обращения со скриншотом -->
   <div class="modal" id="add-appeal-modal">
     <div class="modal-content">
       <button class="close-modal">&times;</button>
@@ -959,7 +965,6 @@
     </div>
   </div>
 
-  <!-- Просмотрщик изображений -->
   <div class="image-viewer" id="image-viewer">
     <div class="image-container">
       <img id="viewed-image" src="" alt="Просмотр изображения">
@@ -970,7 +975,6 @@
     </div>
   </div>
 
-  <!-- Экспорт/Импорт данных -->
   <input type="file" id="import-file" accept=".json" style="display: none">
 
   <div class="toast" id="toast">
@@ -980,7 +984,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Инициализация базы данных
       const dbName = 'HotlineDB';
       const storeName = 'addresses';
       let db;
@@ -990,7 +993,6 @@
       let currentAddress = null;
       let imagesToUpload = [];
       
-      // Показать уведомление
       const showToast = (message, isSuccess = true) => {
         const toast = document.getElementById('toast');
         const toastMessage = document.getElementById('toast-message');
@@ -1007,7 +1009,6 @@
         }, 3000);
       };
       
-      // Блокировка скролла при открытии модальных окон
       const lockScroll = () => {
         document.body.classList.add('modal-open');
       };
@@ -1016,7 +1017,6 @@
         document.body.classList.remove('modal-open');
       };
       
-      // Получить строку сегодняшней даты в формате YYYY-MM-DD
       const getTodayString = () => {
         const today = new Date();
         const year = today.getFullYear();
@@ -1025,7 +1025,6 @@
         return `${year}-${month}-${day}`;
       };
       
-      // Инициализация базы данных
       const initDB = () => {
         return new Promise((resolve, reject) => {
           const request = indexedDB.open(dbName, 1);
@@ -1038,8 +1037,6 @@
           
           request.onsuccess = (event) => {
             db = event.target.result;
-            console.log('База данных успешно открыта');
-            loadAddresses();
             resolve(db);
           };
           
@@ -1048,23 +1045,19 @@
             if (!db.objectStoreNames.contains(storeName)) {
               const store = db.createObjectStore(storeName, { keyPath: 'id' });
               store.createIndex('address', 'address', { unique: false });
-              console.log('Хранилище адресов создано');
             }
           };
         });
       };
       
-      // Сохранение данных в localStorage
       const saveToLocalStorage = (data) => {
         try {
           localStorage.setItem('hotlineAddresses', JSON.stringify(data));
-          console.log('Данные сохранены в localStorage');
         } catch (e) {
           console.error('Ошибка сохранения в localStorage:', e);
         }
       };
       
-      // Загрузка данных из localStorage
       const loadFromLocalStorage = () => {
         try {
           const data = localStorage.getItem('hotlineAddresses');
@@ -1075,18 +1068,26 @@
         }
       };
       
-      // Сохранение адреса в IndexedDB и localStorage
-      const saveAddress = (address) => {
+      // Основное сохранение в Firestore
+      const saveAddressToFirestore = async (address) => {
+        try {
+          await firestore.collection('addresses').doc(address.id).set(address);
+          console.log('Сохранено в Firestore:', address.id);
+          return true;
+        } catch (error) {
+          console.error('Ошибка Firestore:', error);
+          return false;
+        }
+      };
+
+      // Резервное сохранение в IndexedDB
+      const saveToIndexedDB = (address) => {
         return new Promise((resolve, reject) => {
           const transaction = db.transaction([storeName], 'readwrite');
           const store = transaction.objectStore(storeName);
-          
           const request = store.put(address);
           
           request.onsuccess = () => {
-            console.log('Адрес сохранен в IndexedDB');
-            
-            // Обновляем localStorage
             const allAddresses = loadFromLocalStorage() || [];
             const existingIndex = allAddresses.findIndex(a => a.id === address.id);
             
@@ -1101,57 +1102,45 @@
           };
           
           request.onerror = (event) => {
-            console.error('Ошибка сохранения адреса:', event.target.error);
-            showToast('Ошибка сохранения', false);
+            console.error('Ошибка IndexedDB:', event.target.error);
             reject(event.target.error);
           };
         });
       };
       
-      // Загрузка всех адресов
-      const loadAddresses = () => {
-        const transaction = db.transaction([storeName], 'readonly');
-        const store = transaction.objectStore(storeName);
-        const request = store.getAll();
+      // Комбинированное сохранение (основное в Firestore, резерв в IndexedDB)
+      const saveAddress = async (address) => {
+        // Пробуем сохранить в Firestore
+        const firestoreSuccess = await saveAddressToFirestore(address);
         
-        request.onsuccess = (event) => {
-          const addresses = event.target.result;
-          renderAddresses(addresses);
-          
-          // Если в IndexedDB пусто, пробуем загрузить из localStorage
-          if (addresses.length === 0) {
-            const localData = loadFromLocalStorage();
-            if (localData && localData.length > 0) {
-              console.log('Загрузка данных из localStorage');
-              const savePromises = localData.map(address => saveAddress(address));
-              Promise.all(savePromises).then(() => {
-                renderAddresses(localData);
-              });
-            }
-          }
-        };
+        // Всегда сохраняем в IndexedDB
+        await saveToIndexedDB(address);
         
-        request.onerror = (event) => {
-          console.error('Ошибка загрузки адресов:', event.target.error);
-          showToast('Ошибка загрузки данных', false);
-        };
+        if (firestoreSuccess) {
+          showToast('Данные сохранены в облаке');
+        } else {
+          showToast('Данные сохранены локально (нет интернета)', false);
+        }
       };
       
-      // Удаление адреса
-      const deleteAddress = (id) => {
+      const deleteAddress = async (id) => {
+        try {
+          // Удаляем из Firestore
+          await firestore.collection('addresses').doc(id).delete();
+        } catch (error) {
+          console.error('Ошибка удаления из Firestore:', error);
+        }
+        
+        // Удаляем из IndexedDB
         const transaction = db.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
         const request = store.delete(id);
         
         request.onsuccess = () => {
-          console.log('Адрес удален из IndexedDB');
           showToast('Адрес удален');
-          
-          // Обновляем localStorage
           const allAddresses = loadFromLocalStorage() || [];
           const filtered = allAddresses.filter(a => a.id !== id);
           saveToLocalStorage(filtered);
-          
           loadAddresses();
         };
         
@@ -1161,7 +1150,6 @@
         };
       };
       
-      // Отрисовка адресов
       const renderAddresses = (addresses) => {
         const addressList = document.getElementById('address-list');
         
@@ -1180,9 +1168,7 @@
           return;
         }
         
-        // Сортируем по количеству обращений (по убыванию)
         addresses.sort((a, b) => b.appeals.length - a.appeals.length);
-        
         const todayStr = getTodayString();
         
         addressList.innerHTML = addresses.map(address => {
@@ -1190,20 +1176,14 @@
           const statusText = fraudStatus === 'fraud' ? 'ФРОД' : 
                             fraudStatus === 'not-fraud' ? 'Не ФРОД' : 'Не определен';
           
-          // Подсчет обращений по дням, месяцам и годам
           const today = new Date();
           const thisMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
           const thisYear = today.getFullYear();
-          
-          // Исправленный счетчик для "Сегодня"
           const daily = address.appeals.filter(a => a.date === todayStr).length;
-          
           const monthly = address.appeals.filter(a => a.date.startsWith(thisMonth)).length;
           const yearly = address.appeals.filter(a => a.date.startsWith(String(thisYear))).length;
           
-          // Последние 5 обращений
           const lastAppeals = [];
-          // Собираем последние 5 обращений с сохранением их индексов
           for (let i = address.appeals.length - 1; i >= 0 && lastAppeals.length < 5; i--) {
             lastAppeals.push({
               data: address.appeals[i],
@@ -1238,8 +1218,7 @@
                   <div class="appeal-history-title">Последние обращения:</div>
                   ${lastAppeals.map(item => {
                     const appeal = item.data;
-                    const appealDate = new Date(appeal.date);
-                    const formattedDate = appealDate.toLocaleDateString('ru-RU');
+                    const formattedDate = new Date(appeal.date).toLocaleDateString('ru-RU');
                     
                     return `
                       <div class="appeal-item">
@@ -1279,7 +1258,6 @@
           `;
         }).join('');
         
-        // Обработчики событий
         document.querySelectorAll('.add-appeal-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const card = e.target.closest('.address-card');
@@ -1324,40 +1302,32 @@
         });
       };
       
-      // Добавление нового обращения
-      const addAppeal = (addressId, images = []) => {
+      const addAppeal = async (addressId, images = []) => {
         const transaction = db.transaction([storeName], 'readwrite');
         const store = transaction.objectStore(storeName);
         const request = store.get(addressId);
 
-        request.onsuccess = (event) => {
+        request.onsuccess = async (event) => {
           const address = event.target.result;
           if (address) {
             const todayStr = getTodayString();
 
-            // Добавляем новое обращение
             address.appeals.push({
               date: todayStr,
               images: images
             });
 
-            // Обновляем счетчики
-            address.totalAppeals = address.appeals.length;
-
-            // Автоматическая пометка как ФРОД при более 10 обращениях
-            if (address.totalAppeals > 10 && address.fraudStatus !== 'not-fraud') {
+            if (address.appeals.length > 10 && address.fraudStatus !== 'not-fraud') {
               address.fraudStatus = 'fraud';
             }
 
-            saveAddress(address).then(() => {
-              showToast('Обращение добавлено');
-              loadAddresses();
-            });
+            await saveAddress(address);
+            showToast('Обращение добавлено');
+            loadAddresses();
           }
         };
       };
       
-      // Открытие модального окна для добавления обращения со скриншотом
       const openAddAppealModal = (addressId) => {
         lockScroll();
         const modal = document.getElementById('add-appeal-modal');
@@ -1368,7 +1338,6 @@
         modal.classList.add('active');
       };
       
-      // Открытие модального окна для добавления
       const openAddModal = () => {
         lockScroll();
         const modal = document.getElementById('address-modal');
@@ -1380,7 +1349,6 @@
         addressInput.value = '';
         addressInput.disabled = false;
         
-        // Сброс статуса
         document.querySelectorAll('.toggle-option').forEach(option => {
           option.classList.remove('active');
         });
@@ -1389,7 +1357,6 @@
         modal.classList.add('active');
       };
       
-      // Открытие модального окна для редактирования
       const openEditModal = (addressId) => {
         lockScroll();
         const modal = document.getElementById('address-modal');
@@ -1399,7 +1366,6 @@
         currentAddressId = addressId;
         title.textContent = 'Редактировать адрес';
         
-        // Загрузка данных адреса
         const transaction = db.transaction([storeName], 'readonly');
         const store = transaction.objectStore(storeName);
         const request = store.get(addressId);
@@ -1411,7 +1377,6 @@
             addressInput.disabled = false;
             currentAddress = address;
             
-            // Установка статуса
             document.querySelectorAll('.toggle-option').forEach(option => {
               option.classList.remove('active');
               if (option.dataset.value === (address.fraudStatus || 'unknown')) {
@@ -1424,7 +1389,6 @@
         modal.classList.add('active');
       };
       
-      // Закрытие модальных окон
       const closeModal = () => {
         unlockScroll();
         document.getElementById('address-modal').classList.remove('active');
@@ -1435,7 +1399,6 @@
         document.getElementById('add-appeal-modal').classList.remove('active');
       };
       
-      // Открытие просмотрщика изображений
       const openImageViewer = (addressId, appealIndex, imageIndex) => {
         lockScroll();
         const viewer = document.getElementById('image-viewer');
@@ -1458,7 +1421,6 @@
               currentImageIndex = imageIndex;
               viewer.classList.add('active');
             } else {
-              // Если изображение не найдено - разблокируем экран
               unlockScroll();
               showToast('Изображение не найдено', false);
             }
@@ -1468,13 +1430,11 @@
         };
       };
       
-      // Закрытие просмотрщика изображений
       document.querySelector('.close-viewer').addEventListener('click', () => {
         unlockScroll();
         document.getElementById('image-viewer').classList.remove('active');
       });
       
-      // Обработчик загрузки изображений для обращения
       document.getElementById('image-upload').addEventListener('change', (e) => {
         const files = e.target.files;
         const imagePreview = document.getElementById('image-preview');
@@ -1508,12 +1468,10 @@
           reader.readAsDataURL(file);
         }
         
-        // Сброс input, чтобы можно было загружать те же файлы снова
         e.target.value = '';
       });
       
-      // Сохранение адреса
-      document.getElementById('save-btn').addEventListener('click', () => {
+      document.getElementById('save-btn').addEventListener('click', async () => {
         const addressInput = document.getElementById('address-input');
         const activeStatus = document.querySelector('.toggle-option.active').dataset.value;
         
@@ -1523,26 +1481,23 @@
         }
         
         if (currentAddressId) {
-          // Редактирование существующего адреса
           const transaction = db.transaction([storeName], 'readwrite');
           const store = transaction.objectStore(storeName);
           const request = store.get(currentAddressId);
           
-          request.onsuccess = (event) => {
+          request.onsuccess = async (event) => {
             const address = event.target.result;
             if (address) {
               address.address = addressInput.value;
               address.fraudStatus = activeStatus;
               
-              saveAddress(address).then(() => {
-                showToast('Данные сохранены');
-                loadAddresses();
-                closeModal();
-              });
+              await saveAddress(address);
+              showToast('Данные сохранены');
+              loadAddresses();
+              closeModal();
             }
           };
         } else {
-          // Создание нового адреса
           const newAddress = {
             id: Date.now().toString(),
             address: addressInput.value,
@@ -1550,53 +1505,47 @@
             appeals: []
           };
           
-          saveAddress(newAddress).then(() => {
-            showToast('Адрес добавлен');
-            loadAddresses();
-            closeModal();
-          });
+          await saveAddress(newAddress);
+          showToast('Адрес добавлен');
+          loadAddresses();
+          closeModal();
         }
       });
       
-      // Сохранение обращения со скриншотом
-      document.getElementById('save-appeal-btn').addEventListener('click', () => {
+      document.getElementById('save-appeal-btn').addEventListener('click', async () => {
         if (currentAddressId) {
-          addAppeal(currentAddressId, [...imagesToUpload]);
+          await addAppeal(currentAddressId, [...imagesToUpload]);
           closeAppealModal();
         }
       });
       
-      // Удаление изображения
-      document.getElementById('delete-image-btn').addEventListener('click', () => {
+      document.getElementById('delete-image-btn').addEventListener('click', async () => {
         if (currentAddressId && currentAppealIndex !== null && currentImageIndex !== null) {
           const transaction = db.transaction([storeName], 'readwrite');
           const store = transaction.objectStore(storeName);
           const request = store.get(currentAddressId);
           
-          request.onsuccess = (event) => {
+          request.onsuccess = async (event) => {
             const address = event.target.result;
             if (address) {
               if (address.appeals[currentAppealIndex] && address.appeals[currentAppealIndex].images) {
                 address.appeals[currentAppealIndex].images.splice(currentImageIndex, 1);
                 
-                // Если больше нет изображений, удаляем массив
                 if (address.appeals[currentAppealIndex].images.length === 0) {
                   delete address.appeals[currentAppealIndex].images;
                 }
                 
-                saveAddress(address).then(() => {
-                  showToast('Изображение удалено');
-                  loadAddresses();
-                  document.getElementById('image-viewer').classList.remove('active');
-                  unlockScroll();
-                });
+                await saveAddress(address);
+                showToast('Изображение удалено');
+                loadAddresses();
+                document.getElementById('image-viewer').classList.remove('active');
+                unlockScroll();
               }
             }
           };
         }
       });
       
-      // Экспорт данных
       document.getElementById('export-btn').addEventListener('click', () => {
         const transaction = db.transaction([storeName], 'readonly');
         const store = transaction.objectStore(storeName);
@@ -1618,7 +1567,6 @@
         };
       });
       
-      // Импорт данных
       document.getElementById('import-btn').addEventListener('click', () => {
         document.getElementById('import-file').click();
       });
@@ -1628,24 +1576,26 @@
         if (!file) return;
         
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
           try {
             const addresses = JSON.parse(event.target.result);
             
             if (Array.isArray(addresses)) {
-              // Очистка базы данных перед импортом
+              // Удаляем текущую базу
               const clearRequest = indexedDB.deleteDatabase(dbName);
               
-              clearRequest.onsuccess = () => {
-                initDB().then(() => {
-                  // Сохраняем импортированные адреса
-                  const promises = addresses.map(address => saveAddress(address));
-                  
-                  Promise.all(promises).then(() => {
-                    showToast(`Импортировано ${addresses.length} адресов`);
-                    loadAddresses();
-                  });
-                });
+              clearRequest.onsuccess = async () => {
+                // Пересоздаем базу
+                await initDB();
+                
+                // Сохраняем импортированные адреса
+                for (const address of addresses) {
+                  await saveToIndexedDB(address);
+                  await saveAddressToFirestore(address);
+                }
+                
+                showToast(`Импортировано ${addresses.length} адресов`);
+                loadAddresses();
               };
             } else {
               throw new Error('Некорректный формат файла');
@@ -1658,7 +1608,6 @@
         reader.readAsText(file);
       });
       
-      // Поиск адресов
       document.getElementById('search-input').addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const suggestions = document.getElementById('suggestions');
@@ -1701,7 +1650,6 @@
             
             suggestions.style.display = 'block';
             
-            // Обработчик выбора подсказки
             document.querySelectorAll('.suggestion-item').forEach(item => {
               item.addEventListener('click', (e) => {
                 if (!e.target.closest('.go-to-btn')) {
@@ -1713,20 +1661,16 @@
               });
             });
             
-            // Обработчик кнопки "Перейти"
             document.querySelectorAll('.go-to-btn').forEach(btn => {
               btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const item = e.target.closest('.suggestion-item');
                 const addressId = item.dataset.id;
                 
-                // Находим карточку адреса
                 const card = document.getElementById(`address-${addressId}`);
                 if (card) {
-                  // Прокручиваем к карточке
                   card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   
-                  // Подсвечиваем карточку
                   card.style.boxShadow = '0 0 20px rgba(123, 44, 191, 0.5)';
                   card.style.transition = 'box-shadow 0.5s ease';
                   setTimeout(() => {
@@ -1734,7 +1678,6 @@
                   }, 2000);
                 }
                 
-                // Очищаем поиск
                 document.getElementById('search-input').value = '';
                 suggestions.style.display = 'none';
               });
@@ -1745,7 +1688,6 @@
         };
       });
       
-      // Выбор статуса
       document.querySelectorAll('.toggle-option').forEach(option => {
         option.addEventListener('click', () => {
           document.querySelectorAll('.toggle-option').forEach(opt => {
@@ -1755,7 +1697,6 @@
         });
       });
       
-      // Закрытие модальных окон
       document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', () => {
           unlockScroll();
@@ -1767,9 +1708,59 @@
       document.getElementById('cancel-btn').addEventListener('click', closeModal);
       document.getElementById('cancel-appeal-btn').addEventListener('click', closeAppealModal);
       
-      // Инициализация
+      const loadAddresses = async () => {
+        try {
+          // Пытаемся загрузить из Firestore
+          const snapshot = await firestore.collection('addresses').get();
+          let addresses = [];
+          
+          if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+              addresses.push(doc.data());
+            });
+            console.log(`Загружено ${addresses.length} адресов из Firestore`);
+          } else {
+            // Если Firestore пуст, загружаем из IndexedDB
+            addresses = await new Promise(resolve => {
+              const transaction = db.transaction([storeName], 'readonly');
+              const store = transaction.objectStore(storeName);
+              const request = store.getAll();
+              
+              request.onsuccess = (event) => {
+                resolve(event.target.result || []);
+              };
+              
+              request.onerror = () => resolve([]);
+            });
+            
+            console.log(`Загружено ${addresses.length} адресов из IndexedDB`);
+          }
+          
+          renderAddresses(addresses);
+          
+        } catch (error) {
+          console.error('Ошибка Firestore:', error);
+          // При ошибке Firestore загружаем из IndexedDB
+          const addresses = await new Promise(resolve => {
+            const transaction = db.transaction([storeName], 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
+            
+            request.onsuccess = (event) => {
+              resolve(event.target.result || []);
+            };
+            
+            request.onerror = () => resolve([]);
+          });
+          
+          renderAddresses(addresses);
+          showToast('Данные загружены из локального хранилища', false);
+        }
+      };
+
+      // Инициализация приложения
       initDB().then(() => {
-        // Добавляем обработчик кнопки добавления
+        loadAddresses();
         document.getElementById('add-address-btn').addEventListener('click', openAddModal);
       });
     });
