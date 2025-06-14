@@ -2,11 +2,14 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>XellaInF — Генератор штрих-кодов</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --primary: #7b2cbf;
@@ -32,7 +35,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Roboto', 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
     body {
@@ -317,7 +320,7 @@
       align-items: center;
       margin-top: 2rem;
       padding: 2rem;
-      background: white; /* Изменено на белый фон */
+      background: white;
       border-radius: var(--border-radius);
       position: relative;
     }
@@ -391,7 +394,7 @@
 
     .app-card-image {
       height: 180px;
-      background: white; /* Изменено на белый фон */
+      background: white;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -432,7 +435,6 @@
       line-height: 1.7;
     }
 
-    /* ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ КНОПОК КАРТОЧЕК */
     .app-card-buttons {
       display: flex;
       gap: 0.5rem;
@@ -502,7 +504,6 @@
       backdrop-filter: blur(10px);
     }
 
-    /* Анимации */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -513,7 +514,6 @@
       animation-fill-mode: both;
     }
 
-    /* Адаптивность */
     @media (max-width: 1024px) {
       .app-title {
         font-size: 2.4rem;
@@ -550,7 +550,6 @@
         width: 100%;
       }
 
-      /* Адаптация кнопок карточек для мобильных */
       .app-card-btn {
         font-size: 0.75rem;
         padding: 0.6rem 0.7rem;
@@ -624,15 +623,100 @@
       border-color: rgba(220, 53, 69, 0.3);
     }
     
-    /* Новые стили для черно-белых штрих-кодов */
     #barcode-name {
-      color: #333; /* Темный цвет для контраста на белом фоне */
+      color: #333;
       margin-top: 15px;
+    }
+
+    .connection-status {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.5s ease;
+      animation: fadeInOut 5s forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-20px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); display: none; }
+    }
+
+    .connection-status.online {
+      background: rgba(40, 167, 69, 0.2);
+      border: 1px solid rgba(40, 167, 69, 0.3);
+      color: #28a745;
+    }
+
+    .connection-status.offline {
+      background: rgba(220, 53, 69, 0.2);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: #dc3545;
+    }
+
+    .connection-status.permission-error {
+      background: rgba(255, 193, 7, 0.2);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      color: #ffc107;
+    }
+
+    .permission-warning {
+      background: rgba(255, 193, 7, 0.15);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      color: #ffc107;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .reload-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: var(--transition);
+    }
+    
+    .reload-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    @keyframes pulse-opacity {
+      0% { opacity: 0.5; }
+      50% { opacity: 1; }
+      100% { opacity: 0.5; }
+    }
+    
+    .loading-text {
+      animation: pulse-opacity 1.5s infinite;
+    }
+
+    .barcode-preview .btn-secondary {
+      color: var(--dark);
+    }
+
+    .barcode-preview .btn-secondary:hover {
+      background: rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
 <body>
-  <!-- Модальные окна -->
   <div id="confirmation-modal" class="modal">
     <div class="modal-content">
       <button class="close-modal">&times;</button>
@@ -673,7 +757,6 @@
     </div>
   </div>
 
-  <!-- Основной интерфейс -->
   <header class="app-header">
     <h1 class="app-title">
       <span>XellaInF</span>
@@ -683,6 +766,11 @@
   </header>
 
   <main class="app-container">
+    <div class="connection-status online" id="connection-status">
+      <i class="fas fa-database"></i>
+      <span>Сохранение в базе данных</span>
+    </div>
+    
     <div class="generator-container">
       <div class="input-group">
         <div class="input-row">
@@ -740,25 +828,46 @@
       </h2>
       
       <div class="apps-grid" id="saved-items-grid">
-        <!-- Здесь будут отображаться карточки сохранённых товаров -->
         <div class="empty-state">
-          <i class="fas fa-box-open"></i>
-          <p>Сохранённых товаров пока нет</p>
-          <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.7;">Создайте свой первый штрих-код выше</p>
+          <i class="fas fa-spinner fa-spin"></i>
+          <p class="loading-text">Загрузка товаров...</p>
         </div>
       </div>
     </div>
   </main>
 
   <footer class="app-footer">
-    <p>© XellaInF | Генератор штрих-кодов</p>
+    <p>© XellaInF | Генератор штрих-кодов | Данные хранятся в Firebase</p>
   </footer>
 
   <div id="toast" class="toast"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Элементы интерфейса
+      const firebaseConfig = {
+        apiKey: "AIzaSyDXVzzLLrDFDosMOxRvgUyFPVOg4j0gR7k",
+        authDomain: "xellainf.firebaseapp.com",
+        projectId: "xellainf",
+        storageBucket: "xellainf.appspot.com",
+        messagingSenderId: "660533082757",
+        appId: "1:660533082757:web:20dd991425e03c640887ec",
+        measurementId: "G-J9W2NR14QV"
+      };
+
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        } else {
+          firebase.app();
+        }
+      } catch (e) {
+        console.error("Ошибка инициализации Firebase:", e);
+        showToast('Ошибка подключения к Firebase', 'error');
+      }
+      
+      const db = firebase.firestore();
+      
+      const connectionStatus = document.getElementById('connection-status');
       const barcodeInput = document.getElementById('barcode-input');
       const productNameInput = document.getElementById('product-name');
       const saveBtn = document.getElementById('save-btn');
@@ -771,8 +880,6 @@
       const downloadBtn = document.getElementById('download-btn');
       const copyBtn = document.getElementById('copy-btn');
       const generateRandomBtn = document.getElementById('generate-random-btn');
-      
-      // Модальные окна
       const confirmationModal = document.getElementById('confirmation-modal');
       const editModal = document.getElementById('edit-modal');
       const modalMessage = document.getElementById('modal-message');
@@ -785,39 +892,10 @@
       const toast = document.getElementById('toast');
       const closeModalBtns = document.querySelectorAll('.close-modal');
       
-      // Текущие данные для модальных окон
       let currentItemId = null;
       let currentDeleteId = null;
+      let barcodesArray = [];
       
-      // База данных
-      let db;
-      const DB_NAME = 'XellaInFBarcodeDB';
-      const STORE_NAME = 'barcodes';
-      
-      // Инициализация IndexedDB
-      const initDB = () => {
-        const request = indexedDB.open(DB_NAME, 2);
-        
-        request.onerror = (event) => {
-          console.error('Ошибка базы данных:', event.target.error);
-          showToast('Ошибка базы данных', 'error');
-        };
-        
-        request.onupgradeneeded = (event) => {
-          db = event.target.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-            store.createIndex('name', 'name', { unique: false });
-          }
-        };
-        
-        request.onsuccess = (event) => {
-          db = event.target.result;
-          loadBarcodes();
-        };
-      };
-      
-      // Показ уведомления
       const showToast = (message, type = 'success') => {
         toast.textContent = message;
         toast.className = `toast ${type}`;
@@ -828,17 +906,14 @@
         }, 3000);
       };
       
-      // Открытие модального окна
       const openModal = (modal) => {
         modal.classList.add('active');
       };
       
-      // Закрытие модального окна
       const closeModal = (modal) => {
         modal.classList.remove('active');
       };
       
-      // Обработчики закрытия модальных окон
       closeModalBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           if (confirmationModal.classList.contains('active')) closeModal(confirmationModal);
@@ -849,38 +924,31 @@
       modalCancelBtn.addEventListener('click', () => closeModal(confirmationModal));
       editCancelBtn.addEventListener('click', () => closeModal(editModal));
       
-      // Генерация случайного штрих-кода
       const generateRandomBarcode = () => {
         const randomCode = Math.floor(1000000000000 + Math.random() * 9000000000000).toString();
         barcodeInput.value = randomCode;
         generateBarcode();
       };
       
-      // Генерация штрих-кода
       const generateBarcode = () => {
         const value = barcodeInput.value.trim();
         const name = productNameInput.value.trim() || 'Без названия';
         
         if (value) {
           try {
-            // Очищаем предыдущий штрих-код
             barcodeSvg.innerHTML = '';
             
-            // Генерируем новый штрих-код
             JsBarcode(barcodeSvg, value, {
               format: "CODE128",
               displayValue: true,
               fontSize: 16,
-              lineColor: "#000", // Черные линии
-              background: "#fff", // Белый фон
+              lineColor: "#000",
+              background: "#fff",
               width: 2,
               height: 80
             });
             
-            // Обновляем название
             barcodeName.textContent = name;
-            
-            // Активируем кнопки
             downloadBtn.disabled = false;
             copyBtn.disabled = false;
           } catch (e) {
@@ -896,7 +964,6 @@
         }
       };
       
-      // Скачивание SVG
       const downloadSVG = () => {
         const name = productNameInput.value.trim() || 'штрих-код';
         const svgData = new XMLSerializer().serializeToString(barcodeSvg);
@@ -914,7 +981,6 @@
         showToast('SVG скачан успешно!');
       };
       
-      // Копирование кода
       const copyCode = () => {
         navigator.clipboard.writeText(barcodeInput.value)
           .then(() => {
@@ -926,7 +992,6 @@
           });
       };
       
-      // Сохранение штрих-кода в базу данных
       const saveBarcode = () => {
         const value = barcodeInput.value.trim();
         const name = productNameInput.value.trim() || 'Без названия';
@@ -936,67 +1001,101 @@
           return;
         }
         
-        // Проверка на уникальность
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const index = store.index('name');
-        const request = index.getAll();
+        const isDuplicate = barcodesArray.some(b => b.code === value);
         
-        request.onsuccess = (event) => {
-          const barcodes = event.target.result;
-          const isDuplicate = barcodes.some(b => b.code === value && b.name === name);
-          
-          if (isDuplicate) {
-            showToast('Такой штрих-код уже существует', 'error');
-            return;
-          }
-          
-          // Если нет дубликатов, сохраняем
-          const writeTransaction = db.transaction([STORE_NAME], 'readwrite');
-          const writeStore = writeTransaction.objectStore(STORE_NAME);
-          
-          const barcodeData = {
-            name: name,
-            code: value,
-            createdAt: new Date().toISOString()
-          };
-          
-          const addRequest = writeStore.add(barcodeData);
-          
-          addRequest.onsuccess = () => {
-            showToast('Товар успешно сохранён!');
-            loadBarcodes();
-            clearInputs();
-          };
-          
-          addRequest.onerror = (event) => {
-            console.error('Ошибка сохранения:', event.target.error);
-            showToast('Ошибка при сохранении товара', 'error');
-          };
-        };
+        if (isDuplicate) {
+          showToast('Такой штрих-код уже существует', 'error');
+          return;
+        }
+        
+        db.collection("barcodes").add({
+          name: name,
+          code: value,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+          showToast('Товар успешно сохранён!');
+          clearInputs();
+          loadBarcodes();
+        })
+        .catch((error) => {
+          console.error("Ошибка сохранения: ", error);
+          showToast('Ошибка при сохранении товара', 'error');
+        });
       };
       
-      // Загрузка всех штрих-кодов из базы данных
-      const loadBarcodes = (searchTerm = '') => {
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const index = store.index('name');
-        const request = index.getAll();
+      const loadBarcodes = () => {
+        savedItemsGrid.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p class="loading-text">Загрузка товаров...</p>
+          </div>
+        `;
         
-        request.onsuccess = (event) => {
-          const barcodes = event.target.result;
-          displayBarcodes(barcodes, searchTerm);
-        };
+        setTimeout(() => {
+          db.collection("barcodes")
+            .orderBy("createdAt", "desc")
+            .get()
+            .then((querySnapshot) => {
+              barcodesArray = [];
+              querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                barcodesArray.push({
+                  id: doc.id,
+                  name: data.name,
+                  code: data.code,
+                  createdAt: data.createdAt?.toDate() || new Date()
+                });
+              });
+              
+              displayBarcodes(barcodesArray);
+            })
+            .catch((error) => {
+              console.error("Ошибка загрузки данных: ", error);
+              
+              if (error.code === 'permission-denied') {
+                connectionStatus.className = 'connection-status permission-error';
+                connectionStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> <span>Ошибка прав доступа</span>';
+                
+                savedItemsGrid.innerHTML = `
+                  <div class="permission-warning">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem;"></i>
+                    <div>
+                      <h3>Ошибка доступа к данным</h3>
+                      <p>Проверьте правила доступа Firebase Firestore. Убедитесь, что для коллекции barcodes разрешены операции чтения и записи.</p>
+                      <p style="margin-top: 10px; font-size: 0.9rem;">
+                        <strong>Код ошибки:</strong> permission-denied
+                      </p>
+                      <button class="reload-btn" id="reload-btn">Попробовать снова</button>
+                    </div>
+                  </div>
+                `;
+              } else {
+                savedItemsGrid.innerHTML = `
+                  <div class="permission-warning">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2rem;"></i>
+                    <div>
+                      <h3>Ошибка загрузки данных</h3>
+                      <p>${error.message || 'Неизвестная ошибка'}</p>
+                      <p style="margin-top: 10px; font-size: 0.9rem;">
+                        <strong>Код ошибки:</strong> ${error.code || 'N/A'}
+                      </p>
+                      <button class="reload-btn" id="reload-btn">Попробовать снова</button>
+                    </div>
+                  </div>
+                `;
+              }
+              
+              document.getElementById('reload-btn').addEventListener('click', loadBarcodes);
+            });
+        }, 1000);
       };
       
-      // Отображение штрих-кодов в виде карточек
       const displayBarcodes = (barcodes, searchTerm = '') => {
-        // Фильтрация по поисковому запросу
         const filteredBarcodes = searchTerm 
           ? barcodes.filter(b => b.name.toLowerCase().includes(searchTerm.toLowerCase())) 
           : barcodes;
         
-        // Обновляем счетчик
         itemCount.textContent = filteredBarcodes.length;
         
         if (filteredBarcodes.length === 0) {
@@ -1012,9 +1111,6 @@
           return;
         }
         
-        // Сортируем по дате создания (новые сверху)
-        filteredBarcodes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        
         savedItemsGrid.innerHTML = filteredBarcodes.map(barcode => `
           <div class="app-card">
             <div class="app-card-image">
@@ -1024,7 +1120,7 @@
               <h3 class="app-card-title">${barcode.name}</h3>
               <p class="app-card-desc">
                 <strong>Штрих-код:</strong> ${barcode.code}<br>
-                <small>Создан: ${new Date(barcode.createdAt).toLocaleDateString()}</small>
+                <small>Создан: ${barcode.createdAt.toLocaleDateString()}</small>
               </p>
               <div class="app-card-buttons">
                 <button class="app-card-btn view" data-id="${barcode.id}">
@@ -1041,84 +1137,69 @@
           </div>
         `).join('');
         
-        // Генерация штрих-кодов для карточек
         filteredBarcodes.forEach(barcode => {
           const svgElement = document.getElementById(`barcode-${barcode.id}`);
           if (svgElement) {
-            JsBarcode(svgElement, barcode.code, {
-              format: "CODE128",
-              displayValue: false,
-              lineColor: "#000", // Черные линии
-              background: "#fff", // Белый фон
-              width: 1.5,
-              height: 70
-            });
+            try {
+              JsBarcode(svgElement, barcode.code, {
+                format: "CODE128",
+                displayValue: false,
+                lineColor: "#000",
+                background: "#fff",
+                width: 1.5,
+                height: 70
+              });
+            } catch (e) {
+              console.error(`Ошибка генерации штрих-кода для ${barcode.id}:`, e);
+              svgElement.innerHTML = `<text>Ошибка штрих-кода</text>`;
+            }
           }
         });
         
-        // Добавляем обработчики событий для кнопок
         document.querySelectorAll('.app-card-btn.view').forEach(btn => {
           btn.addEventListener('click', () => {
-            const id = parseInt(btn.getAttribute('data-id'));
+            const id = btn.getAttribute('data-id');
             viewBarcode(id);
           });
         });
         
         document.querySelectorAll('.app-card-btn.edit').forEach(btn => {
           btn.addEventListener('click', () => {
-            const id = parseInt(btn.getAttribute('data-id'));
+            const id = btn.getAttribute('data-id');
             openEditModal(id);
           });
         });
         
         document.querySelectorAll('.app-card-btn.delete').forEach(btn => {
           btn.addEventListener('click', () => {
-            const id = parseInt(btn.getAttribute('data-id'));
+            const id = btn.getAttribute('data-id');
             openDeleteModal(id);
           });
         });
       };
       
-      // Просмотр штрих-кода
       const viewBarcode = (id) => {
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(id);
-        
-        request.onsuccess = (event) => {
-          const barcode = event.target.result;
-          if (barcode) {
-            productNameInput.value = barcode.name;
-            barcodeInput.value = barcode.code;
-            generateBarcode();
-            
-            // Прокручиваем к генератору
-            document.querySelector('.generator-container').scrollIntoView({ 
-              behavior: 'smooth' 
-            });
-          }
-        };
+        const barcode = barcodesArray.find(b => b.id === id);
+        if (barcode) {
+          productNameInput.value = barcode.name;
+          barcodeInput.value = barcode.code;
+          generateBarcode();
+          document.querySelector('.generator-container').scrollIntoView({ 
+            behavior: 'smooth' 
+          });
+        }
       };
       
-      // Открытие модального окна редактирования
       const openEditModal = (id) => {
         currentItemId = id;
-        
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(id);
-        
-        request.onsuccess = (event) => {
-          const barcode = event.target.result;
-          if (barcode) {
-            editProductNameInput.value = barcode.name;
-            editBarcodeInput.value = barcode.code;
-            openModal(editModal);
-          }
-        };
+        const barcode = barcodesArray.find(b => b.id === id);
+        if (barcode) {
+          editProductNameInput.value = barcode.name;
+          editBarcodeInput.value = barcode.code;
+          openModal(editModal);
+        }
       };
       
-      // Сохранение изменений
       const saveEdit = () => {
         if (!currentItemId) return;
         
@@ -1130,67 +1211,56 @@
           return;
         }
         
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const getRequest = store.get(currentItemId);
+        const isDuplicate = barcodesArray.some(b => 
+          b.code === code && b.id !== currentItemId
+        );
         
-        getRequest.onsuccess = (event) => {
-          const data = event.target.result;
-          if (data) {
-            data.name = name;
-            data.code = code;
-            
-            const updateRequest = store.put(data);
-            
-            updateRequest.onsuccess = () => {
-              showToast('Товар успешно обновлён!');
-              loadBarcodes();
-              closeModal(editModal);
-              currentItemId = null;
-            };
-            
-            updateRequest.onerror = (event) => {
-              console.error('Ошибка обновления:', event.target.error);
-              showToast('Ошибка при обновлении товара', 'error');
-            };
-          }
-        };
+        if (isDuplicate) {
+          showToast('Такой штрих-код уже существует', 'error');
+          return;
+        }
+        
+        db.collection("barcodes").doc(currentItemId).update({
+          name: name,
+          code: code
+        })
+        .then(() => {
+          showToast('Товар успешно обновлён!');
+          closeModal(editModal);
+          currentItemId = null;
+          loadBarcodes();
+        })
+        .catch((error) => {
+          console.error("Ошибка обновления: ", error);
+          showToast('Ошибка при обновлении товара', 'error');
+        });
       };
       
-      // Открытие модального окна удаления
       const openDeleteModal = (id) => {
         currentDeleteId = id;
-        
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(id);
-        
-        request.onsuccess = (event) => {
-          const barcode = event.target.result;
-          if (barcode) {
-            modalMessage.textContent = `Вы уверены, что хотите удалить товар "${barcode.name}"?`;
-            openModal(confirmationModal);
-          }
-        };
+        const barcode = barcodesArray.find(b => b.id === id);
+        if (barcode) {
+          modalMessage.textContent = `Вы уверены, что хотите удалить товар "${barcode.name}"?`;
+          openModal(confirmationModal);
+        }
       };
       
-      // Удаление штрих-кода
       const deleteBarcode = () => {
         if (!currentDeleteId) return;
         
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.delete(currentDeleteId);
-        
-        request.onsuccess = () => {
-          showToast('Товар успешно удалён!');
-          loadBarcodes();
-          closeModal(confirmationModal);
-          currentDeleteId = null;
-        };
+        db.collection("barcodes").doc(currentDeleteId).delete()
+          .then(() => {
+            showToast('Товар успешно удалён!');
+            closeModal(confirmationModal);
+            currentDeleteId = null;
+            loadBarcodes();
+          })
+          .catch((error) => {
+            console.error("Ошибка удаления: ", error);
+            showToast('Ошибка при удалении товара', 'error');
+          });
       };
       
-      // Очистка полей ввода
       const clearInputs = () => {
         productNameInput.value = '';
         barcodeInput.value = '';
@@ -1201,9 +1271,22 @@
         productNameInput.focus();
       };
       
-      // Инициализация приложения
+      const monitorConnection = () => {
+        db.enableNetwork()
+          .then(() => {
+            connectionStatus.className = 'connection-status online';
+            connectionStatus.innerHTML = '<i class="fas fa-database"></i> <span>Сохранение в базе данных</span>';
+            connectionStatus.style.display = 'flex';
+          })
+          .catch((error) => {
+            console.error('Ошибка сети: ', error);
+            connectionStatus.className = 'connection-status offline';
+            connectionStatus.innerHTML = '<i class="fas fa-plug"></i> <span>Работа в автономном режиме</span>';
+            connectionStatus.style.display = 'flex';
+          });
+      };
+      
       const initApp = () => {
-        // Назначаем обработчики событий
         saveBtn.addEventListener('click', saveBarcode);
         clearBtn.addEventListener('click', clearInputs);
         downloadBtn.addEventListener('click', downloadSVG);
@@ -1212,25 +1295,23 @@
         modalConfirmBtn.addEventListener('click', deleteBarcode);
         editSaveBtn.addEventListener('click', saveEdit);
         
-        // Автоматическая генерация при вводе
         barcodeInput.addEventListener('input', generateBarcode);
         productNameInput.addEventListener('input', generateBarcode);
         
-        // Поиск по товарам
         searchInput.addEventListener('input', (e) => {
-          loadBarcodes(e.target.value);
+          displayBarcodes(barcodesArray, e.target.value);
         });
         
-        // Фокус на поле ввода
         productNameInput.focus();
         
-        // Генерация случайного кода при загрузке
-        generateRandomBarcode();
+        monitorConnection();
+        setInterval(monitorConnection, 5000);
+        
+        connectionStatus.addEventListener('click', loadBarcodes);
       };
       
-      // Запуск приложения
-      initDB();
       initApp();
+      loadBarcodes();
     });
   </script>
 </body>
