@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Лиза и Тайна Звёздного Острова</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #f0c060;
+    --deep-gold: #c89020;
+    --cream: #fdf6e8;
+    --ink: #1a1020;
+    --purple-deep: #1e0a3c;
+    --purple-mid: #3d1a6b;
+    --purple-light: #7b4db5;
+    --teal: #1a7a8a;
+    --teal-light: #4db8c8;
+    --rose: #d45080;
+    --rose-light: #f08ab0;
+    --forest-deep: #0a2a1a;
+    --forest-mid: #1a5a30;
+    --forest-light: #3aaa60;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Crimson Text', Georgia, serif;
+    background: var(--ink);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ===== PARTICLES ===== */
+  #particles {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: floatUp linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ===== SCREEN SYSTEM ===== */
+  .screen {
+    display: none;
+    position: relative;
+    min-height: 100vh;
+    z-index: 1;
+  }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ===== TITLE SCREEN ===== */
+  #screen-title {
+    background: radial-gradient(ellipse at 50% 30%, #2a0a5a 0%, #0d0020 60%, #000010 100%);
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .stars-bg {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .star-dot {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+  }
+
+  .title-content {
+    position: relative; z-index: 2;
+    max-width: 700px;
+  }
+
+  .moon-icon {
+    font-size: 80px;
+    display: block;
+    animation: moonGlow 3s ease-in-out infinite;
+    margin-bottom: 10px;
+  }
+
+  @keyframes moonGlow {
+    0%, 100% { filter: drop-shadow(0 0 15px #f0c06088); }
+    50% { filter: drop-shadow(0 0 40px #f0c060cc); }
+  }
+
+  .title-subtitle {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--teal-light);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    opacity: 0;
+    animation: fadeInDown 1s 0.5s forwards;
+  }
+
+  .title-main {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    color: var(--gold);
+    line-height: 1.2;
+    text-shadow: 0 0 60px #f0c06066;
+    margin-bottom: 10px;
+    opacity: 0;
+    animation: fadeInDown 1s 0.8s forwards;
+  }
+
+  .title-and {
+    font-style: italic;
+    color: var(--rose-light);
+    font-size: 0.7em;
+  }
+
+  .title-desc {
+    font-size: 1.1rem;
+    color: #c0b0e0;
+    max-width: 500px;
+    margin: 20px auto 40px;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fadeInDown 1s 1.1s forwards;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn-magic {
+    display: inline-block;
+    padding: 16px 48px;
+    background: linear-gradient(135deg, var(--purple-mid), var(--purple-light));
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeInDown 1s 1.4s forwards;
+  }
+
+  .btn-magic::before {
+    content: '';
+    position: absolute; top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(240,192,96,0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-magic:hover::before { left: 100%; }
+  .btn-magic:hover {
+    background: linear-gradient(135deg, var(--purple-light), #9b6dd5);
+    box-shadow: 0 0 30px rgba(240,192,96,0.4);
+    transform: translateY(-2px);
+    color: #fff;
+  }
+  .btn-magic:active { transform: translateY(0); }
+
+  .btn-secondary {
+    padding: 12px 36px;
+    background: transparent;
+    border: 1px solid var(--teal-light);
+    color: var(--teal-light);
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s;
+    margin-top: 12px;
+  }
+  .btn-secondary:hover {
+    background: rgba(77,184,200,0.15);
+    box-shadow: 0 0 15px rgba(77,184,200,0.3);
+  }
+
+  .btn-choice {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(240,192,96,0.3);
+    color: var(--cream);
+    font-family: 'Crimson Text', serif;
+    font-size: 1.05rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s;
+    text-align: left;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .btn-choice:hover {
+    background: rgba(240,192,96,0.12);
+    border-color: var(--gold);
+    transform: translateX(6px);
+    color: var(--gold);
+  }
+  .btn-choice.chosen {
+    background: rgba(240,192,96,0.2);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .btn-choice.wrong {
+    background: rgba(200,60,60,0.2);
+    border-color: #c83c3c;
+    color: #ff9090;
+    animation: shake 0.4s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  /* ===== NARRATIVE SCREEN LAYOUT ===== */
+  .scene-wrapper {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .scene-bg {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    transition: background 1.5s ease;
+  }
+
+  /* Chapter 1 - Forest */
+  .bg-forest {
+    background:
+      radial-gradient(ellipse at 70% 100%, #0a3a1a 0%, transparent 60%),
+      radial-gradient(ellipse at 30% 80%, #0d2a0a 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 20%, #1a0a3a 0%, transparent 70%),
+      linear-gradient(180deg, #050a18 0%, #0a1a08 50%, #0d2010 100%);
+  }
+
+  /* Chapter 2 - Sea */
+  .bg-sea {
+    background:
+      radial-gradient(ellipse at 50% 60%, #0a2a4a 0%, transparent 70%),
+      radial-gradient(ellipse at 80% 30%, #1a3a5a 0%, transparent 50%),
+      linear-gradient(180deg, #050818 0%, #0a1a3a 40%, #0d2a4a 100%);
+  }
+
+  /* Chapter 3 - Sky/Castle */
+  .bg-sky {
+    background:
+      radial-gradient(ellipse at 50% 0%, #3a1a6a 0%, transparent 60%),
+      radial-gradient(ellipse at 20% 50%, #1a0a4a 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, #2a0a3a 0%, transparent 50%),
+      linear-gradient(180deg, #0a0520 0%, #1a0a3a 50%, #2a1a0a 100%);
+  }
+
+  /* Finale */
+  .bg-finale {
+    background:
+      radial-gradient(ellipse at 50% 50%, #3a1a0a 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 0%, #5a2a0a 0%, transparent 60%),
+      linear-gradient(180deg, #100805 0%, #1a0a08 40%, #0a0510 100%);
+  }
+
+  .scene-content {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    width: 90%;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  .chapter-label {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--teal-light);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeIn 0.8s 0.2s forwards;
+  }
+
+  .chapter-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--gold);
+    margin-bottom: 30px;
+    text-shadow: 0 0 40px rgba(240,192,96,0.4);
+    opacity: 0;
+    animation: fadeIn 0.8s 0.4s forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .story-text {
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: #e8e0f0;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeIn 0.8s 0.6s forwards;
+  }
+
+  .story-text em { color: var(--rose-light); font-style: italic; }
+  .story-text strong { color: var(--gold); }
+
+  .story-divider {
+    text-align: center;
+    color: var(--gold);
+    opacity: 0.4;
+    font-size: 1.2rem;
+    margin: 20px 0;
+    letter-spacing: 8px;
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--gold), var(--teal-light));
+    z-index: 100;
+    transition: width 1s ease;
+    box-shadow: 0 0 10px var(--gold);
+  }
+
+  .chapter-indicator {
+    position: fixed;
+    top: 15px; right: 20px;
+    z-index: 100;
+    font-family: 'Crimson Text', serif;
+    font-size: 0.85rem;
+    color: rgba(240,192,96,0.7);
+    letter-spacing: 2px;
+  }
+
+  /* ===== GAME AREAS ===== */
+  .game-area {
+    opacity: 0;
+    animation: fadeIn 0.8s 1s forwards;
+  }
+
+  /* --- GAME 1: Find Hidden Stars --- */
+  .forest-scene {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    background: radial-gradient(ellipse at 50% 100%, #0a3a18 0%, #030a08 100%);
+    border: 1px solid rgba(58,170,96,0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: crosshair;
+    margin-bottom: 20px;
+  }
+
+  .forest-tree {
+    position: absolute;
+    bottom: 0;
+    font-size: 4rem;
+    opacity: 0.6;
+    filter: drop-shadow(0 0 10px rgba(58,170,96,0.3));
+    pointer-events: none;
+  }
+
+  .hidden-star {
+    position: absolute;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.15;
+    transition: opacity 0.3s, transform 0.3s;
+    filter: drop-shadow(0 0 5px var(--gold));
+    animation: starPulse 2s ease-in-out infinite;
+    z-index: 5;
+  }
+
+  .hidden-star:hover { opacity: 0.8; transform: scale(1.4); }
+
+  @keyframes starPulse {
+    0%, 100% { opacity: 0.12; }
+    50% { opacity: 0.25; }
+  }
+
+  .hidden-star.found {
+    opacity: 1 !important;
+    animation: starFound 0.6s forwards;
+    pointer-events: none;
+  }
+
+  @keyframes starFound {
+    0% { transform: scale(1); }
+    50% { transform: scale(2); filter: drop-shadow(0 0 20px var(--gold)); }
+    100% { transform: scale(1.5); opacity: 0.5; }
+  }
+
+  .star-counter {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .hint-text {
+    text-align: center;
+    font-style: italic;
+    color: #a090c0;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+  }
+
+  /* --- GAME 2: Memory Cards --- */
+  .memory-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    max-width: 480px;
+    margin: 0 auto 20px;
+  }
+
+  .memory-card {
+    aspect-ratio: 1;
+    cursor: pointer;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    border-radius: 8px;
+  }
+
+  .memory-card.flipped { transform: rotateY(180deg); }
+  .memory-card.matched { pointer-events: none; }
+
+  .card-face {
+    position: absolute; inset: 0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    backface-visibility: hidden;
+  }
+
+  .card-back {
+    background: linear-gradient(135deg, var(--purple-mid), #1a0a40);
+    border: 1px solid rgba(123,77,181,0.5);
+    font-size: 1.4rem;
+    color: rgba(240,192,96,0.4);
+  }
+
+  .card-back::after { content: '✦'; }
+
+  .card-front {
+    background: linear-gradient(135deg, #1a0a40, var(--teal));
+    border: 2px solid var(--gold);
+    transform: rotateY(180deg);
+  }
+
+  .memory-card.matched .card-front {
+    background: linear-gradient(135deg, #1a3a0a, #2a5a1a);
+    border-color: var(--forest-light);
+    animation: matchGlow 0.5s forwards;
+  }
+
+  @keyframes matchGlow {
+    0% { box-shadow: 0 0 0px transparent; }
+    50% { box-shadow: 0 0 30px rgba(58,170,96,0.8); }
+    100% { box-shadow: 0 0 10px rgba(58,170,96,0.4); }
+  }
+
+  .memory-stats {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    margin-bottom: 15px;
+  }
+
+  /* --- GAME 3: Riddle Quiz --- */
+  .riddle-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(240,192,96,0.25);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .riddle-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--cream);
+    line-height: 1.7;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .riddle-text .quote-mark {
+    color: var(--gold);
+    font-size: 2rem;
+    line-height: 0;
+    vertical-align: -0.3em;
+  }
+
+  .riddle-feedback {
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-size: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .riddle-feedback.show { opacity: 1; }
+  .riddle-feedback.correct { color: #80ff80; }
+  .riddle-feedback.incorrect { color: #ff8080; }
+
+  .riddle-counter {
+    text-align: center;
+    color: var(--teal-light);
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+  }
+
+  /* ===== FINALE SCREEN ===== */
+  #screen-finale {
+    background: linear-gradient(180deg, #050210 0%, #100508 50%, #050210 100%);
+    text-align: center;
+    padding: 40px 20px;
+    overflow: hidden;
+  }
+
+  .finale-bg {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(240,192,96,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse at 50% 0%, rgba(212,80,128,0.1) 0%, transparent 50%),
+      linear-gradient(180deg, #080310 0%, #100508 100%);
+  }
+
+  .firework-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .firework {
+    position: absolute;
+    animation: fireworkBurst 1.5s forwards;
+  }
+
+  @keyframes fireworkBurst {
+    0% { transform: scale(0); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: scale(1); opacity: 0; }
+  }
+
+  .firework-spark {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    animation: sparkFly linear forwards;
+  }
+
+  @keyframes sparkFly {
+    0% { transform: translate(0, 0); opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .finale-content {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
+    width: 90%;
+  }
+
+  .finale-emoji-row {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    animation: emojiDance 1s 0.5s both;
+  }
+
+  @keyframes emojiDance {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    60% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  .finale-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    color: var(--gold);
+    text-shadow: 0 0 60px rgba(240,192,96,0.6);
+    margin-bottom: 15px;
+    animation: fadeIn 1s 0.8s both;
+  }
+
+  .finale-name {
+    color: var(--rose-light);
+  }
+
+  .letter-box {
+    background: rgba(240,192,96,0.05);
+    border: 1px solid rgba(240,192,96,0.3);
+    border-radius: 8px;
+    padding: 32px 36px;
+    margin: 30px auto;
+    max-width: 560px;
+    text-align: left;
+    animation: fadeIn 1s 1.2s both;
+    position: relative;
+  }
+
+  .letter-box::before {
+    content: '✉';
+    position: absolute;
+    top: -18px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    background: #100508;
+    padding: 0 10px;
+    color: var(--gold);
+  }
+
+  .letter-text {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.15rem;
+    line-height: 2;
+    color: #f0e8d8;
+  }
+
+  .letter-text em { color: var(--rose-light); }
+  .letter-text strong { color: var(--gold); }
+
+  .letter-signature {
+    margin-top: 20px;
+    text-align: right;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--gold);
+  }
+
+  .finale-footer {
+    margin-top: 30px;
+    animation: fadeIn 1s 2s both;
+    font-size: 2.5rem;
+    letter-spacing: 8px;
+  }
+
+  /* ===== TRANSITION OVERLAY ===== */
+  .transition-overlay {
+    position: fixed; inset: 0;
+    background: var(--ink);
+    z-index: 500;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .transition-overlay.fade-in { animation: overlayIn 0.6s forwards; }
+  .transition-overlay.fade-out { animation: overlayOut 0.6s forwards; }
+
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes overlayOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  /* ===== NOTIFICATION ===== */
+  .notif {
+    position: fixed;
+    top: 30px; left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: linear-gradient(135deg, var(--purple-mid), var(--purple-light));
+    border: 1px solid var(--gold);
+    color: var(--cream);
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    z-index: 200;
+    transition: transform 0.4s;
+    text-align: center;
+    max-width: 300px;
+  }
+
+  .notif.show { transform: translateX(-50%) translateY(0); }
+
+  /* ===== DECORATIVE ===== */
+  .ornament {
+    color: var(--gold);
+    opacity: 0.5;
+    font-size: 1.2rem;
+    letter-spacing: 6px;
+    text-align: center;
+    margin: 16px 0;
+  }
+
+  .floating-element {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    animation: floatDrift ease-in-out infinite;
+    opacity: 0.12;
+    font-size: 3rem;
+  }
+
+  @keyframes floatDrift {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+
+  /* ===== TYPEWRITER ===== */
+  .typewriter {
+    border-right: 2px solid var(--gold);
+    animation: blink 0.7s infinite;
+    display: inline;
+  }
+
+  @keyframes blink {
+    0%, 100% { border-color: var(--gold); }
+    50% { border-color: transparent; }
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 500px) {
+    .memory-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card-face { font-size: 1.5rem; }
+    .forest-scene { height: 250px; }
+    .letter-box { padding: 24px 20px; }
+  }
+
+  /* ===== SCROLL TO TOP HELPER ===== */
+  html { scroll-behavior: smooth; }
+</style>
+</head>
+<body>
+
+<!-- Progress -->
+<div class="progress-bar" id="progressBar" style="width:0%"></div>
+<div class="chapter-indicator" id="chapterIndicator"></div>
+
+<!-- Transition overlay -->
+<div class="transition-overlay" id="overlay"></div>
+
+<!-- Notification -->
+<div class="notif" id="notif"></div>
+
+<!-- STARS BACKGROUND -->
+<div class="stars-bg" id="starsBg"></div>
+
+<!-- PARTICLES -->
+<div id="particles"></div>
+
+<!-- ==================== TITLE SCREEN ==================== -->
+<div class="screen active" id="screen-title">
+  <div class="title-content">
+    <span class="moon-icon">🌙</span>
+    <div class="title-subtitle">Магическое приключение для</div>
+    <h1 class="title-main">Лиза <span class="title-and">и</span><br>Тайна Звёздного Острова</h1>
+    <p class="title-desc">
+      Где-то за горизонтом, на острове, куда ведут звёздные тропы,<br>
+      тебя ждёт тайна, которую нужно раскрыть.<br>
+      Готова отправиться в путь?
+    </p>
+    <button class="btn-magic" onclick="startGame()">✦ Начать путешествие ✦</button>
+    <br>
+    <button class="btn-secondary" onclick="startGame()">Лиза, это для тебя ✨</button>
+  </div>
+</div>
+
+<!-- ==================== PROLOGUE ==================== -->
+<div class="screen" id="screen-prologue">
+  <div class="scene-bg bg-forest"></div>
+  <div class="scene-content">
+    <div class="chapter-label">Пролог</div>
+    <h2 class="chapter-title">Таинственное письмо</h2>
+
+    <p class="story-text">
+      Ты просыпаешься ранним утром и находишь у изголовья кровати <em>старинный конверт</em>. 
+      На нём — твоё имя, написанное золотыми чернилами. Откуда он взялся? Непонятно.
+    </p>
+    <p class="story-text">
+      Внутри — пожелтевший листок с картой и строчками:
+    </p>
+
+    <div class="riddle-box">
+      <div class="riddle-text">
+        <span class="quote-mark">"</span>
+        Дорогая <strong>Лиза</strong>, на свете есть место,<br>
+        где звёзды сбываются и живут мечты.<br>
+        Туда ведут три тропы — через Лес Шёпотов,<br>
+        Море Отражений и Замок на краю неба.<br>
+        Пройди их все — и найдёшь подарок,<br>
+        который давно ждёт тебя.<br>
+        <span class="quote-mark" style="float:right">"</span>
+      </div>
+    </div>
+
+    <p class="story-text">
+      Сердце начинает биться быстрее. Ты смотришь в окно — горизонт окрашен 
+      <em>необычным светом</em>, словно где-то вдали мерцает остров.
+    </p>
+
+    <div class="ornament">— ✦ —</div>
+
+    <button class="btn-magic" onclick="goToChapter1()" style="opacity:1;animation:none;display:block;width:fit-content;margin:0 auto;">
+      Отправиться в путь →
+    </button>
+  </div>
+</div>
+
+<!-- ==================== CHAPTER 1: FOREST ==================== -->
+<div class="screen" id="screen-ch1">
+  <div class="scene-bg bg-forest"></div>
+  <div class="scene-content">
+    <div class="chapter-label">Глава Первая</div>
+    <h2 class="chapter-title">Лес Шёпотов</h2>
+
+    <p class="story-text">
+      Тропа привела тебя в <strong>Лес Шёпотов</strong> — древний и густой лес, 
+      где деревья умеют говорить, а огоньки светлячков ведут странников сквозь тьму.
+    </p>
+    <p class="story-text">
+      У входа стоит старый <em>дух леса</em> — седобородый гном ростом с гриб:
+    </p>
+
+    <div class="riddle-box">
+      <div class="riddle-text">
+        <span class="quote-mark">"</span>
+        Странница! Лес пропустит тебя только если ты соберёшь 
+        <strong>пять спрятанных звёздочек</strong>. Они затаились среди деревьев, 
+        едва мерцая. Найди их все — и путь откроется!
+        <span class="quote-mark" style="float:right">"</span>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="star-counter">⭐ Найдено: <span id="starCount">0</span> / 5</div>
+      <div class="hint-text">✦ Ищи едва заметные огоньки среди деревьев ✦</div>
+      <div class="forest-scene" id="forestScene">
+        <!-- Trees -->
+        <span class="forest-tree" style="left:5%; font-size:5rem">🌲</span>
+        <span class="forest-tree" style="left:18%; font-size:6rem">🌳</span>
+        <span class="forest-tree" style="left:35%; font-size:4rem">🌲</span>
+        <span class="forest-tree" style="left:52%; font-size:7rem">🌳</span>
+        <span class="forest-tree" style="left:68%; font-size:5rem">🌲</span>
+        <span class="forest-tree" style="left:82%; font-size:6rem">🌳</span>
+        <span class="forest-tree" style="left:93%; font-size:4rem">🌲</span>
+        <span class="forest-tree" style="left:10%; font-size:3rem; bottom: 20px">🌿</span>
+        <span class="forest-tree" style="left:60%; font-size:2.5rem; bottom: 15px">🍄</span>
+        <!-- Hidden stars will be injected by JS -->
+      </div>
+
+      <div id="ch1-story2" style="display:none">
+        <div class="ornament">— ✦ —</div>
+        <p class="story-text" style="opacity:1;animation:none">
+          Все пять звёздочек вспыхнули ярким светом! Гном довольно кивнул: 
+          <em>"Молодец, странница. Лес признаёт тебя!"</em> Деревья расступились, 
+          открывая тропу к мерцающему берегу.
+        </p>
+        <button class="btn-magic" onclick="goToChapter2()" style="opacity:1;animation:none;display:block;width:fit-content;margin:20px auto 0">
+          К Морю Отражений →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CHAPTER 2: SEA ==================== -->
+<div class="screen" id="screen-ch2">
+  <div class="scene-bg bg-sea"></div>
+  <div class="scene-content">
+    <div class="chapter-label">Глава Вторая</div>
+    <h2 class="chapter-title">Море Отражений</h2>
+
+    <p class="story-text">
+      Перед тобой раскинулось <strong>Море Отражений</strong> — воды, которые не просто 
+      отражают небо, но и хранят воспоминания всех, кто когда-либо на него смотрел. 
+      Поверхность похожа на живое зеркало.
+    </p>
+    <p class="story-text">
+      На берегу тебя встречает <em>морская дева</em>:
+    </p>
+
+    <div class="riddle-box">
+      <div class="riddle-text">
+        <span class="quote-mark">"</span>
+        Чтобы переплыть моё море, нужна лодка памяти. 
+        Я раскрою перед тобой <strong>восемь карточек</strong> с символами. 
+        Найди все <strong>четыре пары</strong> — и лодка будет твоей!
+        <span class="quote-mark" style="float:right">"</span>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="memory-stats">
+        Пар найдено: <span id="memPairs">0</span>/4 &nbsp;|&nbsp; Попытки: <span id="memAttempts">0</span>
+      </div>
+      <div class="memory-grid" id="memoryGrid"></div>
+
+      <div id="ch2-story2" style="display:none">
+        <div class="ornament">— ✦ —</div>
+        <p class="story-text" style="opacity:1;animation:none">
+          Карточки вспыхнули и обернулись <em>лепестками</em>, которые сложились 
+          в маленькую лодочку. Морская дева улыбнулась: 
+          <em>"Ты помнишь даже то, что никогда не видела. Плыви смело!"</em>
+          Лодочка сама понеслась через сверкающие воды навстречу берегу,
+          где высился <strong>Замок на краю неба</strong>.
+        </p>
+        <button class="btn-magic" onclick="goToChapter3()" style="opacity:1;animation:none;display:block;width:fit-content;margin:20px auto 0">
+          К Замку на краю неба →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CHAPTER 3: CASTLE / RIDDLES ==================== -->
+<div class="screen" id="screen-ch3">
+  <div class="scene-bg bg-sky"></div>
+  <div class="scene-content">
+    <div class="chapter-label">Глава Третья</div>
+    <h2 class="chapter-title">Замок на краю неба</h2>
+
+    <p class="story-text">
+      Замок парит над облаками — башни из лунного камня, мосты из застывшего света. 
+      Это <strong>Замок Загадок</strong>. Его врата охраняет <em>Хранитель</em> — 
+      мудрый ворон с пером из звёздной пыли.
+    </p>
+
+    <div class="riddle-box">
+      <div class="riddle-text">
+        <span class="quote-mark">"</span>
+        За этими вратами — то, что ищешь. 
+        Но пройти можно лишь мудростью. 
+        Ответь верно на <strong>три вопроса</strong>, странница!
+        <span class="quote-mark" style="float:right">"</span>
+      </div>
+    </div>
+
+    <div class="game-area" id="riddleGame">
+      <div class="riddle-counter" id="riddleCounter">Вопрос 1 из 3</div>
+      <div class="riddle-box" id="riddleQuestion" style="margin-bottom:16px"></div>
+      <div id="riddleChoices"></div>
+      <div class="riddle-feedback" id="riddleFeedback"></div>
+
+      <div id="ch3-story2" style="display:none">
+        <div class="ornament">— ✦ —</div>
+        <p class="story-text" style="opacity:1;animation:none">
+          Ворон взмахнул крыльями, рассыпав <em>золотые искры</em>: 
+          <em>"Ты мудра, смела и терпелива. Замок признаёт тебя достойной!"</em> 
+          Врата распахнулись, открывая тронный зал, в центре которого 
+          парил <strong>светящийся свиток</strong> — подарок, о котором говорило письмо.
+        </p>
+        <button class="btn-magic" onclick="goToFinale()" style="opacity:1;animation:none;display:block;width:fit-content;margin:20px auto 0">
+          ✦ Открыть подарок ✦
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FINALE ==================== -->
+<div class="screen" id="screen-finale">
+  <div class="finale-bg"></div>
+  <div class="firework-container" id="fireworkContainer"></div>
+  <div class="finale-content">
+    <div class="finale-emoji-row">🎂 🌟 🎉 🌹 ✨</div>
+
+    <h1 class="finale-title">
+      С Днём Рождения,<br>
+      <span class="finale-name">Лиза!</span>
+    </h1>
+
+    <p style="color:#c0b0e0; font-size:1.1rem; margin-bottom:5px; animation: fadeIn 1s 1s both;">
+      15 марта · 24 года · Твой особенный день
+    </p>
+
+    <div class="letter-box">
+      <div class="letter-text">
+        Лизочка,<br><br>
+        Ты прошла <em>Лес Шёпотов</em>, переплыла <em>Море Отражений</em> 
+        и покорила <em>Замок на краю неба</em> — и это неудивительно, 
+        ведь ты именно такая: <strong>смелая, яркая и невероятная</strong>.<br><br>
+        Сегодня тебе исполняется <strong>24 года</strong> — и я хочу, 
+        чтобы каждый из них был похож на это маленькое путешествие: 
+        полон <em>открытий, чудес и тёплых моментов</em>.<br><br>
+        Пусть этот год принесёт тебе всё, о чём ты мечтаешь, 
+        пусть звёзды складываются в твою пользу, 
+        а рядом всегда будут люди, которые тебя любят.<br><br>
+        Ты заслуживаешь <strong>только самого лучшего</strong> — 
+        и знай, что я думаю о тебе с особой теплотой 🤍
+      </div>
+      <div class="letter-signature">С любовью, Алексей ✦</div>
+    </div>
+
+    <div class="finale-footer">🌙 🌸 🍰 🌸 🌙</div>
+
+    <div style="margin-top:30px; animation: fadeIn 1s 2.5s both;">
+      <button class="btn-magic" style="opacity:1;animation:none" onclick="restartGame()">
+        Пройти ещё раз ✨
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STARS BACKGROUND =====
+(function() {
+  const bg = document.getElementById('starsBg');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star-dot';
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;
+      width:${1+Math.random()*2}px;height:${1+Math.random()*2}px;
+      animation-duration:${2+Math.random()*4}s;
+      animation-delay:${Math.random()*4}s`;
+    bg.appendChild(s);
+  }
+})();
+
+// ===== PARTICLES =====
+(function() {
+  const c = document.getElementById('particles');
+  const colors = ['#f0c060','#d45080','#4db8c8','#9b6dd5','#ffffff'];
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 3 + Math.random() * 5;
+    p.style.cssText = `width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${10+Math.random()*15}s;
+      animation-delay:${Math.random()*10}s`;
+    c.appendChild(p);
+  }
+})();
+
+// ===== GAME STATE =====
+let starsFound = 0;
+let memPairs = 0;
+let memAttempts = 0;
+let memFlipped = [];
+let memMatched = 0;
+let memLocked = false;
+let riddleIndex = 0;
+let riddleCorrect = 0;
+
+// ===== UTILITIES =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function transition(fn) {
+  const ov = document.getElementById('overlay');
+  ov.classList.remove('fade-out');
+  ov.classList.add('fade-in');
+  setTimeout(() => {
+    fn();
+    ov.classList.remove('fade-in');
+    ov.classList.add('fade-out');
+  }, 600);
+}
+
+function setProgress(pct, label) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('chapterIndicator').textContent = label;
+}
+
+function showNotif(msg, dur = 2500) {
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(() => n.classList.remove('show'), dur);
+}
+
+// ===== GAME START =====
+function startGame() {
+  transition(() => {
+    showScreen('screen-prologue');
+    setProgress(5, '✦ Пролог');
+  });
+}
+
+function goToChapter1() {
+  transition(() => {
+    showScreen('screen-ch1');
+    setProgress(20, 'Глава I · Лес Шёпотов');
+    initForestGame();
+  });
+}
+
+function goToChapter2() {
+  transition(() => {
+    showScreen('screen-ch2');
+    setProgress(50, 'Глава II · Море Отражений');
+    initMemoryGame();
+  });
+}
+
+function goToChapter3() {
+  transition(() => {
+    showScreen('screen-ch3');
+    setProgress(75, 'Глава III · Замок Загадок');
+    initRiddleGame();
+  });
+}
+
+function goToFinale() {
+  transition(() => {
+    showScreen('screen-finale');
+    setProgress(100, '✦ Финал');
+    launchFireworks();
+  });
+}
+
+function restartGame() {
+  starsFound = 0; memPairs = 0; memAttempts = 0; memMatched = 0;
+  memFlipped = []; memLocked = false; riddleIndex = 0; riddleCorrect = 0;
+  transition(() => {
+    showScreen('screen-title');
+    setProgress(0, '');
+  });
+}
+
+// ===== CHAPTER 1: FOREST STARS =====
+function initForestGame() {
+  starsFound = 0;
+  document.getElementById('starCount').textContent = '0';
+  document.getElementById('ch1-story2').style.display = 'none';
+
+  const scene = document.getElementById('forestScene');
+  // Remove old stars
+  scene.querySelectorAll('.hidden-star').forEach(s => s.remove());
+
+  const positions = [
+    { left: '12%', top: '35%' },
+    { left: '38%', top: '55%' },
+    { left: '62%', top: '28%' },
+    { left: '80%', top: '48%' },
+    { left: '48%', top: '18%' },
+  ];
+
+  positions.forEach((pos, i) => {
+    const star = document.createElement('div');
+    star.className = 'hidden-star';
+    star.textContent = '⭐';
+    star.style.left = pos.left;
+    star.style.top = pos.top;
+    star.style.animationDelay = (i * 0.4) + 's';
+    star.addEventListener('click', () => collectStar(star));
+    scene.appendChild(star);
+  });
+}
+
+function collectStar(el) {
+  if (el.classList.contains('found')) return;
+  el.classList.add('found');
+  starsFound++;
+  document.getElementById('starCount').textContent = starsFound;
+  showNotif(['✨ Вот она!', '⭐ Нашла!', '✦ Блестит!', '🌟 Поймала!', '💫 Последняя!'][starsFound - 1]);
+
+  if (starsFound >= 5) {
+    setTimeout(() => {
+      document.getElementById('ch1-story2').style.display = 'block';
+      document.getElementById('ch1-story2').scrollIntoView({ behavior: 'smooth' });
+    }, 800);
+  }
+}
+
+// ===== CHAPTER 2: MEMORY GAME =====
+const memSymbols = ['🌙', '🌺', '✦', '🦋'];
+let memCards = [];
+
+function initMemoryGame() {
+  memPairs = 0; memAttempts = 0; memMatched = 0; memFlipped = []; memLocked = false;
+  document.getElementById('memPairs').textContent = '0';
+  document.getElementById('memAttempts').textContent = '0';
+  document.getElementById('ch2-story2').style.display = 'none';
+
+  // Double symbols and shuffle
+  let deck = [...memSymbols, ...memSymbols];
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+
+  const grid = document.getElementById('memoryGrid');
+  grid.innerHTML = '';
+  memCards = [];
+
+  deck.forEach((sym, idx) => {
+    const card = document.createElement('div');
+    card.className = 'memory-card';
+    card.innerHTML = `<div class="card-face card-back"></div>
+                      <div class="card-face card-front">${sym}</div>`;
+    card.dataset.symbol = sym;
+    card.dataset.index = idx;
+    card.addEventListener('click', () => flipCard(card));
+    grid.appendChild(card);
+    memCards.push(card);
+  });
+}
+
+function flipCard(card) {
+  if (memLocked) return;
+  if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  if (memFlipped.length >= 2) return;
+
+  card.classList.add('flipped');
+  memFlipped.push(card);
+
+  if (memFlipped.length === 2) {
+    memAttempts++;
+    document.getElementById('memAttempts').textContent = memAttempts;
+    memLocked = true;
+
+    if (memFlipped[0].dataset.symbol === memFlipped[1].dataset.symbol) {
+      // Match!
+      memFlipped.forEach(c => c.classList.add('matched'));
+      memMatched++;
+      document.getElementById('memPairs').textContent = memMatched;
+      showNotif('✨ Пара найдена!');
+      memFlipped = [];
+      memLocked = false;
+
+      if (memMatched === 4) {
+        setTimeout(() => {
+          document.getElementById('ch2-story2').style.display = 'block';
+          document.getElementById('ch2-story2').scrollIntoView({ behavior: 'smooth' });
+        }, 600);
+      }
+    } else {
+      setTimeout(() => {
+        memFlipped.forEach(c => c.classList.remove('flipped'));
+        memFlipped = [];
+        memLocked = false;
+      }, 900);
+    }
+  }
+}
+
+// ===== CHAPTER 3: RIDDLES =====
+const riddles = [
+  {
+    q: 'Я есть у каждого, но никто не может меня увидеть своими глазами. Я расту, когда меня делят с другими. Что это?',
+    options: ['Тайна', 'Радость', 'Страх', 'Деньги'],
+    answer: 'Радость',
+    hint: 'Радость растёт, когда её делишь!'
+  },
+  {
+    q: 'Чем больше берёшь — тем больше становится. Чем меньше даёшь — тем быстрее исчезает. Что это?',
+    options: ['Яма', 'Любовь', 'Сон', 'Огонь'],
+    answer: 'Любовь',
+    hint: 'Любовь растёт от отдачи.'
+  },
+  {
+    q: 'Она приходит раз в году, делает нас на год старше, но на сердце — только теплее. Что это?',
+    options: ['Зима', 'День рождения', 'Встреча', 'Осень'],
+    answer: 'День рождения',
+    hint: 'Сегодня именно этот день!'
+  }
+];
+
+function initRiddleGame() {
+  riddleIndex = 0;
+  riddleCorrect = 0;
+  document.getElementById('ch3-story2').style.display = 'none';
+  document.getElementById('riddleGame').style.display = 'block';
+  showRiddle();
+}
+
+function showRiddle() {
+  const r = riddles[riddleIndex];
+  document.getElementById('riddleCounter').textContent = `Вопрос ${riddleIndex + 1} из 3`;
+
+  const qBox = document.getElementById('riddleQuestion');
+  qBox.innerHTML = `<div class="riddle-text"><span class="quote-mark">"</span>${r.q}<span class="quote-mark" style="float:right">"</span></div>`;
+
+  const choicesEl = document.getElementById('riddleChoices');
+  choicesEl.innerHTML = '';
+
+  const shuffled = [...r.options].sort(() => Math.random() - 0.5);
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'btn-choice';
+    btn.textContent = opt;
+    btn.onclick = () => answerRiddle(opt, r.answer, btn);
+    choicesEl.appendChild(btn);
+  });
+
+  const fb = document.getElementById('riddleFeedback');
+  fb.className = 'riddle-feedback';
+  fb.textContent = '';
+}
+
+function answerRiddle(choice, correct, btn) {
+  const allBtns = document.querySelectorAll('#riddleChoices .btn-choice');
+  allBtns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('riddleFeedback');
+
+  if (choice === correct) {
+    btn.classList.add('chosen');
+    fb.className = 'riddle-feedback correct show';
+    fb.textContent = '✦ Верно! ' + riddles[riddleIndex].hint;
+    riddleCorrect++;
+
+    setTimeout(() => {
+      riddleIndex++;
+      fb.className = 'riddle-feedback';
+      if (riddleIndex < riddles.length) {
+        showRiddle();
+      } else {
+        document.getElementById('riddleGame').querySelector('.riddle-counter') &&
+          (document.getElementById('riddleCounter').textContent = 'Все вопросы пройдены!');
+        document.getElementById('riddleChoices').innerHTML = '';
+        document.getElementById('riddleQuestion').innerHTML = '';
+        document.getElementById('riddleCounter').style.display = 'none';
+        setTimeout(() => {
+          document.getElementById('ch3-story2').style.display = 'block';
+          document.getElementById('ch3-story2').scrollIntoView({ behavior: 'smooth' });
+        }, 500);
+      }
+    }, 1500);
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'riddle-feedback incorrect show';
+    fb.textContent = '✗ Не совсем... попробуй ещё раз!';
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+      btn.disabled = false;
+      allBtns.forEach(b => b.disabled = false);
+      fb.className = 'riddle-feedback';
+    }, 1000);
+  }
+}
+
+// ===== FIREWORKS =====
+function launchFireworks() {
+  const container = document.getElementById('fireworkContainer');
+  const colors = ['#f0c060','#d45080','#4db8c8','#9b6dd5','#ff9090','#90ffb0','#ffffff'];
+
+  function createFirework() {
+    const x = 20 + Math.random() * 60;
+    const y = 10 + Math.random() * 60;
+    const fw = document.createElement('div');
+    fw.className = 'firework';
+    fw.style.cssText = `left:${x}%;top:${y}%`;
+
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const numSparks = 16 + Math.floor(Math.random() * 12);
+
+    for (let i = 0; i < numSparks; i++) {
+      const spark = document.createElement('div');
+      spark.className = 'firework-spark';
+      const angle = (i / numSparks) * 360;
+      const dist = 60 + Math.random() * 80;
+      const rad = angle * Math.PI / 180;
+      const tx = Math.cos(rad) * dist;
+      const ty = Math.sin(rad) * dist;
+      spark.style.cssText = `
+        background: ${color};
+        width: ${2+Math.random()*3}px;
+        height: ${2+Math.random()*3}px;
+        animation-duration: ${0.8+Math.random()*0.6}s;
+        animation-delay: ${Math.random()*0.2}s;
+      `;
+      spark.style.setProperty('--tx', tx + 'px');
+      spark.style.setProperty('--ty', ty + 'px');
+      spark.style.animation = `none`;
+
+      // Manual animation
+      spark.style.transition = `transform ${0.8+Math.random()*0.6}s cubic-bezier(0,0,0.5,1), opacity ${0.8+Math.random()*0.6}s`;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          spark.style.transform = `translate(${tx}px, ${ty}px)`;
+          spark.style.opacity = '0';
+        });
+      });
+
+      fw.appendChild(spark);
+    }
+
+    container.appendChild(fw);
+    setTimeout(() => fw.remove(), 1600);
+  }
+
+  // Launch waves
+  let count = 0;
+  const interval = setInterval(() => {
+    createFirework();
+    if (Math.random() > 0.5) createFirework();
+    count++;
+    if (count > 20) clearInterval(interval);
+  }, 400);
+}
+</script>
+</body>
+</html>
