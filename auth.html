@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xella Inventory — Вход</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080b11; --surface: #0f1320; --surface2: #161c2d;
+      --border: #1e2640; --primary: #6366f1; --primary-dim: rgba(99,102,241,0.12);
+      --cyan: #22d3ee; --green: #10b981; --red: #ef4444;
+      --text: #e8eaf0; --muted: #5a6480; --r: 14px;
+      --font: 'Plus Jakarta Sans', sans-serif; --mono: 'JetBrains Mono', monospace;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font); background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 70% 55% at 15% 60%, rgba(99,102,241,.09) 0%, transparent 65%),
+        radial-gradient(ellipse 55% 40% at 85% 25%, rgba(34,211,238,.06) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 30% at 50% 95%, rgba(16,185,129,.05) 0%, transparent 50%);
+    }
+    .page-wrap {
+      width: 100%; max-width: 440px; padding: 20px; position: relative; z-index: 1;
+      animation: fadeUp .45s cubic-bezier(.16,1,.3,1) both;
+    }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    .brand { text-align: center; margin-bottom: 28px; }
+    .brand-icon {
+      width: 60px; height: 60px; margin: 0 auto 14px;
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+      border-radius: 18px; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; box-shadow: 0 8px 32px rgba(99,102,241,.3);
+    }
+    .brand h1 { font-size: 22px; font-weight: 800; letter-spacing: -.4px; }
+    .brand p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 22px; padding: 28px;
+      box-shadow: 0 4px 48px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.04) inset;
+    }
+    .tabs {
+      display: flex; gap: 3px; background: var(--surface2);
+      border-radius: 11px; padding: 4px; margin-bottom: 26px;
+    }
+    .tab {
+      flex: 1; padding: 8px 6px; border: none; background: transparent;
+      color: var(--muted); font-family: var(--font); font-size: 13px; font-weight: 600;
+      border-radius: 8px; cursor: pointer; transition: all .2s;
+    }
+    .tab.active {
+      background: var(--surface); color: var(--text);
+      box-shadow: 0 2px 10px rgba(0,0,0,.35);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; animation: panelIn .2s ease; }
+    @keyframes panelIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .fg { margin-bottom: 16px; }
+    label {
+      display: block; font-size: 11.5px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .9px; margin-bottom: 7px;
+    }
+    input[type="email"], input[type="password"], input[type="text"] {
+      width: 100%; padding: 12px 15px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 11px; color: var(--text); font-family: var(--font); font-size: 15px;
+      outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-dim); }
+    input::placeholder { color: var(--muted); }
+    .forgot-row { text-align: right; margin: -8px 0 14px; }
+    .link { color: var(--primary); font-size: 13px; cursor: pointer; text-decoration: none; background: none; border: none; font-family: var(--font); }
+    .link:hover { text-decoration: underline; }
+    .btn {
+      width: 100%; padding: 13px; border: none; border-radius: 11px;
+      font-family: var(--font); font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      color: white; box-shadow: 0 4px 16px rgba(99,102,241,.3);
+    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,.45); }
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-outline {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text); margin-top: 8px;
+    }
+    .btn-outline:hover { background: var(--border); }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 14px 0; color: var(--muted); font-size: 12px; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .alert {
+      padding: 11px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px;
+      display: none; line-height: 1.4;
+    }
+    .alert.error { display: block; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: #fca5a5; }
+    .alert.success { display: block; background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.2); color: #6ee7b7; }
+    .spinner {
+      width: 17px; height: 17px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin .7s linear infinite; display: none;
+    }
+    .loading .spinner { display: block; }
+    .loading .btn-label { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .note { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 16px; }
+    .back-row { text-align: center; margin-top: 14px; }
+    @media (max-width: 480px) { .card { padding: 20px; border-radius: 18px; } }
+  </style>
+</head>
+<body>
+<div class="page-wrap">
+  <div class="brand">
+    <div class="brand-icon">📦</div>
+    <h1>Xella Inventory</h1>
+    <p>Система управления товарами</p>
+  </div>
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" data-tab="login" onclick="switchTab('login')">Вход</button>
+      <button class="tab" data-tab="register" onclick="switchTab('register')">Регистрация</button>
+      <button class="tab" data-tab="forgot" onclick="switchTab('forgot')">Сброс пароля</button>
+    </div>
+
+```
+<!-- Login -->
+<div id="panel-login" class="panel active">
+  <div id="login-alert" class="alert"></div>
+  <div class="fg"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com" autocomplete="email"></div>
+  <div class="fg"><label>Пароль</label><input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"></div>
+  <div class="forgot-row"><button class="link" onclick="switchTab('forgot')">Забыли пароль?</button></div>
+  <button class="btn btn-primary" id="login-btn" onclick="doLogin()">
+    <span class="btn-label">Войти</span><div class="spinner"></div>
+  </button>
+  <div class="divider">или</div>
+  <button class="btn btn-outline" onclick="doGoogle()">
+    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+    Войти через Google
+  </button>
+</div>
+
+<!-- Register -->
+<div id="panel-register" class="panel">
+  <div id="reg-alert" class="alert"></div>
+  <div class="fg"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email"></div>
+  <div class="fg"><label>Пароль</label><input type="password" id="reg-pass" placeholder="Минимум 6 символов" autocomplete="new-password"></div>
+  <div class="fg"><label>Подтвердите пароль</label><input type="password" id="reg-confirm" placeholder="Повторите пароль" autocomplete="new-password"></div>
+  <button class="btn btn-primary" id="reg-btn" onclick="doRegister()">
+    <span class="btn-label">Создать аккаунт</span><div class="spinner"></div>
+  </button>
+</div>
+
+<!-- Forgot -->
+<div id="panel-forgot" class="panel">
+  <div id="forgot-alert" class="alert"></div>
+  <p class="note">Введите ваш email — мы отправим ссылку для сброса пароля.</p>
+  <div class="fg"><label>Email</label><input type="email" id="forgot-email" placeholder="you@example.com" autocomplete="email"></div>
+  <button class="btn btn-primary" id="forgot-btn" onclick="doForgot()">
+    <span class="btn-label">Отправить письмо</span><div class="spinner"></div>
+  </button>
+  <div class="back-row"><button class="link" onclick="switchTab('login')">← Назад к входу</button></div>
+</div>
+```
+
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyDXVzzLLrDFDosMOxRvgUyFPVOg4j0gR7k",
+    authDomain: "xellainf.firebaseapp.com",
+    projectId: "xellainf",
+    storageBucket: "xellainf.appspot.com",
+    messagingSenderId: "660533082757",
+    appId: "1:660533082757:web:20dd991425e03c640887ec",
+    measurementId: "G-J9W2NR14QV"
+  });
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  auth.onAuthStateChanged(async user => {
+    if (user) await redirectByRole(user);
+  });
+
+  async function redirectByRole(user) {
+    try {
+      const doc = await db.collection('users').doc(user.uid).get();
+      const role = doc.exists ? doc.data().role : 'user';
+      window.location.href = role === 'admin' ? './admin.html' : './app.html';
+    } catch { window.location.href = './app.html'; }
+  }
+
+  function switchTab(tab) {
+    ['login','register','forgot'].forEach((t, i) => {
+      document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+      document.querySelectorAll('.tab')[i].classList.toggle('active', t === tab);
+    });
+  }
+
+  function setLoading(btnId, on) {
+    const btn = document.getElementById(btnId);
+    btn.classList.toggle('loading', on);
+    btn.disabled = on;
+  }
+  function showAlert(id, msg, type = 'error') {
+    const el = document.getElementById(id);
+    el.textContent = msg; el.className = 'alert ' + type;
+  }
+  function clearAlert(id) { const el = document.getElementById(id); el.className = 'alert'; el.textContent = ''; }
+
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    clearAlert('login-alert');
+    if (!email || !pass) { showAlert('login-alert', 'Заполните все поля'); return; }
+    setLoading('login-btn', true);
+    try {
+      const c = await auth.signInWithEmailAndPassword(email, pass);
+      await redirectByRole(c.user);
+    } catch(e) { setLoading('login-btn', false); showAlert('login-alert', errMsg(e.code)); }
+  }
+
+  async function doRegister() {
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-pass').value;
+    const conf = document.getElementById('reg-confirm').value;
+    clearAlert('reg-alert');
+    if (!email || !pass || !conf) { showAlert('reg-alert', 'Заполните все поля'); return; }
+    if (pass !== conf) { showAlert('reg-alert', 'Пароли не совпадают'); return; }
+    if (pass.length < 6) { showAlert('reg-alert', 'Пароль минимум 6 символов'); return; }
+    setLoading('reg-btn', true);
+    try {
+      const c = await auth.createUserWithEmailAndPassword(email, pass);
+      await db.collection('users').doc(c.user.uid).set({
+        uid: c.user.uid, email, role: 'user',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      window.location.href = './app.html';
+    } catch(e) { setLoading('reg-btn', false); showAlert('reg-alert', errMsg(e.code)); }
+  }
+
+  async function doGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+      const c = await auth.signInWithPopup(provider);
+      const d = await db.collection('users').doc(c.user.uid).get();
+      if (!d.exists) {
+        await db.collection('users').doc(c.user.uid).set({
+          uid: c.user.uid, email: c.user.email, role: 'user',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+      await redirectByRole(c.user);
+    } catch(e) { if (e.code !== 'auth/popup-closed-by-user') showAlert('login-alert', errMsg(e.code)); }
+  }
+
+  async function doForgot() {
+    const email = document.getElementById('forgot-email').value.trim();
+    clearAlert('forgot-alert');
+    if (!email) { showAlert('forgot-alert', 'Введите ваш email'); return; }
+    setLoading('forgot-btn', true);
+    try {
+      await auth.sendPasswordResetEmail(email);
+      setLoading('forgot-btn', false);
+      showAlert('forgot-alert', '✓ Письмо отправлено! Проверьте почту.', 'success');
+    } catch(e) { setLoading('forgot-btn', false); showAlert('forgot-alert', errMsg(e.code)); }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const active = document.querySelector('.panel.active').id;
+    if (active === 'panel-login') doLogin();
+    else if (active === 'panel-register') doRegister();
+    else if (active === 'panel-forgot') doForgot();
+  });
+
+  function errMsg(code) {
+    return ({ 'auth/user-not-found':'Пользователь не найден', 'auth/wrong-password':'Неверный пароль',
+      'auth/email-already-in-use':'Email уже используется', 'auth/invalid-email':'Некорректный email',
+      'auth/weak-password':'Слишком слабый пароль', 'auth/too-many-requests':'Слишком много попыток. Подождите.',
+      'auth/network-request-failed':'Ошибка сети', 'auth/invalid-credential':'Неверный email или пароль',
+    })[code] || 'Произошла ошибка. Попробуйте снова.';
+  }
+</script>
+
+</body>
+</html>
