@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Xella — Администрирование</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #080b11; --surface: #0f1320; --surface2: #161c2d; --surface3: #1a2135;
+      --border: #1e2640; --primary: #6366f1; --primary-dim: rgba(99,102,241,.12);
+      --cyan: #22d3ee; --green: #10b981; --amber: #f59e0b; --red: #ef4444; --pink: #ec4899;
+      --text: #e8eaf0; --muted: #5a6480; --r: 14px;
+      --font: 'Plus Jakarta Sans', sans-serif; --mono: 'JetBrains Mono', monospace;
+      --sidebar-w: 220px; --nav-h: 60px;
+    }
+    html, body { height: 100%; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 50% 40% at 5% 20%, rgba(99,102,241,.07) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 30% at 95% 80%, rgba(236,72,153,.05) 0%, transparent 55%);
+    }
+
+```
+/* LAYOUT */
+.layout { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+  transition: transform .3s;
+}
+.sidebar-brand {
+  padding: 20px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg,var(--primary),var(--pink)); border-radius: 10px; display:flex;align-items:center;justify-content:center; font-size:18px; flex-shrink:0; }
+.brand-text { font-size: 15px; font-weight: 800; }
+.brand-sub { font-size: 10px; color: var(--pink); font-weight: 700; text-transform: uppercase; letter-spacing: .8px; }
+nav ul { list-style: none; padding: 12px 10px; flex: 1; }
+nav ul li { margin-bottom: 2px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border-radius: 10px; cursor: pointer; transition: all .2s; color: var(--muted);
+  font-size: 14px; font-weight: 600; border: none; background: none; width: 100%;
+  text-align: left; font-family: var(--font);
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--primary-dim); color: var(--primary); }
+.nav-item .ni { font-size: 18px; flex-shrink: 0; width: 22px; text-align: center; }
+.sidebar-footer { padding: 14px 10px; border-top: 1px solid var(--border); }
+.user-info { padding: 10px 12px; border-radius: 10px; background: var(--surface2); margin-bottom: 8px; }
+.user-info .ue { font-size: 12px; color: var(--muted); word-break: break-all; font-family: var(--mono); }
+.user-info .ur { font-size: 11px; color: var(--pink); font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+.logout-btn {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: transparent; color: var(--muted); font-family: var(--font); font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.logout-btn:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: var(--red); }
+
+/* MAIN */
+.main-area { margin-left: var(--sidebar-w); flex: 1; padding: 28px 28px 60px; min-height: 100vh; }
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-size: 22px; font-weight: 800; letter-spacing: -.3px; }
+.page-header p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+/* SECTIONS */
+.section { display: none; }
+.section.active { display: block; animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* STAT CARDS */
+.stat-row { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 12px; margin-bottom: 24px; }
+.stat-box {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
+}
+.stat-box .sb-val { font-size: 28px; font-weight: 800; font-family: var(--mono); }
+.stat-box .sb-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+.stat-box.accent-green { border-color: rgba(16,185,129,.2); }
+.stat-box.accent-blue { border-color: rgba(99,102,241,.2); }
+.stat-box.accent-pink { border-color: rgba(236,72,153,.2); }
+.stat-box.accent-amber { border-color: rgba(245,158,11,.2); }
+
+/* TOOLBAR */
+.table-toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.search-field {
+  flex: 1; min-width: 200px; padding: 9px 14px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-family: var(--font); font-size: 14px; outline: none;
+  transition: border-color .2s;
+}
+.search-field:focus { border-color: var(--primary); }
+.search-field::placeholder { color: var(--muted); }
+.filter-sel {
+  padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--text); font-family: var(--font); font-size: 13px; outline: none; cursor: pointer;
+}
+.btn-add {
+  padding: 9px 16px; background: linear-gradient(135deg,var(--primary),#4f46e5); border: none;
+  border-radius: 10px; color: white; font-family: var(--font); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.btn-add:hover { box-shadow: 0 4px 16px rgba(99,102,241,.4); transform: translateY(-1px); }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--surface2); }
+th { padding: 12px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; white-space: nowrap; }
+tbody tr { border-top: 1px solid var(--border); transition: background .15s; }
+tbody tr:hover { background: var(--surface2); }
+td { padding: 12px 14px; font-size: 13px; vertical-align: middle; }
+.td-photo { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; background: var(--surface2); display:flex;align-items:center;justify-content:center; font-size:22px; }
+.td-photo img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+.td-name { font-weight: 700; max-width: 200px; }
+.td-name .td-sub { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+.badge {
+  display: inline-flex; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.badge-fridge { background: rgba(34,211,238,.1); color: var(--cyan); }
+.badge-freezer { background: rgba(99,102,241,.1); color: #a5b4fc; }
+.badge-room { background: rgba(16,185,129,.1); color: #6ee7b7; }
+.badge-admin { background: rgba(236,72,153,.1); color: var(--pink); }
+.badge-user { background: rgba(99,102,241,.1); color: #a5b4fc; }
+.action-row { display: flex; gap: 6px; }
+.tbl-btn {
+  padding: 5px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all .15s; border: 1px solid var(--border); background: transparent; color: var(--muted);
+}
+.tbl-btn:hover { background: var(--surface3); color: var(--text); }
+.tbl-btn.danger:hover { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); color: var(--red); }
+.empty-row td { text-align: center; padding: 40px; color: var(--muted); }
+
+/* MODAL */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.72); z-index: 200;
+  display: none; align-items: center; justify-content: center; padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 22px;
+  width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; padding: 26px;
+  animation: popIn .25s cubic-bezier(.16,1,.3,1);
+}
+@keyframes popIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
+.modal-title { font-size: 18px; font-weight: 800; }
+.close-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface2); cursor: pointer; color: var(--muted); font-size: 17px; display:flex;align-items:center;justify-content:center; }
+.close-btn:hover { color: var(--text); }
+.fg { margin-bottom: 15px; }
+label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 7px; }
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%; padding: 10px 13px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text); font-family: var(--font); font-size: 14px; outline: none;
+  transition: border-color .2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+input::placeholder { color: var(--muted); }
+select option { background: #1a1f2e; }
+textarea { resize: vertical; min-height: 70px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.photo-area {
+  border: 2px dashed var(--border); border-radius: 11px; padding: 14px;
+  text-align: center; cursor: pointer; transition: border-color .2s; margin-bottom: 15px;
+}
+.photo-area:hover { border-color: var(--primary); }
+.photo-preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; display:none; margin: 0 auto 8px; }
+.photo-hint-text { color: var(--muted); font-size: 13px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; }
+.btn-cancel { flex:1; padding:11px; border:1px solid var(--border); border-radius:10px; background:transparent; color:var(--muted); font-family:var(--font); font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; }
+.btn-cancel:hover { background:var(--surface2); color:var(--text); }
+.btn-save { flex:2; padding:11px; border:none; border-radius:10px; background:linear-gradient(135deg,var(--primary),#4f46e5); color:white; font-family:var(--font); font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; }
+.btn-save:hover:not(:disabled) { box-shadow:0 4px 16px rgba(99,102,241,.4); }
+.btn-save:disabled { opacity:.6; cursor:not-allowed; }
+
+/* LOADING */
+.loading-screen { position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;gap:12px; }
+.loading-screen.hidden { display:none; }
+.ls { width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* TOAST */
+.toast-wrap { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:400;pointer-events:none; }
+.toast { background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:11px 18px;font-size:14px;font-weight:600;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:toastIn .3s ease; }
+.toast.success { border-color:rgba(16,185,129,.3);color:#6ee7b7; }
+.toast.error { border-color:rgba(239,68,68,.3);color:#fca5a5; }
+@keyframes toastIn { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main-area { margin-left: 0; padding: 16px; padding-top: 72px; }
+  .mob-nav { position:fixed;top:0;left:0;right:0;height:60px;background:rgba(8,11,17,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:12px;z-index:90; }
+  .mob-menu-btn { background:none;border:1px solid var(--border);color:var(--text);border-radius:9px;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center; }
+}
+@media (min-width: 769px) { .mob-nav { display:none; } }
+```
+
+  </style>
+</head>
+<body>
+<div class="loading-screen" id="loading"><div class="ls"></div><span style="font-size:14px;color:var(--muted)">Проверка прав...</span></div>
+
+<!-- Mobile nav bar -->
+
+<div class="mob-nav">
+  <button class="mob-menu-btn" onclick="toggleSidebar()">☰</button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--primary),var(--pink));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;">📦</div>
+    <span style="font-size:15px;font-weight:800">Xella Admin</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">📦</div>
+      <div><div class="brand-text">Xella</div><div class="brand-sub">Admin Panel</div></div>
+    </div>
+    <nav>
+      <ul>
+        <li><button class="nav-item active" data-section="dashboard" onclick="switchSection('dashboard')"><span class="ni">📊</span> Дашборд</button></li>
+        <li><button class="nav-item" data-section="products" onclick="switchSection('products')"><span class="ni">📦</span> Товары</button></li>
+        <li><button class="nav-item" data-section="users" onclick="switchSection('users')"><span class="ni">👥</span> Пользователи</button></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info"><div class="ur">Admin</div><div class="ue" id="admin-email"></div></div>
+      <button class="logout-btn" onclick="logout()">Выйти</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+
+  <div class="main-area">
+
+```
+<!-- DASHBOARD -->
+<div class="section active" id="section-dashboard">
+  <div class="page-header"><h1>Дашборд</h1><p>Общая статистика системы</p></div>
+  <div class="stat-row">
+    <div class="stat-box accent-green"><div class="sb-val" id="stat-products">—</div><div class="sb-lbl">Товаров в каталоге</div></div>
+    <div class="stat-box accent-blue"><div class="sb-val" id="stat-users">—</div><div class="sb-lbl">Пользователей</div></div>
+    <div class="stat-box accent-pink"><div class="sb-val" id="stat-admins">—</div><div class="sb-lbl">Администраторов</div></div>
+    <div class="stat-box accent-amber"><div class="sb-val" id="stat-user-items">—</div><div class="sb-lbl">Записей товаров</div></div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;">Быстрые действия</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+      <button class="btn-add" onclick="switchSection('products');openAddProduct()">+ Добавить товар</button>
+      <button class="btn-add" style="background:linear-gradient(135deg,var(--pink),#be185d);" onclick="switchSection('users')">👥 Управление пользователями</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<div class="section" id="section-products">
+  <div class="page-header"><h1>Каталог товаров</h1><p>Управление общей базой товаров</p></div>
+  <div class="table-toolbar">
+    <input type="text" class="search-field" id="prod-search" placeholder="🔍 Поиск товара..." oninput="renderProducts()">
+    <select class="filter-sel" id="prod-cat-filter" onchange="renderProducts()">
+      <option value="">Все категории</option>
+      <option value="dairy">Молочные</option>
+      <option value="meat">Мясо/Рыба</option>
+      <option value="vegetables">Овощи/Фрукты</option>
+      <option value="drinks">Напитки</option>
+      <option value="bakery">Выпечка</option>
+      <option value="frozen">Заморозка</option>
+      <option value="condiments">Специи/Соусы</option>
+      <option value="other">Прочее</option>
+    </select>
+    <select class="filter-sel" id="prod-storage-filter" onchange="renderProducts()">
+      <option value="">Все места хранения</option>
+      <option value="fridge">❄️ Холодильник</option>
+      <option value="freezer">🧊 Морозильник</option>
+      <option value="room">🌡️ Комнатная</option>
+    </select>
+    <button class="btn-add" onclick="openAddProduct()">+ Добавить товар</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Фото</th><th>Название / Штрихкод</th><th>Категория</th><th>Хранение</th><th>Описание</th><th>Действия</th></tr></thead>
+      <tbody id="prod-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- USERS -->
+<div class="section" id="section-users">
+  <div class="page-header"><h1>Пользователи</h1><p>Управление доступом и ролями</p></div>
+  <div class="table-toolbar">
+    <input type="text" class="search-field" id="users-search" placeholder="🔍 Поиск пользователя..." oninput="renderUsers()">
+    <select class="filter-sel" id="users-role-filter" onchange="renderUsers()">
+      <option value="">Все роли</option>
+      <option value="user">Пользователи</option>
+      <option value="admin">Администраторы</option>
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Email</th><th>Роль</th><th>Зарегистрирован</th><th>UID</th><th>Действия</th></tr></thead>
+      <tbody id="users-tbody"></tbody>
+    </table>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- Product Modal -->
+
+<div class="overlay" id="prod-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="prod-modal-title">Добавить товар</span>
+      <button class="close-btn" onclick="closeProdModal()">✕</button>
+    </div>
+    <div class="photo-area" onclick="document.getElementById('prod-photo-input').click()">
+      <img id="prod-photo-preview" class="photo-preview-img" alt="Preview">
+      <div class="photo-hint-text" id="prod-photo-hint">📷 Выберите фото товара</div>
+    </div>
+    <input type="file" id="prod-photo-input" accept="image/*" style="display:none" onchange="previewProdPhoto(this)">
+    <div class="fg"><label>Название *</label><input type="text" id="prod-name" placeholder="Например: Молоко Простоквашино 3.2%"></div>
+    <div class="row2">
+      <div class="fg"><label>Штрихкод</label><input type="text" id="prod-barcode" placeholder="1234567890123"></div>
+      <div class="fg"><label>Категория</label>
+        <select id="prod-category">
+          <option value="">— выберите —</option>
+          <option value="dairy">Молочные</option>
+          <option value="meat">Мясо/Рыба</option>
+          <option value="vegetables">Овощи/Фрукты</option>
+          <option value="drinks">Напитки</option>
+          <option value="bakery">Выпечка</option>
+          <option value="frozen">Заморозка</option>
+          <option value="condiments">Специи/Соусы</option>
+          <option value="other">Прочее</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Рекомендуемое место хранения</label>
+      <select id="prod-storage">
+        <option value="room">🌡️ Комнатная температура</option>
+        <option value="fridge">❄️ Холодильник</option>
+        <option value="freezer">🧊 Морозильник</option>
+      </select>
+    </div>
+    <div class="fg"><label>Описание</label><textarea id="prod-desc" placeholder="Краткое описание товара (необязательно)"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeProdModal()">Отмена</button>
+      <button class="btn-save" id="prod-save-btn" onclick="saveProduct()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- User role modal -->
+
+<div class="overlay" id="role-overlay">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <span class="modal-title">Изменить роль</span>
+      <button class="close-btn" onclick="closeRoleModal()">✕</button>
+    </div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:16px">Пользователь: <strong id="role-user-email" style="color:var(--text)"></strong></p>
+    <div class="fg"><label>Новая роль</label>
+      <select id="role-select">
+        <option value="user">Пользователь</option>
+        <option value="admin">Администратор</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeRoleModal()">Отмена</button>
+      <button class="btn-save" onclick="saveRole()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyDXVzzLLrDFDosMOxRvgUyFPVOg4j0gR7k",
+    authDomain: "xellainf.firebaseapp.com",
+    projectId: "xellainf",
+    storageBucket: "xellainf.appspot.com",
+    messagingSenderId: "660533082757",
+    appId: "1:660533082757:web:20dd991425e03c640887ec"
+  });
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  let currentUser = null;
+  let allProducts = [], allUsers = [];
+  let editingProdId = null, editingUserId = null;
+  let unsubProds = null, unsubUsers = null;
+
+  // Admin auth guard
+  auth.onAuthStateChanged(async user => {
+    if (!user) { window.location.href = './auth.html'; return; }
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (!doc.exists || doc.data().role !== 'admin') { window.location.href = './app.html'; return; }
+    currentUser = user;
+    document.getElementById('admin-email').textContent = user.email;
+    document.getElementById('loading').classList.add('hidden');
+    initAdmin();
+  });
+
+  function initAdmin() {
+    // Listen to products
+    unsubProds = db.collection('products').onSnapshot(snap => {
+      allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderProducts();
+      document.getElementById('stat-products').textContent = allProducts.length;
+    });
+    // Listen to users
+    unsubUsers = db.collection('users').onSnapshot(snap => {
+      allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderUsers();
+      document.getElementById('stat-users').textContent = allUsers.length;
+      document.getElementById('stat-admins').textContent = allUsers.filter(u => u.role === 'admin').length;
+    });
+    // Count user_items
+    db.collection('user_items').get().then(snap => {
+      document.getElementById('stat-user-items').textContent = snap.size;
+    }).catch(() => document.getElementById('stat-user-items').textContent = 'N/A');
+  }
+
+  function switchSection(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === name));
+    closeSidebar();
+  }
+
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+  function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
+
+  /* PRODUCTS */
+  function renderProducts() {
+    const q = document.getElementById('prod-search').value.toLowerCase();
+    const cat = document.getElementById('prod-cat-filter').value;
+    const stor = document.getElementById('prod-storage-filter').value;
+    let items = allProducts;
+    if (q) items = items.filter(p => (p.name||'').toLowerCase().includes(q) || (p.barcode||'').includes(q));
+    if (cat) items = items.filter(p => p.category === cat);
+    if (stor) items = items.filter(p => p.defaultStorageType === stor);
+
+    const catLabels = { dairy:'Молочные', meat:'Мясо/Рыба', vegetables:'Овощи', drinks:'Напитки', bakery:'Выпечка', frozen:'Заморозка', condiments:'Специи', other:'Прочее' };
+    const storBadge = (t) => ({ fridge:`<span class="badge badge-fridge">❄️ Холодильник</span>`, freezer:`<span class="badge badge-freezer">🧊 Морозильник</span>`, room:`<span class="badge badge-room">🌡️ Комната</span>` })[t] || t;
+
+    const tbody = document.getElementById('prod-tbody');
+    if (!items.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">📦 Нет товаров. Нажмите «+ Добавить товар»</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map(p => `
+      <tr>
+        <td><div class="td-photo">${p.imageURL ? `<img src="${p.imageURL}" alt="${p.name}" loading="lazy">` : '📦'}</div></td>
+        <td class="td-name">
+          ${escHtml(p.name || '—')}
+          ${p.barcode ? `<div class="td-sub">🏷 ${escHtml(p.barcode)}</div>` : ''}
+        </td>
+        <td>${catLabels[p.category] || (p.category || '—')}</td>
+        <td>${storBadge(p.defaultStorageType)}</td>
+        <td style="max-width:180px;color:var(--muted);font-size:12px">${escHtml((p.description||'').substring(0,80))||'—'}</td>
+        <td><div class="action-row">
+          <button class="tbl-btn" onclick="editProduct('${p.id}')">✏️ Ред.</button>
+          <button class="tbl-btn danger" onclick="deleteProduct('${p.id}','${escHtml(p.name||'')}')">🗑️</button>
+        </div></td>
+      </tr>
+    `).join('');
+  }
+
+  function openAddProduct() {
+    editingProdId = null;
+    document.getElementById('prod-modal-title').textContent = 'Добавить товар';
+    ['prod-name','prod-barcode','prod-desc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('prod-category').value = '';
+    document.getElementById('prod-storage').value = 'room';
+    document.getElementById('prod-photo-input').value = '';
+    document.getElementById('prod-photo-preview').style.display = 'none';
+    document.getElementById('prod-photo-hint').style.display = 'block';
+    document.getElementById('prod-overlay').classList.add('open');
+  }
+
+  function editProduct(id) {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+    editingProdId = id;
+    document.getElementById('prod-modal-title').textContent = 'Редактировать товар';
+    document.getElementById('prod-name').value = p.name || '';
+    document.getElementById('prod-barcode').value = p.barcode || '';
+    document.getElementById('prod-category').value = p.category || '';
+    document.getElementById('prod-storage').value = p.defaultStorageType || 'room';
+    document.getElementById('prod-desc').value = p.description || '';
+    if (p.imageURL) {
+      document.getElementById('prod-photo-preview').src = p.imageURL;
+      document.getElementById('prod-photo-preview').style.display = 'block';
+      document.getElementById('prod-photo-hint').style.display = 'none';
+    } else {
+      document.getElementById('prod-photo-preview').style.display = 'none';
+      document.getElementById('prod-photo-hint').style.display = 'block';
+    }
+    document.getElementById('prod-overlay').classList.add('open');
+  }
+
+  function closeProdModal() { document.getElementById('prod-overlay').classList.remove('open'); }
+
+  async function saveProduct() {
+    const name = document.getElementById('prod-name').value.trim();
+    if (!name) { showToast('Введите название товара', 'error'); return; }
+    const btn = document.getElementById('prod-save-btn');
+    btn.disabled = true; btn.textContent = 'Сохранение...';
+    try {
+      const barcode = document.getElementById('prod-barcode').value.trim();
+      const category = document.getElementById('prod-category').value;
+      const defaultStorageType = document.getElementById('prod-storage').value;
+      const description = document.getElementById('prod-desc').value.trim();
+      const photoFile = document.getElementById('prod-photo-input').files[0];
+      let imageURL = editingProdId ? (allProducts.find(p => p.id === editingProdId)?.imageURL || '') : '';
+
+      if (photoFile) {
+        const prodId = editingProdId || db.collection('products').doc().id;
+        const ref = storage.ref(`products/${prodId}`);
+        const snap = await ref.put(photoFile);
+        imageURL = await snap.ref.getDownloadURL();
+      }
+
+      const data = { name, barcode, category, defaultStorageType, description, imageURL, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+
+      if (editingProdId) {
+        await db.collection('products').doc(editingProdId).update(data);
+        if (barcode) await db.collection('barcode_cache').doc(barcode).set({ productId: editingProdId });
+        showToast('Товар обновлён', 'success');
+      } else {
+        data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        const ref = await db.collection('products').add(data);
+        if (barcode) await db.collection('barcode_cache').doc(barcode).set({ productId: ref.id });
+        showToast('Товар добавлен', 'success');
+      }
+      closeProdModal();
+    } catch(e) { showToast('Ошибка: ' + e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = 'Сохранить'; }
+  }
+
+  async function deleteProduct(id, name) {
+    if (!confirm(`Удалить товар "${name}"?\n\nЭто не удалит товары пользователей, но ссылки на каталог перестанут работать.`)) return;
+    try {
+      await db.collection('products').doc(id).delete();
+      showToast('Товар удалён', 'success');
+    } catch(e) { showToast('Ошибка: ' + e.message, 'error'); }
+  }
+
+  function previewProdPhoto(input) {
+    if (!input.files[0]) return;
+    const r = new FileReader();
+    r.onload = e => {
+      const img = document.getElementById('prod-photo-preview');
+      img.src = e.target.result; img.style.display = 'block';
+      document.getElementById('prod-photo-hint').style.display = 'none';
+    };
+    r.readAsDataURL(input.files[0]);
+  }
+
+  /* USERS */
+  function renderUsers() {
+    const q = document.getElementById('users-search').value.toLowerCase();
+    const roleF = document.getElementById('users-role-filter').value;
+    let items = allUsers;
+    if (q) items = items.filter(u => (u.email||'').toLowerCase().includes(q) || (u.uid||'').includes(q));
+    if (roleF) items = items.filter(u => u.role === roleF);
+
+    const tbody = document.getElementById('users-tbody');
+    if (!items.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="5">👥 Пользователей не найдено</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = items.map(u => {
+      const date = u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString('ru') : '—';
+      return `
+      <tr>
+        <td style="font-weight:600">${escHtml(u.email||'—')}</td>
+        <td><span class="badge badge-${u.role==='admin'?'admin':'user'}">${u.role === 'admin' ? '👑 Администратор' : '👤 Пользователь'}</span></td>
+        <td style="color:var(--muted);font-size:13px">${date}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${u.uid||'—'}</td>
+        <td><button class="tbl-btn" onclick="openRoleModal('${u.id}','${escHtml(u.email||'')}','${u.role||'user'}')">✏️ Роль</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function openRoleModal(uid, email, currentRole) {
+    editingUserId = uid;
+    document.getElementById('role-user-email').textContent = email;
+    document.getElementById('role-select').value = currentRole;
+    document.getElementById('role-overlay').classList.add('open');
+  }
+  function closeRoleModal() { document.getElementById('role-overlay').classList.remove('open'); }
+
+  async function saveRole() {
+    if (!editingUserId) return;
+    const newRole = document.getElementById('role-select').value;
+    try {
+      await db.collection('users').doc(editingUserId).update({ role: newRole });
+      showToast('Роль обновлена', 'success');
+      closeRoleModal();
+    } catch(e) { showToast('Ошибка: ' + e.message, 'error'); }
+  }
+
+  /* UTILS */
+  function logout() {
+    if (unsubProds) unsubProds();
+    if (unsubUsers) unsubUsers();
+    auth.signOut().then(() => window.location.href = './auth.html');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function showToast(msg, type = 'success') {
+    const wrap = document.getElementById('toast-wrap');
+    const el = document.createElement('div');
+    el.className = 'toast ' + type; el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 2500);
+  }
+
+  // Close overlays on backdrop click
+  ['prod-overlay','role-overlay'].forEach(id => {
+    document.getElementById(id).addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
+</script>
+
+</body>
+</html>
